@@ -1,0 +1,109 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+
+# Load data
+df = pd.read_csv("report_data.csv")
+
+# Title and main page selection
+st.title("CSRD Report Benchmarking")
+
+selected_analysis = st.selectbox(
+    "Select analysis type:",
+    ["Text Analysis", "Materiality Analysis"]
+)
+
+# Sidebar - user selections
+st.sidebar.header("Focal Company Selection")
+focal_company = st.sidebar.selectbox("Select a focal company:", df['name'].dropna().unique())
+
+st.sidebar.header("Benchmark Group")
+benchmark_type = st.sidebar.radio(
+    "Compare to:",
+    ["All CSRD First Wave", "Country Peers", "Sector Peers", "Market Cap Peers", "Rating Peers"]
+)
+
+peer_selection = st.sidebar.multiselect(
+    "Or choose up to 3 specific peer companies:",
+    options=df["name"].dropna().unique(),
+    default=[],
+    max_selections=3
+)
+
+# Determine benchmark group
+benchmark_label = "All CSRD First Wave"
+if peer_selection:
+    benchmark_df = df[df["name"].isin(peer_selection)]
+    benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
+elif benchmark_type == "All CSRD First Wave":
+    benchmark_df = df
+elif benchmark_type == "Country Peers":
+    value = df.loc[df['name'] == focal_company, 'country'].values[0]
+    benchmark_df = df[df['country'] == value]
+    benchmark_label = f"Country Peers: {value}"
+elif benchmark_type == "Sector Peers":
+    value = df.loc[df['name'] == focal_company, 'trbceconomicsectorname'].values[0]
+    benchmark_df = df[df['trbceconomicsectorname'] == value]
+    benchmark_label = f"Sector Peers: {value}"
+elif benchmark_type == "Market Cap Peers":
+    value = df.loc[df['name'] == focal_company, 'market_cap_tercile'].values[0]
+    label = 'Small' if value == 1 else 'Mid' if value == 2 else 'Large'
+    benchmark_df = df[df['market_cap_tercile'] == value]
+    benchmark_label = f"Market Cap Group: {label}"
+elif benchmark_type == "Rating Peers":
+    value = df.loc[df['name'] == focal_company, 'rating_tercile'].values[0]
+    label = 'Low' if value == 1 else 'Mid' if value == 2 else 'High'
+    benchmark_df = df[df['rating_tercile'] == value]
+    benchmark_label = f"ESG Rating Group: {label}"
+
+# Sidebar - chart type
+st.sidebar.header("Chart Type")
+chart_type = st.sidebar.radio("Select chart type:", ["Strip Plot", "Bar Chart", "Histogram"])
+
+# Logic for Text Analysis
+if selected_analysis == "Text Analysis":
+    metric = st.selectbox("Select metric:", ["Pages", "Words", "Use of Tables", "Use of Numbers"])
+    st.subheader(f"Distribution of {metric} ({benchmark_label})")
+
+    if metric == "Pages":
+        values = benchmark_df["pagespdf"]
+        focal_value = df.loc[df['name'] == focal_company, 'pagespdf'].values[0]
+        x_title = "Pages"
+    elif metric == "Words":
+        values = benchmark_df["words"]
+        focal_value = df.loc[df['name'] == focal_company, 'words'].values[0]
+        x_title = "Words"
+    else:
+        st.warning("This metric is not yet implemented.")
+        st.stop()
+
+    if chart_type == "Strip Plot":
+        jitter = 0.1 * np.random.randn(len(values))
+        fig = px.scatter(benchmark_df.assign(y=jitter), x=values, y="y", hover_name="name")
+        fig.add_vline(x=values.mean(), line_color="lightgrey", line_width=1, opacity=0.6)
+        fig.add_vline(x=focal_value, line_dash="dash", line_color="red")
+        fig.update_layout(yaxis=dict(visible=False), xaxis_title=x_title)
+    elif chart_type == "Histogram":
+        fig = px.histogram(benchmark_df, x=values, nbins=20, hover_name="name")
+        fig.add_vline(x=values.mean(), line_color="lightgrey", line_width=1, opacity=0.6)
+        fig.add_vline(x=focal_value, line_dash="dash", line_color="red")
+        fig.update_layout(xaxis_title=x_title, yaxis_title="Number of Companies")
+    elif chart_type == "Bar Chart":
+        avg = values.mean()
+        fig = go.Figure()
+        fig.add_trace(go.Bar(x=["Benchmark Group"], y=[avg], marker_color="lightgray", name="Average"))
+        fig.add_hline(y=focal_value, line_dash="dash", line_color="red")
+        fig.update_layout(yaxis_title=x_title)
+
+    st.plotly_chart(fig, use_container_width=True)
+
+elif selected_analysis == "Materiality Analysis":
+    option = st.selectbox("Select Materiality view:", ["Overview of Material ESRS", "Reported Disclosures by Standard"])
+    st.subheader(option)
+    st.info("A chart or table for materiality analysis would appear here based on the selected view.")
+
+# Show raw data table
+st.subheader("Benchmark Data")
+st.dataframe(benchmark_df[['name', 'country', 'trbceconomicsectorname', 'pagespdf', 'words']].sort_values(by='pagespdf'))
