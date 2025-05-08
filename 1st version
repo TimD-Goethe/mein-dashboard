@@ -7,14 +7,6 @@ import plotly.graph_objects as go
 # Load data
 df = pd.read_csv("report_data.csv")
 
-# Title and main page selection
-st.title("CSRD Report Benchmarking")
-
-selected_analysis = st.selectbox(
-    "Select analysis type:",
-    ["Text Analysis", "Materiality Analysis"]
-)
-
 # Sidebar - user selections
 st.sidebar.header("Focal Company Selection")
 focal_company = st.sidebar.selectbox("Select a focal company:", df['name'].dropna().unique())
@@ -58,52 +50,112 @@ elif benchmark_type == "Rating Peers":
     benchmark_df = df[df['rating_tercile'] == value]
     benchmark_label = f"ESG Rating Group: {label}"
 
-# Sidebar - chart type
+# Plot type selection
 st.sidebar.header("Chart Type")
-chart_type = st.sidebar.radio("Select chart type:", ["Strip Plot", "Bar Chart", "Histogram"])
+plot_type = st.sidebar.radio("Select plot type:", ["Strip Plot", "Bar Chart", "Histogram"])
 
-# Logic for Text Analysis
-if selected_analysis == "Text Analysis":
-    metric = st.selectbox("Select metric:", ["Pages", "Words", "Use of Tables", "Use of Numbers"])
-    st.subheader(f"Distribution of {metric} ({benchmark_label})")
+# Page Title + Tabs
+st.title("CSRD Report Benchmarking")
+tab_textual, tab_materiality = st.tabs(["Textual Analysis", "Materiality Analysis"])
 
-    if metric == "Pages":
-        values = benchmark_df["pagespdf"]
-        focal_value = df.loc[df['name'] == focal_company, 'pagespdf'].values[0]
-        x_title = "Pages"
-    elif metric == "Words":
-        values = benchmark_df["words"]
-        focal_value = df.loc[df['name'] == focal_company, 'words'].values[0]
-        x_title = "Words"
-    else:
-        st.warning("This metric is not yet implemented.")
-        st.stop()
+# --- Tab 1: Textual Analysis ---
+with tab_textual:
+    # Focal values
+    focal_pages = df.loc[df['name'] == focal_company, 'pagespdf'].values[0]
+    focal_words = df.loc[df['name'] == focal_company, 'words'].values[0]
 
-    if chart_type == "Strip Plot":
-        jitter = 0.1 * np.random.randn(len(values))
-        fig = px.scatter(benchmark_df.assign(y=jitter), x=values, y="y", hover_name="name")
-        fig.add_vline(x=values.mean(), line_color="lightgrey", line_width=1, opacity=0.6)
-        fig.add_vline(x=focal_value, line_dash="dash", line_color="red")
-        fig.update_layout(yaxis=dict(visible=False), xaxis_title=x_title)
-    elif chart_type == "Histogram":
-        fig = px.histogram(benchmark_df, x=values, nbins=20, hover_name="name")
-        fig.add_vline(x=values.mean(), line_color="lightgrey", line_width=1, opacity=0.6)
-        fig.add_vline(x=focal_value, line_dash="dash", line_color="red")
-        fig.update_layout(xaxis_title=x_title, yaxis_title="Number of Companies")
-    elif chart_type == "Bar Chart":
-        avg = values.mean()
+    # PAGES Plot
+    st.subheader(f"Distribution of Pages ({benchmark_label})")
+    if plot_type == "Strip Plot":
+        benchmark_df['jitter'] = 0.1 * np.random.randn(len(benchmark_df))
+        fig = px.scatter(
+            benchmark_df.assign(y=benchmark_df['jitter']),
+            x="pagespdf", y="y", hover_name="name",
+            hover_data={"pagespdf": True, "y": False}
+        )
+        fig.add_vline(x=benchmark_df["pagespdf"].mean(), line_color="lightgrey", line_width=1, opacity=0.6)
+        fig.add_trace(
+            px.scatter(
+                df[df['name'] == focal_company].assign(y=0),
+                x="pagespdf", y="y", hover_name="name",
+                hover_data={"pagespdf": False, "y": False}
+            ).update_traces(marker=dict(color='red', size=10)).data[0]
+        )
+        fig.add_vline(x=focal_pages, line_dash="dash", line_color="red", name=f"{focal_company}", showlegend=True)
+        fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines",
+                                 line=dict(color="lightgrey"), name="Peer Average"))
+        fig.update_layout(yaxis=dict(visible=False), xaxis_title="Pages")
+
+    elif plot_type == "Histogram":
+        fig = px.histogram(benchmark_df, x="pagespdf", nbins=20, hover_name="name")
+        fig.add_vline(x=benchmark_df["pagespdf"].mean(), line_color="lightgrey", line_width=1, opacity=0.6)
+        fig.add_vline(x=focal_pages, line_dash="dash", line_color="red",
+                      name=f"{focal_company}", showlegend=True)
+        fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines",
+                                 line=dict(color="lightgrey"), name="Peer Average"))
+        fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
+
+    else:  # Bar Chart
+        avg_pages = benchmark_df["pagespdf"].mean()
         fig = go.Figure()
-        fig.add_trace(go.Bar(x=["Benchmark Group"], y=[avg], marker_color="lightgray", name="Average"))
-        fig.add_hline(y=focal_value, line_dash="dash", line_color="red")
-        fig.update_layout(yaxis_title=x_title)
+        fig.add_trace(go.Bar(x=["Benchmark Group"], y=[avg_pages],
+                             marker_color="lightgray", name="Average"))
+        fig.add_hline(y=focal_pages, line_dash="dash",
+                      line_color="red", name=f"{focal_company}", showlegend=True)
+        fig.update_layout(yaxis_title="Pages")
 
     st.plotly_chart(fig, use_container_width=True)
 
-elif selected_analysis == "Materiality Analysis":
-    option = st.selectbox("Select Materiality view:", ["Overview of Material ESRS", "Reported Disclosures by Standard"])
-    st.subheader(option)
-    st.info("A chart or table for materiality analysis would appear here based on the selected view.")
+    # WORDS Plot
+    st.subheader(f"Distribution of Words ({benchmark_label})")
+    if plot_type == "Strip Plot":
+        benchmark_df['jitter_words'] = 0.1 * np.random.randn(len(benchmark_df))
+        fig2 = px.scatter(
+            benchmark_df.assign(y=benchmark_df['jitter_words']),
+            x="words", y="y", hover_name="name",
+            hover_data={"words": True, "y": False}
+        )
+        fig2.add_vline(x=benchmark_df["words"].mean(), line_color="lightgrey", line_width=1, opacity=0.6)
+        fig2.add_trace(
+            px.scatter(df[df['name'] == focal_company].assign(y=0),
+                       x="words", y="y", hover_name="name",
+                       hover_data={"words": False, "y": False})
+            .update_traces(marker=dict(color='red', size=10)).data[0]
+        )
+        fig2.add_vline(x=focal_words, line_dash="dash", line_color="red",
+                       name=f"{focal_company}", showlegend=True)
+        fig2.add_trace(go.Scatter(x=[None], y=[None], mode="lines",
+                                  line=dict(color="lightgrey"), name="Peer Average"))
+        fig2.update_layout(yaxis=dict(visible=False), xaxis_title="Words")
 
-# Show raw data table
-st.subheader("Benchmark Data")
-st.dataframe(benchmark_df[['name', 'country', 'trbceconomicsectorname', 'pagespdf', 'words']].sort_values(by='pagespdf'))
+    elif plot_type == "Histogram":
+        fig2 = px.histogram(benchmark_df, x="words", nbins=20, hover_name="name")
+        fig2.add_vline(x=benchmark_df["words"].mean(), line_color="lightgrey", line_width=1, opacity=0.6)
+        fig2.add_vline(x=focal_words, line_dash="dash", line_color="red",
+                       name=f"{focal_company}", showlegend=True)
+        fig2.add_trace(go.Scatter(x=[None], y=[None], mode="lines",
+                                  line=dict(color="lightgrey"), name="Peer Average"))
+        fig2.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
+
+    else:  # Bar Chart
+        avg_words = benchmark_df["words"].mean()
+        fig2 = go.Figure()
+        fig2.add_trace(go.Bar(x=["Benchmark Group"], y=[avg_words],
+                              marker_color="lightgray", name="Average"))
+        fig2.add_hline(y=focal_words, line_dash="dash",
+                       line_color="red", name=f"{focal_company}", showlegend=True)
+        fig2.update_layout(yaxis_title="Words")
+
+    st.plotly_chart(fig2, use_container_width=True)
+
+    # Table
+    st.subheader("Benchmark Data")
+    st.dataframe(
+        benchmark_df[['name', 'country', 'trbceconomicsectorname', 'pagespdf', 'words']]
+        .sort_values(by='pagespdf')
+    )
+
+# --- Tab 2: Materiality Analysis (Platzhalter) ---
+with tab_materiality:
+    st.subheader("Materiality Analysis")
+    st.info("Dieser Bereich ist noch in Arbeit.")
