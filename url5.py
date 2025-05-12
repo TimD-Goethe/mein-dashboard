@@ -9,7 +9,7 @@ from urllib.parse import unquote, quote  # zum Percent-Decoding und URL-Encoding
 # Helper: Erzeuge company-spezifische URL
 # --------------------------------------------------------------------
 def make_company_url(company_name: str) -> str:
-    base_url = "https://tims-streamlit-app.com/"
+    base_url = "https://mein-dashboard-fphsbzmbpbzpscuephvjfu.streamlit.app/"
     return f"{base_url}?company={quote(company_name)}"
 
 # --------------------------------------------------------------------
