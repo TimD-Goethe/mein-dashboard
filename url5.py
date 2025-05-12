@@ -41,13 +41,24 @@ mapping_ci   = {name.strip().casefold(): name for name in company_list}
 
 # 3.2 Query-Param (vor dem #) auslesen und percent-decodieren
 raw = st.query_params.get("company", [""])[0] or ""
-raw = unquote(raw)  # z.B. "Continental AG" statt "%20"
+raw = unquote(raw)
 
 # 3.3 Normalisieren
 key = raw.strip().casefold()
 
-# 3.4 Lookup im Mapping oder Fallback auf ersten Eintrag
+# 3.4 Lookup oder Fallback
+company_list  = df["name"].dropna().unique().tolist()
+mapping_ci    = {n.strip().casefold(): n for n in company_list}
 default_company = mapping_ci.get(key, company_list[0])
+
+# 4. Selectbox mit index=default_idx
+default_idx = company_list.index(default_company)
+focal_company = st.sidebar.selectbox(
+    "Select a focal company:",
+    options=company_list,
+    index=default_idx,
+    key="focal_company"
+)
 
 # --------------------------------------------------------------------
 # 4. Sidebar: Focal Company Selection
