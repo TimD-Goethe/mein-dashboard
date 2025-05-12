@@ -51,14 +51,6 @@ company_list  = df["name"].dropna().unique().tolist()
 mapping_ci    = {n.strip().casefold(): n for n in company_list}
 default_company = mapping_ci.get(key, company_list[0])
 
-# 4. Selectbox mit index=default_idx
-default_idx = company_list.index(default_company)
-focal_company = st.sidebar.selectbox(
-    "Select a focal company:",
-    options=company_list,
-    index=default_idx,
-    key="focal_company"
-)
 
 # --------------------------------------------------------------------
 # 4. Sidebar: Focal Company Selection
