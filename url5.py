@@ -203,44 +203,52 @@ if analysis_mode == "Textual Analysis":
 
         if view == "Number of Pages":
             st.subheader(f"Number of Pages ({benchmark_label})")
+
+            # vorher sicherstellen, dass mean_pages definiert ist
+            mean_pages = benchmark_df["pagespdf"].mean()
+
             if plot_type == "Strip Plot":
+                # 1) Jitter hinzufügen
                 plot_df["jitter"] = 0.1 * np.random.randn(len(plot_df))
+
+                # 2) Scatter-Plot
                 fig = px.scatter(
                     plot_df.assign(y=plot_df["jitter"]),
-                        x="pagespdf",
-                        y="y",
-                        hover_name="name",
-                        hover_data={
-                            "pagespdf": True,        # zeige die Seitenzahl
-                            "highlight_label": False, # verberge „Peers“ vs. Firmenname
-                            "y": False               # verberge den Jitter-Wert
-                        },
-                        color="highlight_label",
-                        color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                        labels={"pagespdf": "Pages", "highlight_label": ""}
-                    )
-                # 1) Peer-Average als durchgezogene blaue Linie
+                    x="pagespdf",
+                    y="y",
+                    hover_name="name",
+                    hover_data={
+                        "pagespdf": True,        # zeige die Seitenzahl
+                        "highlight_label": False,# verberge „Peers“ vs. Firmenname
+                        "y": False               # verberge den Jitter-Wert
+                    },
+                    color="highlight_label",
+                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
+                    labels={"pagespdf": "Pages", "highlight_label": ""}
+                )
+
+                # 3) Peer Average als durchgezogene blaue Linie
                 fig.add_trace(go.Scatter(
                     x=[mean_pages, mean_pages],
-                    y=[-0.5, +0.5],                # kurzer Ausschnitt, damit sie nicht nervt
+                    y=[-0.5, +0.5],
                     mode="lines",
                     line=dict(color="#1f77b4", width=2, dash="solid"),
                     name="Peer Average"
                 ))
-                
-                # 2) Focal Company als rote, gestrichelte Linie
+
+                # 4) Focal Company als rote, gestrichelte Linie
                 fig.add_trace(go.Scatter(
                     x=[focal_pages, focal_pages],
                     y=[-0.5, +0.5],
                     mode="lines",
-                    line=dict(color="red",    width=2, dash="dash"),
-                    name=focal_company
+                    line=dict(color="red", width=2, dash="dash"),
+                    name=company
                 ))
-                
-                # (Optional) Y-Achse so einschränken, dass man die kurzen Striche gut sieht:
+
+                # 5) Y-Achse einschränken, damit die Linien nicht zu lang sind
                 fig.update_yaxes(range=[-1, 1])
-                
-                # Und dann wie gewohnt:
+
+                # 6) Plot ausgeben
                 st.plotly_chart(fig, use_container_width=True)
 
             elif plot_type == "Histogram":
@@ -248,45 +256,52 @@ if analysis_mode == "Textual Analysis":
                     plot_df, x="pagespdf", nbins=20,
                     labels={"pagespdf": "Pages"}
                 )
+                # Linien bleiben hier als VLines
                 fig.add_vline(
-                    x=benchmark_df["pagespdf"].mean(),
-                    line_color="#1f77b4", line_width=1, opacity=0.6
+                    x=mean_pages,
+                    line_color="#1f77b4",
+                    line_width=1,
+                    opacity=0.6,
+                    annotation_text="Peer Average",
+                    annotation_position="top right"
                 )
                 fig.add_vline(
-                    x=focal_pages, line_dash="dash", line_color="red", opacity=0.8
+                    x=focal_pages,
+                    line_dash="dash",
+                    line_color="red",
+                    opacity=0.8,
+                    annotation_text=company,
+                    annotation_position="top left"
                 )
                 fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
             else:  # Bar Chart
-                avg_pages = benchmark_df["pagespdf"].mean()
+                avg_pages = mean_pages  # schon berechnet
                 comp_df = pd.DataFrame({
-                    "Group": ["Peer Group Average", company],
+                    "Group": ["Peer Average", company],
                     "Pages": [avg_pages, focal_pages]
                 })
                 fig_avg = px.bar(
                     comp_df, x="Group", y="Pages", text="Pages",
                     color="Group",
-                    color_discrete_map={company: "red", "Peer Group Average": "#1f77b4"},
+                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
-                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-                fig_avg.update_layout(showlegend=False, yaxis=dict(range=[0, comp_df["Pages"].max() * 1.2]))
+                fig_avg.update_traces(texttemplate="%{text:.0f}",
+                                      textposition="outside",
+                                      width=0.5)
+                fig_avg.update_layout(
+                    showlegend=True,
+                    legend_title_text="",
+                    yaxis=dict(range=[0, comp_df["Pages"].max() * 1.2])
+                )
                 st.plotly_chart(fig_avg, use_container_width=True)
 
-                peers_df = plot_df.sort_values("pagespdf", ascending=False)
-                fig2 = px.bar(
-                    peers_df, x="name", y="pagespdf",
-                    color="highlight_label",
-                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"pagespdf": "Pages", "name": "Company", "highlight_label": ""},
-                    category_orders={"name": peers_df["name"].tolist()}
-                )
-                fig2.update_layout(showlegend=True, legend_title_text="", xaxis_tickangle=-45)
-                st.plotly_chart(fig2, use_container_width=True)
-
+            # Fußnote
             st.caption("Number of pages of companies’ sustainability reports.")
 
+        
         elif view == "Number of Words":
             st.subheader(f"Number of Words ({benchmark_label})")
             if plot_type == "Strip Plot":
