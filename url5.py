@@ -136,16 +136,25 @@ header_col, nav_col = st.columns([3, 1], gap="large")
 
 with header_col:
     st.header("CSRD Dashboard")
-    st.caption(
-        "Please select a peer group and variable of interest to benchmark "
-        "your company’s CSRD reporting. All analyses are based on companies’ "
-        "2024 sustainability reports."
+    st.markdown(
+        """
+        <p style="
+            font-size: 16px;
+            color: #555;
+            margin-top: -8px;
+            margin-bottom: 1rem;
+        ">
+          Please select a peer group and variable of interest to benchmark your company’s
+          CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.
+        </p>
+        """,
+        unsafe_allow_html=True,
     )
 
 with nav_col:
     analysis_mode = st.radio(
         "",
-        ["Textual Analysis"],
+        ["Textual Analysis", "Materiality Analysis"],
         horizontal=True,
         key="analysis_mode",
     )
