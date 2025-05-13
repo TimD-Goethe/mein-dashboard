@@ -68,15 +68,25 @@ company = st.sidebar.selectbox(
 # 5. Sidebar: Benchmark Group Selection
 # --------------------------------------------------------------------
 st.sidebar.header("Benchmark Group")
+
+# 5.1 Prüfen, ob für die gewählte Firma ein rating_tercile vorliegt
+company_row   = df.loc[df["name"] == company]
+rating_exists = pd.notna(company_row["rating_tercile"].iat[0])
+
+# 5.2 Optionen-Liste zusammenbauen
+peer_group_opts = [
+    "All CSRD First Wave",
+    "Country Peers",
+    "Sector Peers",
+    "Size Peers",
+]
+if rating_exists:
+    peer_group_opts.append("Rating Peers")
+
+# 5.3 Radio-Widget mit nur gültigen Optionen
 benchmark_type = st.sidebar.radio(
     "Select Your Peer Group:",
-    [
-        "All CSRD First Wave",
-        "Country Peers",
-        "Sector Peers",
-        "Size Peers",
-        "Rating Peers",
-    ],
+    peer_group_opts,
     key="benchmark_type",
 )
 
