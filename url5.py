@@ -243,7 +243,7 @@ if analysis_mode == "Textual Analysis":
                 fig_avg = px.bar(
                     comp_df, x="Group", y="Pages", text="Pages",
                     color="Group",
-                    color_discrete_map={focal_company: "red", "Benchmark Average": "#1f77b4"},
+                    color_discrete_map={company: "red", "Peer Group Average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
                 fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
