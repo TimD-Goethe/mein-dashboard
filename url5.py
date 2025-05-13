@@ -277,26 +277,51 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig, use_container_width=True)
 
             else:  # Bar Chart
-                avg_pages = mean_pages  # schon berechnet
+                # 1) Peer Average vs. Focal Company
+                avg_pages = benchmark_df["pagespdf"].mean()
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
                     "Pages": [avg_pages, focal_pages]
                 })
                 fig_avg = px.bar(
-                    comp_df, x="Group", y="Pages", text="Pages",
+                    comp_df,
+                    x="Group",
+                    y="Pages",
+                    text="Pages",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
-                fig_avg.update_traces(texttemplate="%{text:.0f}",
-                                      textposition="outside",
-                                      width=0.5)
+                fig_avg.update_traces(
+                    texttemplate="%{text:.0f}",
+                    textposition="outside",
+                    width=0.5
+                )
                 fig_avg.update_layout(
                     showlegend=True,
                     legend_title_text="",
                     yaxis=dict(range=[0, comp_df["Pages"].max() * 1.2])
                 )
                 st.plotly_chart(fig_avg, use_container_width=True)
+            
+                # 2) Detail-Bar-Chart aller Peer-Unternehmen
+                peers_df = plot_df.sort_values("pagespdf", ascending=False)
+                fig2 = px.bar(
+                    peers_df,
+                    x="name",
+                    y="pagespdf",
+                    color="highlight_label",
+                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
+                    labels={"pagespdf": "Pages", "name": "Company", "highlight_label": ""},
+                    category_orders={"name": peers_df["name"].tolist()}
+                )
+                fig2.update_layout(
+                    showlegend=True,
+                    legend_title_text="",
+                    xaxis_tickangle=-45
+                )
+                st.plotly_chart(fig2, use_container_width=True)
+
 
             # Fußnote
             st.caption("Number of pages of companies’ sustainability reports.")
@@ -378,10 +403,11 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig, use_container_width=True)
 
             else:  # Bar Chart
-                # Daten für Bar Chart
+                # 1) Peer Average vs. Focal Company
+                avg_words = benchmark_df["words"].mean()
                 comp_df2 = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "Words": [mean_words, focal_words]
+                    "Words": [avg_words, focal_words]
                 })
                 fig_avg2 = px.bar(
                     comp_df2,
@@ -392,17 +418,31 @@ if analysis_mode == "Textual Analysis":
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
                     labels={"Words": "Words", "Group": ""}
                 )
-                fig_avg2.update_traces(
-                    texttemplate="%{text:.0f}",
-                    textposition="outside",
-                    width=0.5
-                )
+                fig_avg2.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 fig_avg2.update_layout(
                     showlegend=True,
                     legend_title_text="",
                     yaxis=dict(range=[0, comp_df2["Words"].max() * 1.2])
                 )
                 st.plotly_chart(fig_avg2, use_container_width=True)
+            
+                # 2) Alle einzelnen Peer-Unternehmen
+                peers_df = plot_df.sort_values("words", ascending=False)
+                fig2w = px.bar(
+                    peers_df,
+                    x="name",
+                    y="words",
+                    color="highlight_label",
+                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
+                    labels={"words": "Words", "name": "Company", "highlight_label": ""},
+                    category_orders={"name": peers_df["name"].tolist()},
+                )
+                fig2w.update_layout(
+                    showlegend=True,
+                    legend_title_text="",
+                    xaxis_tickangle=-45,
+                )
+                st.plotly_chart(fig2w, use_container_width=True)
 
             # Fußnote
             st.caption("Number of words in companies’ sustainability statements.")
