@@ -261,6 +261,8 @@ if analysis_mode == "Textual Analysis":
                 fig2.update_layout(showlegend=True, legend_title_text="", xaxis_tickangle=-45)
                 st.plotly_chart(fig2, use_container_width=True)
 
+            st.caption("Number of pages of companies’ sustainability reports.")
+
         elif view == "Number of Words":
             st.subheader(f"Number of Words ({benchmark_label})")
             if plot_type == "Strip Plot":
@@ -331,9 +333,13 @@ if analysis_mode == "Textual Analysis":
                 fig2w.update_layout(showlegend=True, legend_title_text="", xaxis_tickangle=-45)
                 st.plotly_chart(fig2w, use_container_width=True)
 
+            st.caption("Number of words in companies’ sustainability statements.")
+
         else:
             st.subheader("Peer Company List")
 
+            st.caption("Companies included in this list, based on your peer group selection.")
+            
             # 1) DataFrame ohne echten Index
             df_display = (
                 benchmark_df
