@@ -32,6 +32,9 @@ st.markdown(
 # --------------------------------------------------------------------
 df = pd.read_csv("report_data.csv")
 
+# aus "trbceconomicsectorname" wird "sector"
+df.rename(columns={"trbceconomicsectorname": "sector"}, inplace=True)
+
 # --------------------------------------------------------------------
 # 3. URL-Param lesen, decodieren & auf Default-Firma mappen
 # --------------------------------------------------------------------
@@ -98,7 +101,7 @@ elif benchmark_type == "Country Peers":
     benchmark_label = f"Country Peers: {country}"
 elif benchmark_type == "Sector Peers":
     sector          = df.loc[df["name"] == focal_company, "trbceconomicsectorname"].iat[0]
-    benchmark_df    = df[df["trbceconomicsectorname"] == sector]
+    benchmark_df    = df[df["sector"] == sector]
     benchmark_label = f"Sector Peers: {sector}"
 elif benchmark_type == "Market Cap Peers":
     terc            = df.loc[df["name"] == focal_company, "market_cap_tercile"].iat[0]
