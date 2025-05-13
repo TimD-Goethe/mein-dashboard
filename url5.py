@@ -237,18 +237,18 @@ if analysis_mode == "Textual Analysis":
             st.subheader(f"Distribution of Words ({benchmark_label})")
             if plot_type == "Strip Plot":
                 plot_df.assign(y=plot_df["jitter"]),
-                    x="pagespdf",
-                    y="y",
-                    hover_name="name",
-                    hover_data={
-                        "pagespdf": True,        # zeige die Seitenzahl
-                        "highlight_label": False, # verberge „Peers“ vs. Firmenname
-                        "y": False               # verberge den Jitter-Wert
-                    },
-                    color="highlight_label",
-                    color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
-                    labels={"pagespdf": "Pages", "highlight_label": ""}
-                )
+                x="pagespdf",
+                y="y",
+                hover_name="name",
+                hover_data={
+                    "pagespdf": True,        # zeige die Seitenzahl
+                    "highlight_label": False, # verberge „Peers“ vs. Firmenname
+                    "y": False               # verberge den Jitter-Wert
+                },
+                color="highlight_label",
+                color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
+                labels={"pagespdf": "Pages", "highlight_label": ""}
+            )
                 fig.add_vline(
                     x=benchmark_df["words"].mean(), line_color="#1f77b4", line_width=1, opacity=0.6
                 )
