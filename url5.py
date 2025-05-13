@@ -169,11 +169,18 @@ if analysis_mode == "Textual Analysis":
                 plot_df["jitter"] = 0.1 * np.random.randn(len(plot_df))
                 fig = px.scatter(
                     plot_df.assign(y=plot_df["jitter"]),
-                    x="pagespdf", y="y", hover_name="name",
-                    color="highlight_label",
-                    color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
-                    labels={"pagespdf": "Pages", "highlight_label": ""}
-                )
+                        x="pagespdf",
+                        y="y",
+                        hover_name="name",
+                        hover_data={
+                            "pagespdf": True,        # zeige die Seitenzahl
+                            "highlight_label": False, # verberge „Peers“ vs. Firmenname
+                            "y": False               # verberge den Jitter-Wert
+                        },
+                        color="highlight_label",
+                        color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
+                        labels={"pagespdf": "Pages", "highlight_label": ""}
+                    )
                 fig.add_vline(
                     x=benchmark_df["pagespdf"].mean(),
                     line_color="#1f77b4", line_width=1, opacity=0.6
@@ -229,13 +236,18 @@ if analysis_mode == "Textual Analysis":
         elif view == "Distribution of Words":
             st.subheader(f"Distribution of Words ({benchmark_label})")
             if plot_type == "Strip Plot":
-                plot_df["jitter_w"] = 0.1 * np.random.randn(len(plot_df))
-                fig = px.scatter(
-                    plot_df.assign(y=plot_df["jitter_w"]),
-                    x="words", y="y", hover_name="name",
+                plot_df.assign(y=plot_df["jitter"]),
+                    x="pagespdf",
+                    y="y",
+                    hover_name="name",
+                    hover_data={
+                        "pagespdf": True,        # zeige die Seitenzahl
+                        "highlight_label": False, # verberge „Peers“ vs. Firmenname
+                        "y": False               # verberge den Jitter-Wert
+                    },
                     color="highlight_label",
                     color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
-                    labels={"words": "Words", "highlight_label": ""}
+                    labels={"pagespdf": "Pages", "highlight_label": ""}
                 )
                 fig.add_vline(
                     x=benchmark_df["words"].mean(), line_color="#1f77b4", line_width=1, opacity=0.6
