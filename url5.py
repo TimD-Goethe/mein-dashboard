@@ -100,7 +100,7 @@ elif benchmark_type == "Country Peers":
     benchmark_df    = df[df["country"] == country]
     benchmark_label = f"Country Peers: {country}"
 elif benchmark_type == "Sector Peers":
-    sector          = df.loc[df["name"] == company, "trbceconomicsectorname"].iat[0]
+    sector          = df.loc[df["name"] == company, "sector"].iat[0]
     benchmark_df    = df[df["sector"] == sector]
     benchmark_label = f"Sector Peers: {sector}"
 elif benchmark_type == "Market Cap Peers":
