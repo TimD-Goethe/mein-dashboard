@@ -15,7 +15,7 @@ def make_company_url(company_name: str) -> str:
 # --------------------------------------------------------------------
 # 1. Page config und CSS-Tweak
 # --------------------------------------------------------------------
-st.set_page_config(page_title="CSRD Benchmarking Report", layout="wide")
+st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
@@ -66,7 +66,7 @@ company = st.sidebar.selectbox(
 # --------------------------------------------------------------------
 st.sidebar.header("Benchmark Group")
 benchmark_type = st.sidebar.radio(
-    "Select to Peer Group:",
+    "Select Your Peer Group:",
     [
         "All CSRD First Wave",
         "Country Peers",
@@ -152,7 +152,7 @@ if analysis_mode == "Textual Analysis":
     with col_view:
         view = st.selectbox(
             "Analysis:", 
-            ["Distribution of Pages", "Distribution of Words", "Benchmark Data"],
+            ["Number of Pages", "Number of Words", "Peer Company List"],
             key="view_selector"
         )
     with col_content:
@@ -161,8 +161,8 @@ if analysis_mode == "Textual Analysis":
             plot_df["name"] == company, company, "Peers"
         )
 
-        if view == "Distribution of Pages":
-            st.subheader(f"Distribution of Pages ({benchmark_label})")
+        if view == "Number of Pages":
+            st.subheader(f"Number of Pages ({benchmark_label})")
             if plot_type == "Strip Plot":
                 plot_df["jitter"] = 0.1 * np.random.randn(len(plot_df))
                 fig = px.scatter(
@@ -207,7 +207,7 @@ if analysis_mode == "Textual Analysis":
             else:  # Bar Chart
                 avg_pages = benchmark_df["pagespdf"].mean()
                 comp_df = pd.DataFrame({
-                    "Group": ["Benchmark Average", focal_company],
+                    "Group": ["Peer Group Average", focal_company],
                     "Pages": [avg_pages, focal_pages]
                 })
                 fig_avg = px.bar(
@@ -231,8 +231,8 @@ if analysis_mode == "Textual Analysis":
                 fig2.update_layout(showlegend=True, legend_title_text="", xaxis_tickangle=-45)
                 st.plotly_chart(fig2, use_container_width=True)
 
-        elif view == "Distribution of Words":
-            st.subheader(f"Distribution of Words ({benchmark_label})")
+        elif view == "Number of Words":
+            st.subheader(f"Number of Words ({benchmark_label})")
             if plot_type == "Strip Plot":
                 plot_df["jitter_w"] = 0.1 * np.random.randn(len(plot_df))
 
@@ -277,13 +277,13 @@ if analysis_mode == "Textual Analysis":
             else:  # Bar Chart
                 avg_words = benchmark_df["words"].mean()
                 comp_df2 = pd.DataFrame({
-                    "Group": ["Benchmark Average", focal_company],
+                    "Group": ["Peer Group Average", focal_company],
                     "Words": [avg_words, focal_words]
                 })
                 fig_avg2 = px.bar(
                     comp_df2, x="Group", y="Words", text="Words",
                     color="Group",
-                    color_discrete_map={focal_company: "red", "Benchmark Average": "#1f77b4"},
+                    color_discrete_map={focal_company: "red", "Peer Group Average": "#1f77b4"},
                     labels={"Words": "Words", "Group": ""}
                 )
                 fig_avg2.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
@@ -302,7 +302,7 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig2w, use_container_width=True)
 
         else:
-            st.subheader("Benchmark Data")
+            st.subheader("Peer Company List")
             st.dataframe(
                 benchmark_df[
                     ["name", "country", "trbceconomicsectorname", "pagespdf", "words"]
