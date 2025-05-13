@@ -303,14 +303,20 @@ if analysis_mode == "Textual Analysis":
 
         else:
             st.subheader("Peer Company List")
+
+            # 1) DataFrame ohne echten Index
             df_display = (
-                benchmark_df[
-                    ["name", "country", "trbceconomicsectorname", "pagespdf", "words"]
-                ]
+                benchmark_df
+                [["name","country","trbceconomicsectorname","pagespdf","words"]]
                 .sort_values(by="pagespdf")
-                .reset_index()          # ← Index ausblenden, nicht verwerfen
-           	)
-            st.markdown(df_display.to_markdown(index=False), unsafe_allow_html=True)
+                .reset_index(drop=True)
+            )
+
+            # 2) Stil-Objekt bauen und Index ausblenden
+            styled = df_display.style.hide_index()
+
+            # 3) In Streamlit rendern
+            st.write(styled)    # oder st.table(styled)
 
 else:
     st.subheader("Materiality Analysis")
