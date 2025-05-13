@@ -103,7 +103,7 @@ elif benchmark_type == "Sector Peers":
     sector          = df.loc[df["name"] == company, "sector"].iat[0]
     benchmark_df    = df[df["sector"] == sector]
     benchmark_label = f"Sector Peers: {sector}"
-elif benchmark_type == "Market Cap Peers":
+elif benchmark_type == "Size Peers":
     terc            = df.loc[df["name"] == company, "market_cap_tercile"].iat[0]
     lbl             = "Small" if terc == 1 else "Mid" if terc == 2 else "Large"
     benchmark_df    = df[df["market_cap_tercile"] == terc]
