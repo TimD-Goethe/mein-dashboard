@@ -304,74 +304,107 @@ if analysis_mode == "Textual Analysis":
         
         elif view == "Number of Words":
             st.subheader(f"Number of Words ({benchmark_label})")
+
+            # 1) Peer-Average berechnen
+            mean_words = benchmark_df["words"].mean()
+
             if plot_type == "Strip Plot":
+                # Jitter zur Visualisierung
                 plot_df["jitter_w"] = 0.1 * np.random.randn(len(plot_df))
 
-                # Hier beginnt der Aufruf von px.scatter – alle Argumente auf einer Ebene:
+                # Scatter-Plot
                 fig = px.scatter(
                     plot_df.assign(y=plot_df["jitter_w"]),
                     x="words",
                     y="y",
                     hover_name="name",
                     hover_data={
-                        "words": True,           # zeige nur die Wortzahl
-                        "highlight_label": False,# verberge „Peers“ vs. Firmenname
-                        "y": False               # verberge den Jitter-Wert
+                        "words": True,           # Zeige die Wortzahl
+                        "highlight_label": False,# Verberge das Label
+                        "y": False               # Verberge den Jitter-Wert
                     },
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={"words": "Words", "highlight_label": ""}
-                )  # <- schließende Klammer muss auf gleicher Einrückung stehen wie 'fig ='
-        
-                fig.add_vline(
-                    x=benchmark_df["words"].mean(), line_color="#1f77b4", line_width=1, opacity=0.6
                 )
-                fig.add_vline(
-                    x=focal_words, line_dash="dash", line_color="red", opacity=0.8
-                )
-                fig.update_layout(yaxis=dict(visible=False), xaxis_title="Words")
+
+                # Peer Average als durchgezogene blaue Linie
+                fig.add_trace(go.Scatter(
+                    x=[mean_words, mean_words],
+                    y=[-0.5, +0.5],
+                    mode="lines",
+                    line=dict(color="#1f77b4", width=2, dash="solid"),
+                    name="Peer Average"
+                ))
+
+                # Focal Company als rote, gestrichelte Linie
+                fig.add_trace(go.Scatter(
+                    x=[focal_words, focal_words],
+                    y=[-0.5, +0.5],
+                    mode="lines",
+                    line=dict(color="red", width=2, dash="dash"),
+                    name=company
+                ))
+
+                # Y-Achse einschränken
+                fig.update_yaxes(range=[-1, 1])
+
                 st.plotly_chart(fig, use_container_width=True)
 
             elif plot_type == "Histogram":
                 fig = px.histogram(
-                    plot_df, x="words", nbins=20, labels={"words": "Words"}
+                    plot_df, x="words", nbins=20,
+                    labels={"words": "Words"}
                 )
+                # Peer Average als vertikale Linie mit Beschriftung
                 fig.add_vline(
-                    x=benchmark_df["words"].mean(), line_color="#1f77b4", line_width=1, opacity=0.6
+                    x=mean_words,
+                    line_color="#1f77b4",
+                    line_width=1,
+                    opacity=0.6,
+                    annotation_text="Peer Average",
+                    annotation_position="top right"
                 )
+                # Focal Company
                 fig.add_vline(
-                    x=focal_words, line_dash="dash", line_color="red", opacity=0.8
+                    x=focal_words,
+                    line_dash="dash",
+                    line_color="red",
+                    opacity=0.8,
+                    annotation_text=company,
+                    annotation_position="top left"
                 )
                 fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
             else:  # Bar Chart
-                avg_words = benchmark_df["words"].mean()
+                # Daten für Bar Chart
                 comp_df2 = pd.DataFrame({
-                    "Group": ["Peer Group Average", focal_company],
-                    "Words": [avg_words, focal_words]
+                    "Group": ["Peer Average", company],
+                    "Words": [mean_words, focal_words]
                 })
                 fig_avg2 = px.bar(
-                    comp_df2, x="Group", y="Words", text="Words",
+                    comp_df2,
+                    x="Group",
+                    y="Words",
+                    text="Words",
                     color="Group",
-                    color_discrete_map={focal_company: "red", "Peer Group Average": "#1f77b4"},
+                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
                     labels={"Words": "Words", "Group": ""}
                 )
-                fig_avg2.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-                fig_avg2.update_layout(showlegend=False, yaxis=dict(range=[0, comp_df2["Words"].max() * 1.2]))
+                fig_avg2.update_traces(
+                    texttemplate="%{text:.0f}",
+                    textposition="outside",
+                    width=0.5
+                )
+                fig_avg2.update_layout(
+                    showlegend=True,
+                    legend_title_text="",
+                    yaxis=dict(range=[0, comp_df2["Words"].max() * 1.2])
+                )
                 st.plotly_chart(fig_avg2, use_container_width=True)
 
-                peers_df2 = plot_df.sort_values("words", ascending=False)
-                fig2w = px.bar(
-                    peers_df2, x="name", y="words",
-                    color="highlight_label",
-                    color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
-                    labels={"words": "Words", "name": "Company", "highlight_label": ""},
-                    category_orders={"name": peers_df2["name"].tolist()}
-                )
-                fig2w.update_layout(showlegend=True, legend_title_text="", xaxis_tickangle=-45)
-                st.plotly_chart(fig2w, use_container_width=True)
-
+            # Fußnote
             st.caption("Number of words in companies’ sustainability statements.")
 
         else:
