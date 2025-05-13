@@ -237,7 +237,7 @@ if analysis_mode == "Textual Analysis":
             else:  # Bar Chart
                 avg_pages = benchmark_df["pagespdf"].mean()
                 comp_df = pd.DataFrame({
-                    "Group": ["Peer Group Average", focal_company],
+                    "Group": ["Peer Group Average", company],
                     "Pages": [avg_pages, focal_pages]
                 })
                 fig_avg = px.bar(
