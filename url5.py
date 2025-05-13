@@ -112,8 +112,8 @@ else:  # Rating Peers
     benchmark_label = f"ESG Rating Group: {lbl}"
 
 # Focal-Werte
-focal_pages = df.loc[df["name"] == focal_company, "pagespdf"].iat[0]
-focal_words = df.loc[df["name"] == focal_company, "words"].iat[0]
+focal_pages = df.loc[df["name"] == company, "pagespdf"].iat[0]
+focal_words = df.loc[df["name"] == company, "words"].iat[0]
 
 # --------------------------------------------------------------------
 # 7. Sidebar: Chart Type
@@ -158,7 +158,7 @@ if analysis_mode == "Textual Analysis":
     with col_content:
         plot_df = benchmark_df.copy()
         plot_df["highlight_label"] = np.where(
-            plot_df["name"] == focal_company, focal_company, "Peers"
+            plot_df["name"] == company, company, "Peers"
         )
 
         if view == "Distribution of Pages":
@@ -176,7 +176,7 @@ if analysis_mode == "Textual Analysis":
                             "y": False               # verberge den Jitter-Wert
                         },
                         color="highlight_label",
-                        color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
+                        color_discrete_map={company: "red", "Peers": "#1f77b4"},
                         labels={"pagespdf": "Pages", "highlight_label": ""}
                     )
                 fig.add_vline(
