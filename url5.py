@@ -362,6 +362,17 @@ if analysis_mode == "Textual Analysis":
                     labels={"words": "Words", "highlight_label": ""}
                 )
 
+
+                # → hier die y-Achse komplett ausblenden und Range setzen:
+                fig.update_yaxes(
+                    showticklabels=False,   # keine Achsenbeschriftungen
+                    title_text="",          # keine Achsentitel
+                    range=[-0.5, 0.5],      # nur von -0.5 bis +0.5
+                    showgrid=False,         # (optional) keine horizontalen Linien
+                    zeroline=False          # (optional) keine Null-Linie
+                )
+
+                
                 # Peer Average als durchgezogene blaue Linie
                 fig.add_trace(go.Scatter(
                     x=[mean_words, mean_words],
