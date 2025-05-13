@@ -96,20 +96,20 @@ elif benchmark_type == "All CSRD First Wave":
     benchmark_df    = df.copy()
     benchmark_label = "All CSRD First Wave"
 elif benchmark_type == "Country Peers":
-    country         = df.loc[df["name"] == focal_company, "country"].iat[0]
+    country         = df.loc[df["name"] == company, "country"].iat[0]
     benchmark_df    = df[df["country"] == country]
     benchmark_label = f"Country Peers: {country}"
 elif benchmark_type == "Sector Peers":
-    sector          = df.loc[df["name"] == focal_company, "trbceconomicsectorname"].iat[0]
+    sector          = df.loc[df["name"] == company, "trbceconomicsectorname"].iat[0]
     benchmark_df    = df[df["sector"] == sector]
     benchmark_label = f"Sector Peers: {sector}"
 elif benchmark_type == "Market Cap Peers":
-    terc            = df.loc[df["name"] == focal_company, "market_cap_tercile"].iat[0]
+    terc            = df.loc[df["name"] == company, "market_cap_tercile"].iat[0]
     lbl             = "Small" if terc == 1 else "Mid" if terc == 2 else "Large"
     benchmark_df    = df[df["market_cap_tercile"] == terc]
     benchmark_label = f"Market Cap Group: {lbl}"
 else:  # Rating Peers
-    terc            = df.loc[df["name"] == focal_company, "rating_tercile"].iat[0]
+    terc            = df.loc[df["name"] == company, "rating_tercile"].iat[0]
     lbl             = "Low" if terc == 1 else "Mid" if terc == 2 else "High"
     benchmark_df    = df[df["rating_tercile"] == terc]
     benchmark_label = f"ESG Rating Group: {lbl}"
