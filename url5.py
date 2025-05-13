@@ -154,7 +154,7 @@ with header_col:
 with nav_col:
     analysis_mode = st.radio(
         "",
-        ["Textual Analysis", "Materiality Analysis"],
+        ["Textual Analysis"],
         horizontal=True,
         key="analysis_mode",
     )
