@@ -354,6 +354,16 @@ if analysis_mode == "Textual Analysis":
             mean_words = benchmark_df["words"].mean()
 
             if plot_type == "Strip Plot":
+                plot_df = benchmark_df.copy()
+                # Company ergänzen, falls sie nicht zu den ausgewählten Peers gehört
+                if company not in plot_df["name"].values:
+                    focal_row = df[df["name"] == company]
+                    plot_df = pd.concat([plot_df, focal_row], ignore_index=True)
+            
+                # Highlight-Label zuweisen
+                plot_df["highlight_label"] = np.where(
+                    plot_df["name"] == company, company, "Peers"
+                )
                 # Jitter zur Visualisierung
                 plot_df["jitter_w"] = 0.1 * np.random.randn(len(plot_df))
 
