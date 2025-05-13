@@ -133,7 +133,7 @@ plot_type = st.sidebar.radio(
 # --------------------------------------------------------------------
 header_col, nav_col = st.columns([3, 1], gap="large")
 with header_col:
-    st.header("CSRD Benchmarking Report")
+    st.header("CSRD Dashboard")
     st.subheader("Welcome to your CSRD Benchmarking Dashboard!")
 with nav_col:
     analysis_mode = st.radio(
