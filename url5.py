@@ -78,11 +78,10 @@ benchmark_type = st.sidebar.radio(
 )
 
 peer_selection = st.sidebar.multiselect(
-    "Or choose up to 3 specific peer companies:",
+    "Or choose specific peer companies:",
     options=company_list,
     default=[],
     max_selections=3,
-    key="peer_selection",
 )
 
 # --------------------------------------------------------------------
