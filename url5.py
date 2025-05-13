@@ -131,10 +131,17 @@ plot_type = st.sidebar.radio(
 # --------------------------------------------------------------------
 # 8. Header & Analysis mode
 # --------------------------------------------------------------------
+# 1. Header + Untertitel + Radio-Buttons in einem columns-Aufruf
 header_col, nav_col = st.columns([3, 1], gap="large")
+
 with header_col:
     st.header("CSRD Dashboard")
-    st.subheader("Welcome to your CSRD Benchmarking Dashboard!")
+    st.caption(
+        "Please select a peer group and variable of interest to benchmark "
+        "your company’s CSRD reporting. All analyses are based on companies’ "
+        "2024 sustainability reports."
+    )
+
 with nav_col:
     analysis_mode = st.radio(
         "",
@@ -142,11 +149,21 @@ with nav_col:
         horizontal=True,
         key="analysis_mode",
     )
-    color = "#e63946" if analysis_mode == "Textual Analysis" else "#457b9d"
-    st.markdown(
-        f"<div style='height:3px; background:{color}; margin-top:0.25rem'></div>",
-        unsafe_allow_html=True,
-    )
+
+# 2. Voll-breiter, farbiger Strich
+color = "#e63946" if analysis_mode == "Textual Analysis" else "#457b9d"
+st.markdown(
+    f"""
+    <div style="
+      width: 100%;
+      height: 4px;
+      background-color: {color};
+      margin: 0 0 1rem 0;
+      padding: 0;
+    "></div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # --------------------------------------------------------------------
 # 9. Content Rendering
