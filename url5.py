@@ -303,12 +303,15 @@ if analysis_mode == "Textual Analysis":
 
         else:
             st.subheader("Peer Company List")
-            st.dataframe(
+            styled = (
                 benchmark_df[
                     ["name", "country", "trbceconomicsectorname", "pagespdf", "words"]
                 ]
                 .sort_values(by="pagespdf")
-                .reset_index(drop=True),
+                .style.hide_index()          # ← Index ausblenden, nicht verwerfen
+           	)
+            st.dataframe(
+                styled,
                 use_container_width=True
             )
 
