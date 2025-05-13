@@ -310,10 +310,7 @@ if analysis_mode == "Textual Analysis":
                 .sort_values(by="pagespdf")
                 .reset_index()          # ← Index ausblenden, nicht verwerfen
            	)
-            st.dataframe(
-                df_display,
-                use_container_width=True
-            )
+            st.write(df_display.to_dict(orient="records"))
 
 else:
     st.subheader("Materiality Analysis")
