@@ -307,6 +307,7 @@ if analysis_mode == "Textual Analysis":
                 benchmark_df[
                     ["name", "country", "trbceconomicsectorname", "pagespdf", "words"]
                 ].sort_values(by="pagespdf"),
+                .reset_index(drop=True),
                 use_container_width=True
             )
 
