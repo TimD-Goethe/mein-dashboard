@@ -248,7 +248,7 @@ if analysis_mode == "Textual Analysis":
                         "y": False               # verberge den Jitter-Wert
                     },
                     color="highlight_label",
-                    color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
+                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={"words": "Words", "highlight_label": ""}
                 )  # <- schließende Klammer muss auf gleicher Einrückung stehen wie 'fig ='
         
