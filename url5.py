@@ -52,10 +52,10 @@ default_company = mapping_ci.get(key, company_list[0])
 # --------------------------------------------------------------------
 # 4. Sidebar: Focal Company Selection
 # --------------------------------------------------------------------
-st.sidebar.header("Focal Company Selection")
+st.sidebar.header("Company Selection")
 default_idx = company_list.index(default_company) if default_company in company_list else 0
 focal_company = st.sidebar.selectbox(
-    "Select a focal company:",
+    "Select a company:",
     options=company_list,
     index=default_idx,
     key="focal_company",
