@@ -81,7 +81,6 @@ peer_selection = st.sidebar.multiselect(
     "Or choose specific peer companies:",
     options=company_list,
     default=[],
-    max_selections=3,
 )
 
 # --------------------------------------------------------------------
