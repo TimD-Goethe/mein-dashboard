@@ -66,12 +66,12 @@ company = st.sidebar.selectbox(
 # --------------------------------------------------------------------
 st.sidebar.header("Benchmark Group")
 benchmark_type = st.sidebar.radio(
-    "Compare to:",
+    "Select to Peer Group:",
     [
         "All CSRD First Wave",
         "Country Peers",
         "Sector Peers",
-        "Market Cap Peers",
+        "Size Peers",
         "Rating Peers",
     ],
     key="benchmark_type",
