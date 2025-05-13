@@ -145,7 +145,7 @@ with header_col:
 with nav_col:
     analysis_mode = st.radio(
         "",
-        ["Textual Analysis", "Materiality Analysis"],
+        ["Textual Analysis"],
         horizontal=True,
         key="analysis_mode",
     )
@@ -335,7 +335,3 @@ if analysis_mode == "Textual Analysis":
 
             md = df_display.to_markdown(index=False)
             st.markdown(md, unsafe_allow_html=True)
-
-else:
-    st.subheader("Materiality Analysis")
-    st.info("This section is under construction.")
