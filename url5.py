@@ -219,14 +219,28 @@ if analysis_mode == "Textual Analysis":
                         color_discrete_map={company: "red", "Peers": "#1f77b4"},
                         labels={"pagespdf": "Pages", "highlight_label": ""}
                     )
-                fig.add_vline(
-                    x=benchmark_df["pagespdf"].mean(),
-                    line_color="#1f77b4", line_width=1, opacity=0.6
-                )
-                fig.add_vline(
-                    x=focal_pages, line_dash="dash", line_color="red", opacity=0.8
-                )
-                fig.update_layout(yaxis=dict(visible=False), xaxis_title="Pages")
+                # 1) Peer-Average als durchgezogene blaue Linie
+                fig.add_trace(go.Scatter(
+                    x=[mean_pages, mean_pages],
+                    y=[-0.5, +0.5],                # kurzer Ausschnitt, damit sie nicht nervt
+                    mode="lines",
+                    line=dict(color="#1f77b4", width=2, dash="solid"),
+                    name="Peer Average"
+                ))
+                
+                # 2) Focal Company als rote, gestrichelte Linie
+                fig.add_trace(go.Scatter(
+                    x=[focal_pages, focal_pages],
+                    y=[-0.5, +0.5],
+                    mode="lines",
+                    line=dict(color="red",    width=2, dash="dash"),
+                    name=focal_company
+                ))
+                
+                # (Optional) Y-Achse so einschränken, dass man die kurzen Striche gut sieht:
+                fig.update_yaxes(range=[-1, 1])
+                
+                # Und dann wie gewohnt:
                 st.plotly_chart(fig, use_container_width=True)
 
             elif plot_type == "Histogram":
