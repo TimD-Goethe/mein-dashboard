@@ -236,19 +236,24 @@ if analysis_mode == "Textual Analysis":
         elif view == "Distribution of Words":
             st.subheader(f"Distribution of Words ({benchmark_label})")
             if plot_type == "Strip Plot":
-                plot_df.assign(y=plot_df["jitter"]),
-                x="pagespdf",
-                y="y",
-                hover_name="name",
-                hover_data={
-                    "pagespdf": True,        # zeige die Seitenzahl
-                    "highlight_label": False, # verberge „Peers“ vs. Firmenname
-                    "y": False               # verberge den Jitter-Wert
-                },
-                color="highlight_label",
-                color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
-                labels={"pagespdf": "Pages", "highlight_label": ""}
-            )
+                plot_df["jitter_w"] = 0.1 * np.random.randn(len(plot_df))
+
+                # Hier beginnt der Aufruf von px.scatter – alle Argumente auf einer Ebene:
+                fig = px.scatter(
+                    plot_df.assign(y=plot_df["jitter_w"]),
+                    x="words",
+                    y="y",
+                    hover_name="name",
+                    hover_data={
+                        "words": True,           # zeige nur die Wortzahl
+                        "highlight_label": False,# verberge „Peers“ vs. Firmenname
+                        "y": False               # verberge den Jitter-Wert
+                    },
+                    color="highlight_label",
+                    color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
+                    labels={"words": "Words", "highlight_label": ""}
+                )  # <- schließende Klammer muss auf gleicher Einrückung stehen wie 'fig ='
+        
                 fig.add_vline(
                     x=benchmark_df["words"].mean(), line_color="#1f77b4", line_width=1, opacity=0.6
                 )
