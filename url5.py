@@ -254,7 +254,7 @@ if analysis_mode == "Textual Analysis":
                 fig2 = px.bar(
                     peers_df, x="name", y="pagespdf",
                     color="highlight_label",
-                    color_discrete_map={focal_company: "red", "Peers": "#1f77b4"},
+                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={"pagespdf": "Pages", "name": "Company", "highlight_label": ""},
                     category_orders={"name": peers_df["name"].tolist()}
                 )
