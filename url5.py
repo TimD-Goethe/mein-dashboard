@@ -312,11 +312,8 @@ if analysis_mode == "Textual Analysis":
                 .reset_index(drop=True)
             )
 
-            # 2) Stil-Objekt bauen und Index ausblenden
-            styled = df_display.style.hide_index()
-
-            # 3) In Streamlit rendern
-            st.write(styled)    # oder st.table(styled)
+            md = df_display.to_markdown(index=False)
+            st.markdown(md, unsafe_allow_html=True)
 
 else:
     st.subheader("Materiality Analysis")
