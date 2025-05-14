@@ -222,43 +222,30 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig, use_container_width=True)
 
             elif plot_type == "Bar Chart":
-                # 1) Peer Average vs. Focal Company
-                avg_pages = benchmark_df["Sustainability_Page_Count"].mean()
-                comp_df = pd.DataFrame({
-                    "Group": ["Peer Average", company],
-                    "Pages": [avg_pages, focal_pages]
-                })
-                fig_avg = px.bar(
-                    comp_df,
-                    x="Group",
-                    y="Pages",
-                    text="Pages",
-                    color="Group",
-                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"Pages": "Pages", "Group": ""}
-                )
-                fig_avg.update_traces(
-                    texttemplate="%{text:.0f}",
-                    textposition="outside",
-                    width=0.5
-                )
-                fig_avg.update_layout(
-                    showlegend=True,
-                    legend_title_text="",
-                    yaxis=dict(range=[0, comp_df["Pages"].max() * 1.2])
-                )
-                st.plotly_chart(fig_avg, use_container_width=True)
-            
-                # 2) Detail-Bar-Chart aller Peer-Unternehmen
+                # 1) Detail-Bar-Chart aller Peer-Unternehmen (mit horizontaler Average-Linie)
                 peers_df = plot_df.sort_values("Sustainability_Page_Count", ascending=False)
+                mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
+            
                 fig2 = px.bar(
                     peers_df,
                     x="company",
                     y="Sustainability_Page_Count",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"pagespdf": "Pages", "name": "Company", "highlight_label": ""},
+                    labels={
+                        "Sustainability_Page_Count": "Pages",
+                        "company": "Company",
+                        "highlight_label": ""
+                    },
                     category_orders={"company": peers_df["company"].tolist()}
+                )
+                # horizontale Linie bei Peer Average
+                fig2.add_hline(
+                    y=mean_pages,
+                    line_dash="dash",
+                    line_color="#1f77b4",
+                    annotation_text="Peer Average",
+                    annotation_position="bottom right"
                 )
                 fig2.update_layout(
                     showlegend=True,
@@ -266,7 +253,31 @@ if analysis_mode == "Textual Analysis":
                     xaxis_tickangle=-45
                 )
                 st.plotly_chart(fig2, use_container_width=True)
-
+            
+               # 2) Peer Average vs. Focal Company (kleines Chart, roter Balken links)
+                avg_pages = mean_pages
+                comp_df = pd.DataFrame({
+                    "Group": ["Peer Average", company],
+                    "Pages": [avg_pages, focal_pages]
+                })
+            
+                fig_avg = px.bar(
+                    comp_df,
+                    x="Pages",
+                    y="Group",
+                    orientation="h",                   # horizontale Balken
+                    text="Pages",
+                    color="Group",
+                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
+                    labels={"Pages": "Pages", "Group": ""}
+                )
+                # rote Firma links anzeigen, Peer Average rechts
+                fig_avg.update_layout(
+                    yaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                    showlegend=False
+                )
+                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="inside")
+                st.plotly_chart(fig_avg, use_container_width=True)
 
             # Fußnote
             st.caption("Number of pages of companies’ sustainability reports.")
