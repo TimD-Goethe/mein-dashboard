@@ -39,7 +39,7 @@ df.rename(columns={"trbceconomicsectorname": "sector"}, inplace=True)
 # 3. URL-Param lesen, decodieren & auf Default-Firma mappen
 # --------------------------------------------------------------------
 # 3.1 Liste aller Firmennamen und case-insensitive Mapping
-company_list = df["name"].dropna().unique().tolist()
+company_list = df["company"].dropna().unique().tolist()
 mapping_ci   = {name.strip().casefold(): name for name in company_list}
 
 # 3.2 Query-Param auslesen und percent-decodieren
