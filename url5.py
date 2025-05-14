@@ -221,7 +221,7 @@ if analysis_mode == "Textual Analysis":
                 fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
-            elif:  # Bar Chart
+            elif plot_type == "Bar Chart":
                 # 1) Peer Average vs. Focal Company
                 avg_pages = benchmark_df["pagespdf"].mean()
                 comp_df = pd.DataFrame({
@@ -304,7 +304,7 @@ if analysis_mode == "Textual Analysis":
                 fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
-            elif:  # Bar Chart
+            elif plot_type == "Bar Chart":
                 # 1) Peer Average vs. Focal Company
                 avg_words = benchmark_df["words"].mean()
                 comp_df2 = pd.DataFrame({
