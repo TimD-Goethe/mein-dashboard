@@ -29,9 +29,17 @@ st.markdown(
 # --------------------------------------------------------------------
 # 2. Daten laden
 # --------------------------------------------------------------------
-df = pd.read_csv("summary_with_meta.csv")
-df.rename(columns={"trbceconomicsectorname": "sector"}, inplace=True)
-
+# 2. Daten laden (mit Fehler-Check)
+# --------------------------------------------------------------------
+try:
+    df = pd.read_csv("summary_with_meta.csv")
+    st.write("✅ CSV geladen – shape:", df.shape)
+except FileNotFoundError as fe:
+    st.error(f"❌ Datei nicht gefunden: {fe}")
+    st.stop()
+except Exception as e:
+    st.error(f"❌ Fehler beim Laden der Daten: {e}")
+    st.stop()
 # --------------------------------------------------------------------
 # 3. URL-Param lesen, decodieren & Default-Firma
 # --------------------------------------------------------------------
