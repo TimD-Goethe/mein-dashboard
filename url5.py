@@ -76,8 +76,6 @@ peer_group_opts = [
     "Sector Peers",
     "Size Peers",
 ]
-if rating_exists:
-    peer_group_opts.append("Rating Peers")
 
 # 5.3 Radio-Widget mit nur gültigen Optionen
 benchmark_type = st.sidebar.radio(
