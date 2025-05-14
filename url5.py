@@ -360,7 +360,7 @@ if analysis_mode == "Textual Analysis":
                     annotation_text="Peer Average",
                     annotation_position="top left"
                 )
-                fig2.update_layout(
+                fig2w.update_layout(
                     showlegend=True,
                     legend_title_text="",
                     yaxis={
