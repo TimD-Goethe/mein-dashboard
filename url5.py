@@ -104,13 +104,13 @@ elif benchmark_type == "Country Peers":
     country         = df.loc[df["company"] == company, "country"].iat[0]
     benchmark_df    = df[df["country"] == country]
     benchmark_label = f"Country Peers: {country}"
-elif benchmark_type == "Size Peers":
-    terc            = df.loc[df["name"] == company, "market_cap_tercile"].iat[0]
-    lbl             = "Small" if terc == 1 else "Mid" if terc == 2 else "Large"
-    benchmark_df    = df[df["market_cap_tercile"] == terc]
-    benchmark_label = f"Market Cap Group: {lbl}"
+#elif benchmark_type == "Size Peers":
+ #   terc            = df.loc[df["company"] == company, "market_cap_tercile"].iat[0]
+  #  lbl             = "Small" if terc == 1 else "Mid" if terc == 2 else "Large"
+    #benchmark_df    = df[df["market_cap_tercile"] == terc]
+    #benchmark_label = f"Market Cap Group: {lbl}"
 if peer_selection:
-    benchmark_df    = df[df["name"].isin(peer_selection)]
+    benchmark_df    = df[df["company"].isin(peer_selection)]
     benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
 
 # Focal-Werte
@@ -198,7 +198,7 @@ if analysis_mode == "Textual Analysis":
 
             if plot_type == "Histogram":
                 fig = px.histogram(
-                    plot_df, x="pagespdf", nbins=20,
+                    plot_df, x="Sustainability_Page_Count", nbins=20,
                     labels={"Sustainability_Page_Count": "Pages"}
                 )
                 # Linien bleiben hier als VLines
@@ -221,9 +221,9 @@ if analysis_mode == "Textual Analysis":
                 fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
-            elif:  # Bar Chart
+            elif plot_type == "Bar Chart":
                 # 1) Peer Average vs. Focal Company
-                avg_pages = benchmark_df["pagespdf"].mean()
+                avg_pages = benchmark_df["Sustainability_Page_Count"].mean()
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
                     "Pages": [avg_pages, focal_pages]
@@ -253,12 +253,12 @@ if analysis_mode == "Textual Analysis":
                 peers_df = plot_df.sort_values("pagespdf", ascending=False)
                 fig2 = px.bar(
                     peers_df,
-                    x="name",
-                    y="pagespdf",
+                    x="company",
+                    y="Sustainability_Page_Count",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={"pagespdf": "Pages", "name": "Company", "highlight_label": ""},
-                    category_orders={"name": peers_df["name"].tolist()}
+                    category_orders={"Sustainability_Page_Count": peers_df["name"].tolist()}
                 )
                 fig2.update_layout(
                     showlegend=True,
@@ -304,7 +304,7 @@ if analysis_mode == "Textual Analysis":
                 fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
-            elif:  # Bar Chart
+            elif plot_type == "Bar Chart":
                 # 1) Peer Average vs. Focal Company
                 avg_words = benchmark_df["words"].mean()
                 comp_df2 = pd.DataFrame({
@@ -332,7 +332,7 @@ if analysis_mode == "Textual Analysis":
                 peers_df = plot_df.sort_values("words", ascending=False)
                 fig2w = px.bar(
                     peers_df,
-                    x="name",
+                    x="company",
                     y="words",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
@@ -357,8 +357,8 @@ if analysis_mode == "Textual Analysis":
             # 1) DataFrame ohne echten Index
             df_display = (
                 benchmark_df
-                [["name","country","sector","pagespdf","words"]]
-                .sort_values(by="pagespdf")
+                [["company","country","sector","Sustainability_Page_Count","words"]]
+                .sort_values(by="Sustainability_Page_Count")
                 .reset_index(drop=True)
             )
 
