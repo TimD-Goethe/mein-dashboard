@@ -118,11 +118,6 @@ elif benchmark_type == "Size Peers":
     lbl             = "Small" if terc == 1 else "Mid" if terc == 2 else "Large"
     benchmark_df    = df[df["market_cap_tercile"] == terc]
     benchmark_label = f"Market Cap Group: {lbl}"
-else:  # Rating Peers
-    terc            = df.loc[df["name"] == company, "rating_tercile"].iat[0]
-    lbl             = "Low" if terc == 1 else "Mid" if terc == 2 else "High"
-    benchmark_df    = df[df["rating_tercile"] == terc]
-    benchmark_label = f"ESG Rating Group: {lbl}"
 
 # Focal-Werte
 focal_pages = df.loc[df["name"] == company, "pagespdf"].iat[0]
