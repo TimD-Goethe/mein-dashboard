@@ -258,7 +258,7 @@ if analysis_mode == "Textual Analysis":
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={"pagespdf": "Pages", "name": "Company", "highlight_label": ""},
-                    category_orders={"name": peers_df["name"].tolist()}
+                    category_orders={"company": peers_df["company"].tolist()}
                 )
                 fig2.update_layout(
                     showlegend=True,
