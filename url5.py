@@ -30,7 +30,7 @@ st.markdown(
 # --------------------------------------------------------------------
 # 2. Daten laden
 # --------------------------------------------------------------------
-df = pd.read_csv("report_data.csv")
+df = pd.read_csv("summary_with_meta.csv")
 
 # aus "trbceconomicsectorname" wird "sector"
 df.rename(columns={"trbceconomicsectorname": "sector"}, inplace=True)
