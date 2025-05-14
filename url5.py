@@ -223,7 +223,7 @@ if analysis_mode == "Textual Analysis":
 
             elif plot_type == "Bar Chart":
                 # 1) Peer Average vs. Focal Company
-                avg_pages = benchmark_df["pagespdf"].mean()
+                avg_pages = benchmark_df["Sustainability_Page_Count"].mean()
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
                     "Pages": [avg_pages, focal_pages]
