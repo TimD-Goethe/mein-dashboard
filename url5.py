@@ -198,7 +198,7 @@ if analysis_mode == "Textual Analysis":
 
             if plot_type == "Histogram":
                 fig = px.histogram(
-                    plot_df, x="pagespdf", nbins=20,
+                    plot_df, x="Sustainability_Page_Count", nbins=20,
                     labels={"Sustainability_Page_Count": "Pages"}
                 )
                 # Linien bleiben hier als VLines
