@@ -222,14 +222,15 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig, use_container_width=True)
 
             elif plot_type == "Bar Chart":
-                # 1) Detail-Bar-Chart aller Peer-Unternehmen (mit horizontaler Average-Linie)
+                # 1) Detail-Bar-Chart aller Peer-Unternehmen, jetzt als horizontale Balken
                 peers_df = plot_df.sort_values("Sustainability_Page_Count", ascending=False)
                 mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
             
                 fig2 = px.bar(
                     peers_df,
-                    x="company",
-                    y="Sustainability_Page_Count",
+                    x="Sustainability_Page_Count",
+                    y="company",
+                    orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={
@@ -239,22 +240,22 @@ if analysis_mode == "Textual Analysis":
                     },
                     category_orders={"company": peers_df["company"].tolist()}
                 )
-                # horizontale Linie bei Peer Average
-                fig2.add_hline(
-                    y=mean_pages,
+                # vertikale Linie bei Peer Average
+                fig2.add_vline(
+                    x=mean_pages,
                     line_dash="dash",
                     line_color="#1f77b4",
                     annotation_text="Peer Average",
-                    annotation_position="bottom right"
+                    annotation_position="top left"
                 )
                 fig2.update_layout(
                     showlegend=True,
                     legend_title_text="",
-                    xaxis_tickangle=-45
+                    yaxis={"categoryorder": "array", "categoryarray": peers_df["company"].tolist()}
                 )
                 st.plotly_chart(fig2, use_container_width=True)
             
-               # 2) Peer Average vs. Focal Company (kleines Chart, roter Balken links)
+                # 2) Peer Average vs. Focal Company, jetzt als vertikale Balken mit rotem Balken links
                 avg_pages = mean_pages
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
@@ -263,20 +264,19 @@ if analysis_mode == "Textual Analysis":
             
                 fig_avg = px.bar(
                     comp_df,
-                    x="Pages",
-                    y="Group",
-                    orientation="h",                   # horizontale Balken
+                    x="Group",
+                    y="Pages",
                     text="Pages",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
-                # rote Firma links anzeigen, Peer Average rechts
+                # rote Firma links (als erste Kategorie) anzeigen
                 fig_avg.update_layout(
-                    yaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                    xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
                 )
-                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="inside")
+                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_avg, use_container_width=True)
 
             # Fußnote
