@@ -69,10 +69,6 @@ company = st.sidebar.selectbox(
 # --------------------------------------------------------------------
 st.sidebar.header("Benchmark Group")
 
-# 5.1 Prüfen, ob für die gewählte Firma ein rating_tercile vorliegt
-company_row   = df.loc[df["company"] == company]
-rating_exists = pd.notna(company_row["rating_tercile"].iat[0])
-
 # 5.2 Optionen-Liste zusammenbauen
 peer_group_opts = [
     "All CSRD First Wave",
