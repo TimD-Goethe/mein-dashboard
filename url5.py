@@ -355,7 +355,6 @@ if analysis_mode == "Textual Analysis":
                     annotation_position="top left",
                 )
                 # eindeutige Element-ID verhindern Kollision
-                fig2w.layout.id = None
                 fig2w.update_layout(
                     showlegend=True,
                     legend_title_text="",
@@ -379,7 +378,6 @@ if analysis_mode == "Textual Analysis":
                     labels={"Words": "Words", "Group": ""},
                 )
                 # sortiere x-Achse so, dass red Company links steht
-                fig_avg2.layout.id = None
                 fig_avg2.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False,
