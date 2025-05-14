@@ -251,7 +251,8 @@ if analysis_mode == "Textual Analysis":
                 fig2.update_layout(
                     showlegend=True,
                     legend_title_text="",
-                    yaxis={"categoryorder": "array", "categoryarray": peers_df["company"].tolist()}
+                    # alternativ statt category_orders: Total-Descending
+                    yaxis={"categoryorder": "total descending"}
                 )
                 st.plotly_chart(fig2, use_container_width=True)
             
@@ -345,7 +346,8 @@ if analysis_mode == "Textual Analysis":
                 fig2w.update_layout(
                     showlegend=True,
                     legend_title_text="",
-                    yaxis={"categoryorder": "array", "categoryarray": peers_df["company"].tolist()}
+                    # alternativ statt category_orders: Total-Descending
+                    yaxis={"categoryorder": "total descending"}
                 )
                 st.plotly_chart(fig2w, use_container_width=True)
 
