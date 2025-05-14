@@ -99,9 +99,10 @@ peer_selection = st.sidebar.multiselect(
 # --------------------------------------------------------------------
 # 6. Build benchmark_df
 # --------------------------------------------------------------------
-if peer_selection:
-    benchmark_df    = df[df["name"].isin(peer_selection)]
-    benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
+if benchmark_type == "Sector Peers":
+    sector          = df.loc[df["name"] == company, "sector"].iat[0]
+    benchmark_df    = df[df["sector"] == sector]
+    benchmark_label = f"Sector Peers: {sector}"
 elif benchmark_type == "All CSRD First Wave":
     benchmark_df    = df.copy()
     benchmark_label = "All CSRD First Wave"
@@ -109,15 +110,14 @@ elif benchmark_type == "Country Peers":
     country         = df.loc[df["name"] == company, "country"].iat[0]
     benchmark_df    = df[df["country"] == country]
     benchmark_label = f"Country Peers: {country}"
-elif benchmark_type == "Sector Peers":
-    sector          = df.loc[df["name"] == company, "sector"].iat[0]
-    benchmark_df    = df[df["sector"] == sector]
-    benchmark_label = f"Sector Peers: {sector}"
 elif benchmark_type == "Size Peers":
     terc            = df.loc[df["name"] == company, "market_cap_tercile"].iat[0]
     lbl             = "Small" if terc == 1 else "Mid" if terc == 2 else "Large"
     benchmark_df    = df[df["market_cap_tercile"] == terc]
     benchmark_label = f"Market Cap Group: {lbl}"
+if peer_selection:
+    benchmark_df    = df[df["name"].isin(peer_selection)]
+    benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
 
 # Focal-Werte
 focal_pages = df.loc[df["name"] == company, "pagespdf"].iat[0]
