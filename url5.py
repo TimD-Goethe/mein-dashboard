@@ -214,7 +214,7 @@ if analysis_mode == "Textual Analysis":
                 # 2) Scatter-Plot
                 fig = px.scatter(
                     plot_df.assign(y=plot_df["jitter"]),
-                    x="pagespdf",
+                    x="Sustainability_Page_Count",
                     y="y",
                     hover_name="company",
                     hover_data={
