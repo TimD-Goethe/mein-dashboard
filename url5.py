@@ -94,7 +94,7 @@ peer_selection = st.sidebar.multiselect(
 # 6. Build benchmark_df
 # --------------------------------------------------------------------
 if benchmark_type == "Sector Peers":
-    sector          = df.loc[df["company"] == company, "sector"].iat[0]
+    sector          = df.loc[df["company"] == company, "SASB_industry"].iat[0]
     benchmark_df    = df[df["SASB_industry"] == sector]
     benchmark_label = f"Sector Peers: {sector}"
 elif benchmark_type == "All CSRD First Wave":
