@@ -187,7 +187,7 @@ if analysis_mode == "Textual Analysis":
     with col_content:
         plot_df = benchmark_df.copy()
         plot_df["highlight_label"] = np.where(
-            plot_df["name"] == company, company, "Peers"
+            plot_df["company"] == company, company, "Peers"
         )
 
         if view == "Number of Pages":
