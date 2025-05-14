@@ -71,9 +71,9 @@ st.sidebar.header("Benchmark Group")
 
 # 5.2 Optionen-Liste zusammenbauen
 peer_group_opts = [
+    "Sector Peers",
     "All CSRD First Wave",
     "Country Peers",
-    "Sector Peers",
     "Size Peers",
 ]
 
