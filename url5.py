@@ -222,10 +222,10 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig, use_container_width=True)
 
             elif plot_type == "Bar Chart":
-                # 1) Detail-Bar-Chart aller Peer-Unternehmen, jetzt als horizontale Balken
+                # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken
                 peers_df = plot_df.sort_values("Sustainability_Page_Count", ascending=False)
                 mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
-            
+                
                 fig2 = px.bar(
                     peers_df,
                     x="Sustainability_Page_Count",
@@ -238,9 +238,10 @@ if analysis_mode == "Textual Analysis":
                         "company": "Company",
                         "highlight_label": ""
                     },
+                    # Hier zwingst Du Plotly, die Y-Kategorien genau in peers_df-Reihenfolge anzuzeigen
                     category_orders={"company": peers_df["company"].tolist()}
                 )
-                # vertikale Linie bei Peer Average
+                
                 fig2.add_vline(
                     x=mean_pages,
                     line_dash="dash",
@@ -248,12 +249,17 @@ if analysis_mode == "Textual Analysis":
                     annotation_text="Peer Average",
                     annotation_position="top left"
                 )
+                
                 fig2.update_layout(
                     showlegend=True,
                     legend_title_text="",
-                    # alternativ statt category_orders: Total-Descending
-                    yaxis={"categoryorder": "total descending"}
+                    yaxis={
+                        # unbedingt "array", und wir liefern genau die Liste in peers_df-Reihenfolge
+                        "categoryorder": "array",
+                        "categoryarray": peers_df["company"].tolist()
+                    }
                 )
+                
                 st.plotly_chart(fig2, use_container_width=True)
             
                 # 2) Peer Average vs. Focal Company, jetzt als vertikale Balken mit rotem Balken links
@@ -317,10 +323,10 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig, use_container_width=True)
 
             elif plot_type == "Bar Chart":
-                # 1) Detail-Bar-Chart aller Peer-Unternehmen als horizontale Balken
+                # 1) Detail-Bar-Chart aller Peer-Unternehmen als horizontale Balken (Words)
                 peers_df = plot_df.sort_values("words", ascending=False)
                 mean_words = benchmark_df["words"].mean()
-
+                
                 fig2w = px.bar(
                     peers_df,
                     x="words",
@@ -333,9 +339,10 @@ if analysis_mode == "Textual Analysis":
                         "company": "Company",
                         "highlight_label": ""
                     },
+                    # zwingt die Y-Kategorien in der exakt absteigenden Reihenfolge aus peers_df
                     category_orders={"company": peers_df["company"].tolist()}
                 )
-                # vertikale Linie bei Peer Average
+                # vertikale Peer-Average-Linie
                 fig2w.add_vline(
                     x=mean_words,
                     line_dash="dash",
@@ -346,10 +353,35 @@ if analysis_mode == "Textual Analysis":
                 fig2w.update_layout(
                     showlegend=True,
                     legend_title_text="",
-                    # alternativ statt category_orders: Total-Descending
-                    yaxis={"categoryorder": "total descending"}
+                    yaxis={
+                        "categoryorder": "array",
+                        "categoryarray": peers_df["company"].tolist()
+                    }
                 )
                 st.plotly_chart(fig2w, use_container_width=True)
+                
+                # 2) Peer Average vs. Focal Company als vertikale Balken (roter Balken links)
+                comp_df2 = pd.DataFrame({
+                    "Group": ["Peer Average", company],
+                    "Words": [mean_words, focal_words]
+                })
+                fig_avg2 = px.bar(
+                    comp_df2,
+                    x="Group",
+                    y="Words",
+                    text="Words",
+                    color="Group",
+                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
+                    labels={"Words": "Words", "Group": ""}
+                )
+                # rote Firma links positionieren
+                fig_avg2.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                    showlegend=False
+                )
+                fig_avg2.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_avg2, use_container_width=True)
+
 
                 # 2) Peer Average vs. Focal Company als vertikale Balken (roter Balken links)
                 comp_df2 = pd.DataFrame({
