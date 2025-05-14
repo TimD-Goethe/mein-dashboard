@@ -365,10 +365,10 @@ if analysis_mode == "Textual Analysis":
                     legend_title_text="",
                     yaxis={
                         "categoryorder": "array",
-                        # auch hier die umgedrehte Liste, damit "Imerys" ganz oben steht
-                        "categoryarray": y_order
+                        "categoryarray": peers_df["company"].tolist()[::-1]
                     }
                 )
+
                 st.plotly_chart(fig2w, use_container_width=True)
                 
                 # 2) Peer Average vs. Focal Company als vertikale Balken (roter Balken links)
