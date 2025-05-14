@@ -218,7 +218,7 @@ if analysis_mode == "Textual Analysis":
                     y="y",
                     hover_name="company",
                     hover_data={
-                        "pagespdf": True,        # zeige die Seitenzahl
+                        "Sustainability_Page_Count": True,        # zeige die Seitenzahl
                         "highlight_label": False,# verberge „Peers“ vs. Firmenname
                         "y": False               # verberge den Jitter-Wert
                     },
