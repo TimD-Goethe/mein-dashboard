@@ -114,7 +114,7 @@ if peer_selection:
     benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
 
 # Focal-Werte
-focal_pages = df.loc[df["company"] == company, "pagespdf"].iat[0]
+focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
 focal_words = df.loc[df["company"] == company, "words"].iat[0]
 
 # --------------------------------------------------------------------
