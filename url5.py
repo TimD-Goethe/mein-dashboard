@@ -330,9 +330,13 @@ if analysis_mode == "Textual Analysis":
 
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen als horizontale Balken (Words)
-                peers_df = plot_df.sort_values("words", ascending=False)
-                mean_words = benchmark_df["words"].mean()
+                # nach Wert absteigend sortieren
+                peers_df = plot_df.sort_values("Sustainability_Page_Count", ascending=False)
+
                 
+                mean_words = benchmark_df["words"].mean()
+                # Wir drehen die Firmenliste, damit die größte ganz oben landet
+                y_order = peers_df["company"].tolist()[::-1]
                 fig2w = px.bar(
                     peers_df,
                     x="words",
@@ -345,8 +349,8 @@ if analysis_mode == "Textual Analysis":
                         "company": "Company",
                         "highlight_label": ""
                     },
-                    # zwingt die Y-Kategorien in der exakt absteigenden Reihenfolge aus peers_df
-                    category_orders={"company": peers_df["company"].tolist()}
+                    # hier verwenden wir die umgedrehte Liste
+                    category_orders={"company": y_order}
                 )
                 # vertikale Peer-Average-Linie
                 fig2w.add_vline(
@@ -356,12 +360,13 @@ if analysis_mode == "Textual Analysis":
                     annotation_text="Peer Average",
                     annotation_position="top left"
                 )
-                fig2w.update_layout(
+                fig2.update_layout(
                     showlegend=True,
                     legend_title_text="",
                     yaxis={
                         "categoryorder": "array",
-                        "categoryarray": peers_df["company"].tolist()
+                        # auch hier die umgedrehte Liste, damit "Imerys" ganz oben steht
+                        "categoryarray": y_order
                     }
                 )
                 st.plotly_chart(fig2w, use_container_width=True)
