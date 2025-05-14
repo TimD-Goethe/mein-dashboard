@@ -223,8 +223,14 @@ if analysis_mode == "Textual Analysis":
 
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken
+                # nach Wert absteigend sortieren
                 peers_df = plot_df.sort_values("Sustainability_Page_Count", ascending=False)
+
+                
                 mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
+
+                 # Wir drehen die Firmenliste, damit die größte ganz oben landet
+                y_order = peers_df["company"].tolist()[::-1]
                 
                 fig2 = px.bar(
                     peers_df,
@@ -238,8 +244,8 @@ if analysis_mode == "Textual Analysis":
                         "company": "Company",
                         "highlight_label": ""
                     },
-                    # Hier zwingst Du Plotly, die Y-Kategorien genau in peers_df-Reihenfolge anzuzeigen
-                    category_orders={"company": peers_df["company"].tolist()}
+                    # hier verwenden wir die umgedrehte Liste
+                    category_orders={"company": y_order}
                 )
                 
                 fig2.add_vline(
@@ -254,9 +260,9 @@ if analysis_mode == "Textual Analysis":
                     showlegend=True,
                     legend_title_text="",
                     yaxis={
-                        # unbedingt "array", und wir liefern genau die Liste in peers_df-Reihenfolge
                         "categoryorder": "array",
-                        "categoryarray": peers_df["company"].tolist()
+                        # auch hier die umgedrehte Liste, damit "Imerys" ganz oben steht
+                        "categoryarray": y_order
                     }
                 )
                 
