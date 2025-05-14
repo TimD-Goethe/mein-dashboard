@@ -250,7 +250,7 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig_avg, use_container_width=True)
             
                 # 2) Detail-Bar-Chart aller Peer-Unternehmen
-                peers_df = plot_df.sort_values("pagespdf", ascending=False)
+                peers_df = plot_df.sort_values("Sustainability_Page_Count", ascending=False)
                 fig2 = px.bar(
                     peers_df,
                     x="name",
