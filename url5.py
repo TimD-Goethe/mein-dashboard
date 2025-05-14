@@ -358,7 +358,7 @@ if analysis_mode == "Textual Analysis":
             df_display = (
                 benchmark_df
                 [["company","country","SASB_industry","Sustainability_Page_Count","words"]]
-                .sort_values(by="pagespdf")
+                .sort_values(by="Sustainability_Page_Count")
                 .reset_index(drop=True)
             )
 
