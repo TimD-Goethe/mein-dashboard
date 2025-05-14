@@ -194,18 +194,18 @@ if analysis_mode == "Textual Analysis":
             st.subheader(f"Number of Pages ({benchmark_label})")
 
             # vorher sicherstellen, dass mean_pages definiert ist
-            mean_pages = benchmark_df["pagespdf"].mean()
+            mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
 
             if plot_type == "Strip Plot":
                 plot_df = benchmark_df.copy()
                 # Company ergänzen, falls sie nicht zu den ausgewählten Peers gehört
-                if company not in plot_df["name"].values:
-                    focal_row = df[df["name"] == company]
+                if company not in plot_df["company"].values:
+                    focal_row = df[df["company"] == company]
                     plot_df = pd.concat([plot_df, focal_row], ignore_index=True)
             
                 # Highlight-Label zuweisen
                 plot_df["highlight_label"] = np.where(
-                    plot_df["name"] == company, company, "Peers"
+                    plot_df["company"] == company, company, "Peers"
                 )
 
                 # 1) Jitter hinzufügen
@@ -216,7 +216,7 @@ if analysis_mode == "Textual Analysis":
                     plot_df.assign(y=plot_df["jitter"]),
                     x="pagespdf",
                     y="y",
-                    hover_name="name",
+                    hover_name="company",
                     hover_data={
                         "pagespdf": True,        # zeige die Seitenzahl
                         "highlight_label": False,# verberge „Peers“ vs. Firmenname
@@ -224,7 +224,7 @@ if analysis_mode == "Textual Analysis":
                     },
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"pagespdf": "Pages", "highlight_label": ""}
+                    labels={"Sustainability_Page_Count": "Pages", "highlight_label": ""}
                 )
 
                 # → hier die y-Achse komplett ausblenden und Range setzen:
@@ -263,7 +263,7 @@ if analysis_mode == "Textual Analysis":
             elif plot_type == "Histogram":
                 fig = px.histogram(
                     plot_df, x="pagespdf", nbins=20,
-                    labels={"pagespdf": "Pages"}
+                    labels={"Sustainability_Page_Count": "Pages"}
                 )
                 # Linien bleiben hier als VLines
                 fig.add_vline(
