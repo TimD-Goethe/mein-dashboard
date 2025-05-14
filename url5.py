@@ -253,8 +253,8 @@ if analysis_mode == "Textual Analysis":
                 peers_df = plot_df.sort_values("Sustainability_Page_Count", ascending=False)
                 fig2 = px.bar(
                     peers_df,
-                    x="name",
-                    y="pagespdf",
+                    x="company",
+                    y="Sustainability_Page_Count",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={"pagespdf": "Pages", "name": "Company", "highlight_label": ""},
