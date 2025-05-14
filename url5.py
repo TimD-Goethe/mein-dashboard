@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import plotly.graph_objects as go
 from urllib.parse import unquote, quote  # zum Percent-Decoding und URL-Encoding
 
 # --------------------------------------------------------------------
@@ -31,29 +30,21 @@ st.markdown(
 # 2. Daten laden
 # --------------------------------------------------------------------
 df = pd.read_csv("summary_with_meta.csv")
-
-# aus "trbceconomicsectorname" wird "sector"
 df.rename(columns={"trbceconomicsectorname": "sector"}, inplace=True)
 
 # --------------------------------------------------------------------
-# 3. URL-Param lesen, decodieren & auf Default-Firma mappen
+# 3. URL-Param lesen, decodieren & Default-Firma
 # --------------------------------------------------------------------
-# 3.1 Liste aller Firmennamen und case-insensitive Mapping
 company_list = df["company"].dropna().unique().tolist()
 mapping_ci   = {name.strip().casefold(): name for name in company_list}
 
-# 3.2 Query-Param auslesen und percent-decodieren
 raw = st.query_params.get("company", [""])[0] or ""
 raw = unquote(raw)
-
-# 3.3 Normalisieren
 key = raw.strip().casefold()
-
-# 3.4 Lookup oder Fallback
 default_company = mapping_ci.get(key, company_list[0])
 
 # --------------------------------------------------------------------
-# 4. Sidebar: Focal Company Selection
+# 4. Sidebar: Company Selection
 # --------------------------------------------------------------------
 st.sidebar.header("Company Selection")
 default_idx = company_list.index(default_company) if default_company in company_list else 0
@@ -65,25 +56,19 @@ company = st.sidebar.selectbox(
 )
 
 # --------------------------------------------------------------------
-# 5. Sidebar: Benchmark Group Selection
+# 5. Sidebar: Benchmark Group
 # --------------------------------------------------------------------
 st.sidebar.header("Benchmark Group")
-
-# 5.2 Optionen-Liste zusammenbauen
 peer_group_opts = [
     "All CSRD First Wave",
     "Country Peers",
     "Sector Peers",
-    "Size Peers",
 ]
-
-# 5.3 Radio-Widget mit nur gültigen Optionen
 benchmark_type = st.sidebar.radio(
     "Select Your Peer Group:",
     peer_group_opts,
     key="benchmark_type",
 )
-
 peer_selection = st.sidebar.multiselect(
     "Or choose specific peer companies:",
     options=company_list,
@@ -94,23 +79,21 @@ peer_selection = st.sidebar.multiselect(
 # 6. Build benchmark_df
 # --------------------------------------------------------------------
 if benchmark_type == "Sector Peers":
-    sector          = df.loc[df["company"] == company, "sector"].iat[0]
-    benchmark_df    = df[df["SASB_industry"] == sector]
+    sector = df.loc[df["company"] == company, "sector"].iat[0]
+    benchmark_df = df[df["SASB_industry"] == sector]
     benchmark_label = f"Sector Peers: {sector}"
+
 elif benchmark_type == "All CSRD First Wave":
-    benchmark_df    = df.copy()
+    benchmark_df = df.copy()
     benchmark_label = "All CSRD First Wave"
+
 elif benchmark_type == "Country Peers":
-    country         = df.loc[df["company"] == company, "country"].iat[0]
-    benchmark_df    = df[df["country"] == country]
+    country = df.loc[df["company"] == company, "country"].iat[0]
+    benchmark_df = df[df["country"] == country]
     benchmark_label = f"Country Peers: {country}"
-#elif benchmark_type == "Size Peers":
- #   terc            = df.loc[df["company"] == company, "market_cap_tercile"].iat[0]
-  #  lbl             = "Small" if terc == 1 else "Mid" if terc == 2 else "Large"
-    #benchmark_df    = df[df["market_cap_tercile"] == terc]
-    #benchmark_label = f"Market Cap Group: {lbl}"
+
 if peer_selection:
-    benchmark_df    = df[df["company"].isin(peer_selection)]
+    benchmark_df = df[df["company"].isin(peer_selection)]
     benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
 
 # Focal-Werte
@@ -130,9 +113,7 @@ plot_type = st.sidebar.radio(
 # --------------------------------------------------------------------
 # 8. Header & Analysis mode
 # --------------------------------------------------------------------
-# 1. Header + Untertitel + Radio-Buttons in einem columns-Aufruf
 header_col, nav_col = st.columns([3, 1], gap="large")
-
 with header_col:
     st.header("CSRD Dashboard")
     st.markdown(
@@ -149,16 +130,9 @@ with header_col:
         """,
         unsafe_allow_html=True,
     )
-
 with nav_col:
-    analysis_mode = st.radio(
-        "",
-        ["Textual Analysis"],
-        horizontal=True,
-        key="analysis_mode",
-    )
+    analysis_mode = st.radio("", ["Textual Analysis"], horizontal=True, key="analysis_mode")
 
-# 2. Voll-breiter, farbiger Strich
 color = "#e63946" if analysis_mode == "Textual Analysis" else "#457b9d"
 st.markdown(
     f"""
@@ -180,7 +154,7 @@ if analysis_mode == "Textual Analysis":
     col_content, col_view = st.columns([3, 1])
     with col_view:
         view = st.selectbox(
-            "Analysis:", 
+            "Analysis:",
             ["Number of Pages", "Number of Words", "Peer Company List"],
             key="view_selector"
         )
@@ -192,37 +166,23 @@ if analysis_mode == "Textual Analysis":
 
         if view == "Number of Pages":
             st.subheader(f"Number of Pages ({benchmark_label})")
-
-            # vorher sicherstellen, dass mean_pages definiert ist
             mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
 
             if plot_type == "Histogram":
                 fig = px.histogram(
-                    plot_df, x="Sustainability_Page_Count", nbins=20,
+                    plot_df,
+                    x="Sustainability_Page_Count",
+                    nbins=20,
                     labels={"Sustainability_Page_Count": "Pages"}
                 )
-                # Linien bleiben hier als VLines
-                fig.add_vline(
-                    x=mean_pages,
-                    line_color="#1f77b4",
-                    line_width=1,
-                    opacity=0.6,
-                    annotation_text="Peer Average",
-                    annotation_position="top right"
-                )
-                fig.add_vline(
-                    x=focal_pages,
-                    line_dash="dash",
-                    line_color="red",
-                    opacity=0.8,
-                    annotation_text=company,
-                    annotation_position="top left"
-                )
+                fig.add_vline(x=mean_pages, line_color="#1f77b4", line_width=1,
+                              opacity=0.6, annotation_text="Peer Average", annotation_position="top right")
+                fig.add_vline(x=focal_pages, line_dash="dash", line_color="red",
+                              opacity=0.8, annotation_text=company, annotation_position="top left")
                 fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
             elif plot_type == "Bar Chart":
-                # 1) Peer Average vs. Focal Company
                 avg_pages = benchmark_df["Sustainability_Page_Count"].mean()
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
@@ -237,75 +197,45 @@ if analysis_mode == "Textual Analysis":
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
-                fig_avg.update_traces(
-                    texttemplate="%{text:.0f}",
-                    textposition="outside",
-                    width=0.5
-                )
-                fig_avg.update_layout(
-                    showlegend=True,
-                    legend_title_text="",
-                    yaxis=dict(range=[0, comp_df["Pages"].max() * 1.2])
-                )
+                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                fig_avg.update_layout(showlegend=True, legend_title_text="",
+                                      yaxis=dict(range=[0, comp_df["Pages"].max() * 1.2]))
                 st.plotly_chart(fig_avg, use_container_width=True)
-            
-                # 2) Detail-Bar-Chart aller Peer-Unternehmen
-                peers_df = plot_df.sort_values("pagespdf", ascending=False)
+
+                peers_df = plot_df.sort_values("Sustainability_Page_Count", ascending=False)
                 fig2 = px.bar(
                     peers_df,
                     x="company",
                     y="Sustainability_Page_Count",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"pagespdf": "Pages", "name": "Company", "highlight_label": ""},
-                    category_orders={"Sustainability_Page_Count": peers_df["name"].tolist()}
+                    labels={"Sustainability_Page_Count": "Pages", "company": "Company", "highlight_label": ""},
+                    category_orders={"company": peers_df["company"].tolist()}
                 )
-                fig2.update_layout(
-                    showlegend=True,
-                    legend_title_text="",
-                    xaxis_tickangle=-45
-                )
+                fig2.update_layout(showlegend=True, legend_title_text="", xaxis_tickangle=-45)
                 st.plotly_chart(fig2, use_container_width=True)
 
-
-            # Fußnote
             st.caption("Number of pages of companies’ sustainability reports.")
 
-        
         elif view == "Number of Words":
             st.subheader(f"Number of Words ({benchmark_label})")
-
-            # 1) Peer-Average berechnen
             mean_words = benchmark_df["words"].mean()
 
             if plot_type == "Histogram":
                 fig = px.histogram(
-                    plot_df, x="words", nbins=20,
+                    plot_df,
+                    x="words",
+                    nbins=20,
                     labels={"words": "Words"}
                 )
-                # Peer Average als vertikale Linie mit Beschriftung
-                fig.add_vline(
-                    x=mean_words,
-                    line_color="#1f77b4",
-                    line_width=1,
-                    opacity=0.6,
-                    annotation_text="Peer Average",
-                    annotation_position="top right"
-                )
-                # Focal Company
-                fig.add_vline(
-                    x=focal_words,
-                    line_dash="dash",
-                    line_color="red",
-                    opacity=0.8,
-                    annotation_text=company,
-                    annotation_position="top left"
-                )
+                fig.add_vline(x=mean_words, line_color="#1f77b4", line_width=1,
+                              opacity=0.6, annotation_text="Peer Average", annotation_position="top right")
+                fig.add_vline(x=focal_words, line_dash="dash", line_color="red",
+                              opacity=0.8, annotation_text=company, annotation_position="top left")
                 fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
             elif plot_type == "Bar Chart":
-                # 1) Peer Average vs. Focal Company
                 avg_words = benchmark_df["words"].mean()
                 comp_df2 = pd.DataFrame({
                     "Group": ["Peer Average", company],
@@ -321,14 +251,10 @@ if analysis_mode == "Textual Analysis":
                     labels={"Words": "Words", "Group": ""}
                 )
                 fig_avg2.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-                fig_avg2.update_layout(
-                    showlegend=True,
-                    legend_title_text="",
-                    yaxis=dict(range=[0, comp_df2["Words"].max() * 1.2])
-                )
+                fig_avg2.update_layout(showlegend=True, legend_title_text="",
+                                       yaxis=dict(range=[0, comp_df2["Words"].max() * 1.2]))
                 st.plotly_chart(fig_avg2, use_container_width=True)
-            
-                # 2) Alle einzelnen Peer-Unternehmen
+
                 peers_df = plot_df.sort_values("words", ascending=False)
                 fig2w = px.bar(
                     peers_df,
@@ -336,31 +262,20 @@ if analysis_mode == "Textual Analysis":
                     y="words",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"words": "Words", "name": "Company", "highlight_label": ""},
-                    category_orders={"name": peers_df["name"].tolist()},
+                    labels={"words": "Words", "company": "Company", "highlight_label": ""},
+                    category_orders={"company": peers_df["company"].tolist()}
                 )
-                fig2w.update_layout(
-                    showlegend=True,
-                    legend_title_text="",
-                    xaxis_tickangle=-45,
-                )
+                fig2w.update_layout(showlegend=True, legend_title_text="", xaxis_tickangle=-45)
                 st.plotly_chart(fig2w, use_container_width=True)
 
-            # Fußnote
             st.caption("Number of words in companies’ sustainability statements.")
 
         else:
             st.subheader("Peer Company List")
-
             st.caption("Companies included in this list, based on your peer group selection.")
-            
-            # 1) DataFrame ohne echten Index
             df_display = (
-                benchmark_df
-                [["company","country","sector","Sustainability_Page_Count","words"]]
+                benchmark_df[["company", "country", "sector", "Sustainability_Page_Count", "words"]]
                 .sort_values(by="Sustainability_Page_Count")
                 .reset_index(drop=True)
             )
-
-            md = df_display.to_markdown(index=False)
-            st.markdown(md, unsafe_allow_html=True)
+            st.table(df_display)
