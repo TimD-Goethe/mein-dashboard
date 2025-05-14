@@ -357,7 +357,7 @@ if analysis_mode == "Textual Analysis":
             # 1) DataFrame ohne echten Index
             df_display = (
                 benchmark_df
-                [["name","country","SASB_industry","Sustainability_Page_Count","words"]]
+                [["company","country","SASB_industry","Sustainability_Page_Count","words"]]
                 .sort_values(by="pagespdf")
                 .reset_index(drop=True)
             )
