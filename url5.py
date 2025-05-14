@@ -123,7 +123,7 @@ focal_words = df.loc[df["company"] == company, "words"].iat[0]
 st.sidebar.header("Chart Type")
 plot_type = st.sidebar.radio(
     "Select plot type:",
-    ["Strip Plot", "Bar Chart", "Histogram"],
+    ["Bar Chart", "Histogram"],
     key="plot_type",
 )
 
@@ -196,71 +196,7 @@ if analysis_mode == "Textual Analysis":
             # vorher sicherstellen, dass mean_pages definiert ist
             mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
 
-            if plot_type == "Strip Plot":
-                plot_df = benchmark_df.copy()
-                # Company ergänzen, falls sie nicht zu den ausgewählten Peers gehört
-                if company not in plot_df["company"].values:
-                    focal_row = df[df["company"] == company]
-                    plot_df = pd.concat([plot_df, focal_row], ignore_index=True)
-            
-                # Highlight-Label zuweisen
-                plot_df["highlight_label"] = np.where(
-                    plot_df["company"] == company, company, "Peers"
-                )
-
-                # 1) Jitter hinzufügen
-                plot_df["jitter"] = 0.1 * np.random.randn(len(plot_df))
-
-                # 2) Scatter-Plot
-                fig = px.scatter(
-                    plot_df.assign(y=plot_df["jitter"]),
-                    x="Sustainability_Page_Count",
-                    y="y",
-                    hover_name="company",
-                    hover_data={
-                        "Sustainability_Page_Count": True,        # zeige die Seitenzahl
-                        "highlight_label": False,# verberge „Peers“ vs. Firmenname
-                        "y": False               # verberge den Jitter-Wert
-                    },
-                    color="highlight_label",
-                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"Sustainability_Page_Count": "Pages", "highlight_label": ""}
-                )
-
-                # → hier die y-Achse komplett ausblenden und Range setzen:
-                fig.update_yaxes(
-                    showticklabels=False,   # keine Achsenbeschriftungen
-                    title_text="",          # keine Achsentitel
-                    range=[-0.5, 0.5],      # nur von -0.5 bis +0.5
-                    showgrid=False,         # (optional) keine horizontalen Linien
-                    zeroline=False          # (optional) keine Null-Linie
-                )
-                
-                # 3) Peer Average als durchgezogene blaue Linie
-                fig.add_trace(go.Scatter(
-                    x=[mean_pages, mean_pages],
-                    y=[-0.5, +0.5],
-                    mode="lines",
-                    line=dict(color="#1f77b4", width=2, dash="solid"),
-                    name="Peer Average"
-                ))
-
-                # 4) Focal Company als rote, gestrichelte Linie
-                fig.add_trace(go.Scatter(
-                    x=[focal_pages, focal_pages],
-                    y=[-0.5, +0.5],
-                    mode="lines",
-                    line=dict(color="red", width=2, dash="dash"),
-                    name=company
-                ))
-
-                # 5) Y-Achse einschränken, damit die Linien nicht zu lang sind
-                fig.update_yaxes(range=[-1, 1])
-
-                # 6) Plot ausgeben
-                st.plotly_chart(fig, use_container_width=True)
-
-            elif plot_type == "Histogram":
+            if plot_type == "Histogram":
                 fig = px.histogram(
                     plot_df, x="pagespdf", nbins=20,
                     labels={"Sustainability_Page_Count": "Pages"}
@@ -285,7 +221,7 @@ if analysis_mode == "Textual Analysis":
                 fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
-            else:  # Bar Chart
+            elif:  # Bar Chart
                 # 1) Peer Average vs. Focal Company
                 avg_pages = benchmark_df["pagespdf"].mean()
                 comp_df = pd.DataFrame({
@@ -342,71 +278,7 @@ if analysis_mode == "Textual Analysis":
             # 1) Peer-Average berechnen
             mean_words = benchmark_df["words"].mean()
 
-            if plot_type == "Strip Plot":
-                plot_df = benchmark_df.copy()
-                # Company ergänzen, falls sie nicht zu den ausgewählten Peers gehört
-                if company not in plot_df["name"].values:
-                    focal_row = df[df["name"] == company]
-                    plot_df = pd.concat([plot_df, focal_row], ignore_index=True)
-            
-                # Highlight-Label zuweisen
-                plot_df["highlight_label"] = np.where(
-                    plot_df["name"] == company, company, "Peers"
-                )
-                # Jitter zur Visualisierung
-                plot_df["jitter_w"] = 0.1 * np.random.randn(len(plot_df))
-
-                # Scatter-Plot
-                fig = px.scatter(
-                    plot_df.assign(y=plot_df["jitter_w"]),
-                    x="words",
-                    y="y",
-                    hover_name="name",
-                    hover_data={
-                        "words": True,           # Zeige die Wortzahl
-                        "highlight_label": False,# Verberge das Label
-                        "y": False               # Verberge den Jitter-Wert
-                    },
-                    color="highlight_label",
-                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"words": "Words", "highlight_label": ""}
-                )
-
-
-                # → hier die y-Achse komplett ausblenden und Range setzen:
-                fig.update_yaxes(
-                    showticklabels=False,   # keine Achsenbeschriftungen
-                    title_text="",          # keine Achsentitel
-                    range=[-0.5, 0.5],      # nur von -0.5 bis +0.5
-                    showgrid=False,         # (optional) keine horizontalen Linien
-                    zeroline=False          # (optional) keine Null-Linie
-                )
-
-                
-                # Peer Average als durchgezogene blaue Linie
-                fig.add_trace(go.Scatter(
-                    x=[mean_words, mean_words],
-                    y=[-0.5, +0.5],
-                    mode="lines",
-                    line=dict(color="#1f77b4", width=2, dash="solid"),
-                    name="Peer Average"
-                ))
-
-                # Focal Company als rote, gestrichelte Linie
-                fig.add_trace(go.Scatter(
-                    x=[focal_words, focal_words],
-                    y=[-0.5, +0.5],
-                    mode="lines",
-                    line=dict(color="red", width=2, dash="dash"),
-                    name=company
-                ))
-
-                # Y-Achse einschränken
-                fig.update_yaxes(range=[-1, 1])
-
-                st.plotly_chart(fig, use_container_width=True)
-
-            elif plot_type == "Histogram":
+            if plot_type == "Histogram":
                 fig = px.histogram(
                     plot_df, x="words", nbins=20,
                     labels={"words": "Words"}
@@ -432,7 +304,7 @@ if analysis_mode == "Textual Analysis":
                 fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
-            else:  # Bar Chart
+            elif:  # Bar Chart
                 # 1) Peer Average vs. Focal Company
                 avg_words = benchmark_df["words"].mean()
                 comp_df2 = pd.DataFrame({
