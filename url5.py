@@ -183,14 +183,6 @@ with header_col:
         unsafe_allow_html=True,
     )
 
-with nav_col:
-    analysis_mode = st.radio(
-        "",
-        ["Textual Analysis"],
-        horizontal=True,
-        key="analysis_mode",
-    )
-
 # 2. Voll-breiter, farbiger Strich
 color = "#e63946" if analysis_mode == "Textual Analysis" else "#457b9d"
 st.markdown(
