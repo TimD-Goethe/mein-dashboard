@@ -21,37 +21,31 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* — Sidebar auf Header-Höhe absenken — */
-      [data-testid="stSidebar"] {
-        margin-top: 120px !important;  /* <- auf die tatsächliche Header-Höhe anpassen */
+      /* wie vorher: nur leichtes Padding oben im Main-Container */
+      .block-container {
+        padding-top: 2.5rem;
       }
 
-      /* — Sticky Header, full-bleed in Main-Container — */
+      /* Unser Header innerhalb des Main-Flows sticky halten */
       .sticky-header {
         position: sticky;
-        top: 0;
-        z-index: 10;
-        background: linear-gradient(
-          180deg,
-          #E3DFFF 0%,
-          #E3DFFF 40%,   /* Lila bis 40% der Höhe */
-          #FFFFFF 100%   /* erst ganz unten Weiß */
-        );
-        padding: 0rem 0rem 0rem;
+        top: 0;                 /* klebt genau am oberen Rand des Main-Containers */
+        z-index: 10;            /* steht über nachfolgenden Inhalten */
+        background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 50%);
+        padding: 2rem;
         border-radius: 0 0 8px 8px;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
       }
-
       .sticky-header h1 {
         margin: 0;
         color: #2E1E9A;
         font-size: 2.25rem;
       }
       .sticky-header p {
-        margin: 0rem 0 0rem;
+        margin: 0.5rem 0 1rem;
         color: #333333;
       }
-      .sticky-header .divider {
+      .sticky-header hr {
         border: none;
         border-top: 3px solid #E10600;
         margin: 1rem 0;
@@ -66,17 +60,18 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 2) Header per Streamlit-Container mit position:sticky
+# 3. Header-Container im normalen Streamlit-Fluss
 with st.container():
     st.markdown('<div class="sticky-header">', unsafe_allow_html=True)
-    left, right = st.columns([3,1])
-    with left:
+    cols = st.columns([3,1])
+    with cols[0]:
         st.markdown("## CSRD Dashboard")
         st.markdown(
-            "Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. "
-            "All analyses are based on companies’ 2024 sustainability reports."
+            "Please select a peer group and variable of interest to benchmark your company’s "
+            "CSRD reporting. All analyses are based on companies’ 2024 sustainability reports."
         )
-    with right:
+    with cols[1]:
+        # Dein Textual Analysis-Radio
         analysis_mode = st.radio(
             label="",
             options=["Textual Analysis"],
@@ -84,7 +79,8 @@ with st.container():
             key="analysis_mode",
             label_visibility="collapsed"
         )
-    st.markdown('<hr class="divider"/></div>', unsafe_allow_html=True)
+    st.markdown('<hr/>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 # --------------------------------------------------------------------
 # 2. Daten laden
 # --------------------------------------------------------------------
