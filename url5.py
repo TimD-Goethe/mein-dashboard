@@ -17,28 +17,26 @@ def make_company_url(company_name: str) -> str:
 # -------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
-# 1) CSS für den Full-Bleed Header
 st.markdown(
     """
     <style>
+      /* 1) Full-bleed Gradient-Header */
       .header-container {
         position: relative;
         left: calc(-50vw + 50%);
         width: 100vw;
-        background: linear-gradient(
-          to bottom,
-          #E3DFFF 0%,
-          #FFFFFF 50%
-        );
+        background: linear-gradient(to bottom, #E3DFFF 0%, #FFFFFF 50%);
         padding: 2rem 2rem 4rem;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         z-index: 100;
       }
+      /* 2) Roter Strich unter dem Header */
       .header-divider {
         border: none;
         border-top: 3px solid #E10600;
         margin: 1rem 0 2rem;
       }
+      /* 3) Flex-Layout für Titel + Nav */
       .header-cols {
         display: flex;
         justify-content: space-between;
@@ -47,10 +45,6 @@ st.markdown(
       }
       .header-title {
         max-width: 70%;
-      }
-      .header-nav {
-        display: flex;
-        gap: 1rem;
       }
       .header-title h1 {
         margin: 0;
@@ -61,8 +55,21 @@ st.markdown(
         margin: 0.5rem 0 0;
         color: #4A4A4A;
       }
+      .header-nav {
+        display: flex;
+        gap: 1rem;
+      }
+
+      /* 4) Sidebar & Main-Content um Header-Höhe nach unten schieben */
+      [data-testid="stSidebar"] {
+        margin-top: 300px !important;      /* ← an Deine Header-Höhe anpassen */
+      }
+      [data-testid="stAppViewContainer"] .block-container {
+        padding-top: 300px !important;     /* ← dito */
+      }
     </style>
 
+    <!-- 5) HTML des Headers -->
     <div class="header-container">
       <div class="header-cols">
         <div class="header-title">
@@ -70,7 +77,7 @@ st.markdown(
           <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.</p>
         </div>
         <div class="header-nav">
-          <!-- Hier kommt unser einziger Mode-Button hin -->
+          <!-- Hier wird der Textual Analysis-Radio hinkommen -->
         </div>
       </div>
       <hr class="header-divider"/>
@@ -79,12 +86,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 2) In den Platzhalter für header-nav die Streamlit-Widgets packen
+# 6) Widgets in den Header-Nav-Bereich einfügen
 cols = st.columns([7, 3])
 with cols[1]:
     analysis_mode = st.radio(
         label="",
-        options=["Textual Analysis"],   # nur noch dieser eine Eintrag
+        options=["Textual Analysis"],
         horizontal=True,
         key="analysis_mode",
         label_visibility="collapsed"
