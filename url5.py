@@ -259,8 +259,10 @@ if analysis_mode == "Textual Analysis":
                     x=mean_pages,
                     line_dash="dash",
                     line_color="#1f77b4",
-                    annotation_text="Peer Average",
-                    annotation_position="top left"
+                    annotation_text="<b>Peer Average<b>",
+                    annotation_position="top left",
+                    annotation_font_color="black",
+                    annotation_font_size=16,
                 )
                 
                 fig2.update_layout(
@@ -320,8 +322,10 @@ if analysis_mode == "Textual Analysis":
                     line_color="#1f77b4",
                     line_width=1,
                     opacity=0.6,
-                    annotation_text="Peer Average",
-                    annotation_position="top right"
+                    annotation_text="<b>Peer Average<b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16,
                 )
                 # Focal Company
                 fig.add_vline(
@@ -329,8 +333,10 @@ if analysis_mode == "Textual Analysis":
                     line_dash="dash",
                     line_color="red",
                     opacity=0.8,
-                    annotation_text=company,
-                    annotation_position="top left"
+                    annotation_text=f"<b>{company}<b>",
+                    annotation_position="top left",
+                    annotation_font_color="red",
+                    annotation_font_size=16,
                 )
                 fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
@@ -358,8 +364,10 @@ if analysis_mode == "Textual Analysis":
                     x=mean_words,
                     line_dash="dash",
                     line_color="#1f77b4",
-                    annotation_text="Peer Average",
+                    annotation_text="<b>Peer Average<b>",
                     annotation_position="top left",
+                    annotation_font_color="black",
+                    annotation_font_size=16,
                 )
                 # eindeutige Element-ID verhindern Kollision
                 fig2w.update_layout(
