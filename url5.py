@@ -13,38 +13,36 @@ def make_company_url(company_name: str) -> str:
     return f"{base_url}?company={quote(company_name)}"
 
 # --------------------------------------------------------------------
-# 0. Page Config & CSS
-# -------------------------------------------------
+# 0. Page config
+# --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
+# --------------------------------------------------------------------
+# 1. Custom Header + CSS
+# --------------------------------------------------------------------
 st.markdown(
     """
     <style>
-      /* 1) Full-bleed Gradient-Header */
+      /* 1. Hide Streamlit-Cloud Sidebar-Toggle */
+      [data-testid="collapsedControl"] {
+        display: none !important;
+      }
+
+      /* 2. Full-width header */
       .header-container {
         position: relative;
         left: calc(-50vw + 50%);
         width: 100vw;
         background: linear-gradient(to bottom, #E3DFFF 0%, #FFFFFF 50%);
-        padding: 2rem 2rem 4rem;
+        padding: 2rem 2rem 4rem;  /* oben 2rem, unten 4rem Puffer für Buttons */
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        z-index: 100;
+        z-index: 100;           /* drüber, damit Sidebar darunter bleibt */
       }
-      /* 2) Roter Strich unter dem Header */
-      .header-divider {
-        border: none;
-        border-top: 3px solid #E10600;
-        margin: 1rem 0 2rem;
-      }
-      /* 3) Flex-Layout für Titel + Nav */
       .header-cols {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-      }
-      .header-title {
-        max-width: 70%;
       }
       .header-title h1 {
         margin: 0;
@@ -55,47 +53,73 @@ st.markdown(
         margin: 0.5rem 0 0;
         color: #4A4A4A;
       }
-      .header-nav {
+
+      /* 3. Placeholder für unsere Buttons im Header */
+      #header-nav-placeholder {
         display: flex;
         gap: 1rem;
       }
 
-      /* 4) Sidebar & Main-Content um Header-Höhe nach unten schieben */
-      [data-testid="stSidebar"] {
-        margin-top: 300px !important;      /* ← an Deine Header-Höhe anpassen */
+      /* 4. Roter Strich unter dem Header */
+      .header-divider {
+        border: none;
+        border-top: 3px solid #E10600;
+        margin: 1rem 0 2rem;
       }
-      [data-testid="stAppViewContainer"] .block-container {
-        padding-top: 300px !important;     /* ← dito */
+
+      /* 5. Verschiebe nur die Sidebar nach unten */
+      [data-testid="stSidebar"] {
+        margin-top: 300px !important;  /* <-- auf Deine Header-Höhe anpassen */
+      }
+
+      /* 6. Unterdrücke alle anderen <hr> im Main-Container */
+      .block-container hr {
+        display: none !important;
       }
     </style>
 
-    <!-- 5) HTML des Headers -->
+    <!-- HTML-Struktur des Headers -->
     <div class="header-container">
       <div class="header-cols">
         <div class="header-title">
           <h1>CSRD Dashboard</h1>
           <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.</p>
         </div>
-        <div class="header-nav">
-          <!-- Hier wird der Textual Analysis-Radio hinkommen -->
-        </div>
+        <div id="header-nav-placeholder"></div>
       </div>
       <hr class="header-divider"/>
     </div>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
-# 6) Widgets in den Header-Nav-Bereich einfügen
-cols = st.columns([7, 3])
-with cols[1]:
-    analysis_mode = st.radio(
-        label="",
-        options=["Textual Analysis"],
-        horizontal=True,
-        key="analysis_mode",
-        label_visibility="collapsed"
-    )
+# --------------------------------------------------------------------
+# 2. Textual Analysis Radio (initial) + JS-Move in den Header
+# --------------------------------------------------------------------
+# Erst erzeugen wir das Widget ganz normal
+analysis_mode = st.radio(
+    label="",
+    options=["Textual Analysis"],
+    horizontal=True,
+    key="analysis_mode",
+    label_visibility="collapsed"
+)
+
+# Dann schieben wir es per JS in unseren Header-Placeholder
+st.markdown(
+    """
+    <script>
+      (function() {
+        const radioDiv = document.querySelector('div[data-testid="stRadio"]');
+        const target    = document.getElementById('header-nav-placeholder');
+        if (radioDiv && target) {
+          target.appendChild(radioDiv);
+        }
+      })();
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
 # --------------------------------------------------------------------
 # 2. Daten laden
