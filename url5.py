@@ -612,7 +612,7 @@ if analysis_mode == "Textual Analysis":
                     color_discrete_map={
                         "Focal Country": "red",
                         "Other Countries": "#1f77b4"
-                    }
+                    },
                     labels={"Words": "Words", "country": ""},
                     category_orders={"country": y_order},
                 )
