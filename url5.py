@@ -239,40 +239,31 @@ if analysis_mode == "Textual Analysis":
             
                 st.subheader(f"Number of Pages Distribution ({focal_country} vs Other Countries)")
             
-                # 2) Länder-Durchschnitt in Pages
+                # 2) Länder‐Durchschnitt vorbereiten (egal ob vorher schon definiert)
                 country_avg = (
                     df
                     .groupby("country")["Sustainability_Page_Count"]
                     .mean()
                     .reset_index(name="Pages")
                 )
-            
-                # 3) Focal-Country herausgreifen
-                focal_country = df.loc[df["company"] == company, "country"].iat[0]
                 
-                # 4) Gruppe setzen
-                country_avg["group"] = np.where(
-                    country_avg["country"] == focal_country,
-                    focal_country,
-                    "Other Countries"
-                )
-            
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+                overall_avg = country_avg["Pages"].mean()
+                focal_avg   = country_avg.loc[country_avg["country"] == focal_country, "Pages"].iat[0]
+                
+                # 2) Einfaches Histogramm aller Länder‐Durchschnitte in dunkelblau
                 fig = px.histogram(
                     country_avg,
                     x="Pages",
-                    color="group",
-                    barmode="overlay",  # oder 'group', ganz wie Du’s magst
-                    nbins=10,           # je nach Breite Deiner Daten anpassen
-                    opacity=0.6,
-                    color_discrete_map={
-                        focal_country:   "red",
-                        "Other Countries": "#1f77b4"
-                    },
-                    labels={"Pages": "Average Pages per Country", "group": ""}
+                    nbins=10,  # nach Belieben anpassen
+                    opacity=0.8,
+                    labels={"Pages": "Pages"},
                 )
                 
-                # Schwarze Linie: Durchschnitt aller Länder-Durchschnitte
-                overall_avg = country_avg["Pages"].mean()
+                # 3) Histogramm‐Bars dunkelblau färben
+                fig.update_traces(marker_color="#1f77b4")
+                
+                # 4) V-Line für All Countries Avg (schwarz gestrichelt)
                 fig.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -280,11 +271,10 @@ if analysis_mode == "Textual Analysis":
                     line_width=2,
                     annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
-                    annotation_font_size=14
+                    annotation_font_size=14,
                 )
                 
-                # Rote Linie: Dein Land
-                focal_avg = country_avg.loc[country_avg["group"]==focal_country, "Pages"].iat[0]
+                # 5) V-Line für Austria Avg (rot gestrichelt), ohne extra Balken
                 fig.add_vline(
                     x=focal_avg,
                     line_dash="dash",
@@ -293,14 +283,15 @@ if analysis_mode == "Textual Analysis":
                     annotation_text=f"<b>{focal_country} Avg</b>",
                     annotation_position="top left",
                     annotation_font_color="red",
-                    annotation_font_size=14
+                    annotation_font_size=14,
                 )
                 
+                # 6) Legende ausblenden und Achsentitel
                 fig.update_layout(
-                    bargap=0.1,
-                    legend_title_text="",
+                    showlegend=False,
                     xaxis_title="Pages",
-                    yaxis_title="Number of Countries"
+                    yaxis_title="Number of Countries",
+                    bargap=0.1,
                 )
                 
                 st.plotly_chart(fig, use_container_width=True)
