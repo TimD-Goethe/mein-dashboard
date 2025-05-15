@@ -260,8 +260,6 @@ if analysis_mode == "Textual Analysis":
                     labels={"Pages": "Pages"},
                 )
                 
-                # 3) Histogramm‐Bars dunkelblau färben
-                fig.update_traces(marker_color="#1f77b4")
                 
                 # 4) V-Line für All Countries Avg (schwarz gestrichelt)
                 fig.add_vline(
