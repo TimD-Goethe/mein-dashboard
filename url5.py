@@ -87,7 +87,7 @@ peer_group_opts = [
     "Sector Peers",
     "All CSRD First Wave",
     "Country Peers",
-    "Size Peers",
+    "Market Cap Peers",
 ]
 
 # Wenn für dieses Unternehmen keine Market_Cap_Cat existiert,
