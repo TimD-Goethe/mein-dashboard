@@ -317,7 +317,7 @@ if analysis_mode == "Textual Analysis":
                     xaxis_title="Pages",
                 )
 
-    st.plotly_chart(fig_ctry, use_container_width=True)
+                st.plotly_chart(fig_ctry, use_container_width=True)
 
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken
