@@ -201,7 +201,7 @@ if analysis_mode == "Textual Analysis":
     with col_view:
         view = st.selectbox(
             "Analysis:", 
-            ["Number of Pages", "Number of Words", "Peer Company List"],
+            ["Number of Pages", "Number of Words", "Sentiment", "Peer Company List"],
             key="view_selector"
         )
     with col_content:
@@ -420,6 +420,81 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig_avg2, use_container_width=True, key="words_comparison")
             
                 st.caption("Number of words in companies’ sustainability statements.")
+
+
+        elif view == "Sentiment":
+            if plot_type = "Bar Chart":
+                st.subheader("Positive Words")
+                # Horizontal Bar Chart für words_pos
+                fig_pos = px.bar(
+                    benchmark_df,
+                    x="words_pos",
+                    y="company",
+                    orientation="h",
+                    color=[("Company" if c == company else "Peers") for c in benchmark_df["company"]],
+                    color_discrete_map={"Peers":"#4C78A8","Company":"#E10600"},
+                    labels={"words_pos":"# Positive Words","company":""},
+                )
+                # Peer-Average Linie
+                mean_pos = benchmark_df["words_pos"].mean()
+                fig_pos.add_vline(
+                    x=mean_pos,
+                    line_dash="dash",
+                    line_color="#333333",
+                    annotation_text="Peer Average",
+                    annotation_position="top right",
+                    annotation_font_color="#333333",
+                    annotation_font_size=12,
+                )
+                st.plotly_chart(fig_pos, use_container_width=True)
+            
+                st.subheader("Negative Words")
+                # Horizontal Bar Chart für words_neg
+                fig_neg = px.bar(
+                    benchmark_df,
+                    x="words_neg",
+                    y="company",
+                    orientation="h",
+                    color=[("Company" if c == company else "Peers") for c in benchmark_df["company"]],
+                    color_discrete_map={"Peers":"#4C78A8","Company":"#E10600"},
+                    labels={"words_neg":"# Negative Words","company":""},
+                )
+                mean_neg = benchmark_df["words_neg"].mean()
+                fig_neg.add_vline(
+                    x=mean_neg,
+                    line_dash="dash",
+                    line_color="#333333",
+                    annotation_text="Peer Average",
+                    annotation_position="top right",
+                    annotation_font_color="#333333",
+                    annotation_font_size=12,
+                )
+                st.plotly_chart(fig_neg, use_container_width=True)
+            
+                st.subheader("Peer vs. Company Sentiment")
+                # Vergleich positive vs. negative als grouped bar
+                comp_df = pd.DataFrame({
+                    "company": ["Peer Average", company],
+                    "Positive": [mean_pos,  focal_pos],
+                    "Negative": [mean_neg,  focal_neg]
+                })
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="company",
+                    y=["Positive","Negative"],
+                    barmode="group",
+                    labels={"value":"Count","company":""},
+                )
+                st.plotly_chart(fig_cmp, use_container_width=True)
+
+            elif plot_type == "Histogram":
+                st.write("Histogram of positive words")
+                fig_h1 = px.histogram(benchmark_df, x="words_pos", nbins=20)
+                st.plotly_chart(fig_h1, use_container_width=True)
+                st.write("Histogram of negative words")
+                fig_h2 = px.histogram(benchmark_df, x="words_neg", nbins=20)
+                st.plotly_chart(fig_h2, use_container_width=True)
+        
         else:
             st.subheader("Peer Company List")
 
