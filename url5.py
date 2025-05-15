@@ -453,21 +453,23 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_size=16,
                 )
                 st.plotly_chart(fig_pos, use_container_width=True)
-                orders = pos_df["company"].tolist()
+                #2) Negatives Chart – auch aufsteigend sortieren, damit das Letzte (größter Wert) oben landet
+                neg_df = benchmark_df.sort_values("words_neg", ascending=True)
+                orders_neg = neg_df["company"].tolist()
+                
                 st.subheader("Negative Words")
-                neg_df = benchmark_df.sort_values("words_neg", ascending=False)
-                # Horizontal Bar Chart für words_neg
                 fig_neg = px.bar(
-                    neg_df,
+                    neg_df,                              # <— nicht benchmark_df
                     x="words_neg",
                     y="company",
                     orientation="h",
-                    color=[("Company" if c == company else "Peers") for c in benchmark_df["company"]],
+                    color=[("Company" if c == company else "Peers") for c in neg_df["company"]],
                     color_discrete_map={"Peers":"#4C78A8","Company":"#E10600"},
                     labels={"words_neg":"# Negative Words","company":""},
-                    category_orders={"company": orders},
+                    category_orders={"company": orders_neg},  # <— Reihenfolge aus neg_df
                 )
-                mean_neg = benchmark_df["words_neg"].mean()
+                
+                mean_neg = neg_df["words_neg"].mean()       # peers‐Durchschnitt aus neg_df
                 fig_neg.add_vline(
                     x=mean_neg,
                     line_dash="dash",
@@ -477,6 +479,7 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
+                
                 st.plotly_chart(fig_neg, use_container_width=True)
             
                 mean_pos  = benchmark_df["words_pos"].mean()
