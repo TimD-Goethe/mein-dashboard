@@ -20,23 +20,28 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* 1) Fixed-Header absetzen unter die Cloud-Toolbar (~64px) */
+      /* 1) Streamlit-Cloud-Leiste (Share/Edit) belassen, Sidebar-Toggle verstecken */
+      [data-testid="collapsedControl"] {
+        display: none !important;
+      }
+      /* 2) Unser Full-Width Header unter der Cloud-Bar */
       .fixed-header {
         position: fixed;
-        top: 64px;           /* statt 0px */
+        top: 64px;             /* knapp unter der Cloud-Bar */
         left: 0;
         width: 100%;
         background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 100%);
-        padding: 1rem 2rem;
+        padding: 1.5rem 2rem;
         z-index: 1000;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       }
       .fixed-header h1 {
         margin: 0;
         color: #1C1C1E;
+        font-size: 2rem;
       }
       .fixed-header p {
-        margin: 0.25rem 0 0.75rem;
+        margin: 0.5rem 0 1rem;
         color: #4A4A4A;
       }
       .fixed-header hr {
@@ -45,20 +50,22 @@ st.markdown(
         margin: 0;
       }
 
-      /* 2) Sidebar und Main Content weiter nach unten schieben */
+      /* 3) Sidebar & Main-Content weit nach unten schieben */
       [data-testid="stSidebar"] {
-        margin-top: 200px !important;    /* statt 120px */
+        margin-top: 240px !important;     /* Header-Höhe (≈160px) + Abstand */
       }
       [data-testid="stAppViewContainer"] .block-container {
-        padding-top: 200px !important;   /* statt 120px */
+        padding-top: 240px !important;
       }
     </style>
 
-    <!-- 3) Unser eigener Header -->
+    <!-- 4) Eigener Header -->
     <div class="fixed-header">
       <h1>CSRD Dashboard</h1>
       <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.</p>
       <hr>
+      <!-- 5) Placeholder für das Analysis-Widget -->
+      <div id="analysis-widget"></div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -68,9 +75,6 @@ st.markdown(
 # 2. Daten laden
 # --------------------------------------------------------------------
 df = pd.read_csv("summary_with_meta.csv")
-
-# aus "trbceconomicsectorname" wird "sector"
-df.rename(columns={"trbceconomicsectorname": "sector"}, inplace=True)
 
 # --------------------------------------------------------------------
 # 3. URL-Param lesen, decodieren & auf Default-Firma mappen
@@ -92,7 +96,6 @@ default_company = mapping_ci.get(key, company_list[0])
 # --------------------------------------------------------------------
 # 4. Sidebar: Focal Company Selection
 # --------------------------------------------------------------------
-st.sidebar.header("Company Selection")
 default_idx = company_list.index(default_company) if default_company in company_list else 0
 company = st.sidebar.selectbox(
     "Select a company:",
