@@ -516,35 +516,67 @@ if analysis_mode == "Textual Analysis":
             # 1) Peer-Average berechnen
             mean_words = benchmark_df["words"].mean()
 
-            if plot_type == "Histogram":
+            elif benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+                # 1) Focal Country ermitteln
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+            
+                # 2) Länder‐Durchschnitt der Wortanzahlen berechnen
+                country_avg_words = (
+                    df
+                    .groupby("country")["words"]
+                    .mean()
+                    .reset_index(name="Words")
+                )
+            
+                # 3) Gesamt‐ und Focal‐Durchschnitt
+                overall_avg_words = country_avg_words["Words"].mean()
+                focal_avg_words   = country_avg_words.loc[
+                    country_avg_words["country"] == focal_country, "Words"
+                ].iat[0]
+            
+                # 4) Histogramm aller Länder‐Durchschnitte in Dunkelblau
                 fig = px.histogram(
-                    plot_df, x="words", nbins=20,
-                    labels={"words": "Words"}
+                    country_avg_words,
+                    x="Words",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"Words": "Words"},
                 )
-                # Peer Average als vertikale Linie mit Beschriftung
+                fig.update_traces(marker_color="#1f77b4")
+            
+                # 5) V-Line für All Countries Avg (schwarz, gestrichelt)
                 fig.add_vline(
-                    x=mean_words,
+                    x=overall_avg_words,
+                    line_dash="dash",
                     line_color="black",
-                    line_width=1,
-                    opacity=0.6,
-                    annotation_text="<b>Peer Average</b>",
+                    line_width=2,
+                    annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16,
+                    annotation_font_size=14,
                 )
-                # Focal Company
+            
+                # 6) V-Line für Focal Country Avg (rot, gestrichelt)
                 fig.add_vline(
-                    x=focal_words,
+                    x=focal_avg_words,
                     line_dash="dash",
                     line_color="red",
-                    opacity=0.8,
-                    annotation_text=f"<b>{company}</b>",
+                    line_width=2,
+                    annotation_text=f"<b>{focal_country} Avg</b>",
                     annotation_position="top left",
                     annotation_font_color="red",
-                    annotation_font_size=16,
+                    annotation_font_size=14,
                 )
-                fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
+            
+                # 7) Layout‐Feinschliff
+                fig.update_layout(
+                    showlegend=False,
+                    xaxis_title="Words",
+                    yaxis_title="Number of Countries",
+                    bargap=0.1,
+                )
+            
                 st.plotly_chart(fig, use_container_width=True)
+          
 
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen als horizontale Balken (Words)
