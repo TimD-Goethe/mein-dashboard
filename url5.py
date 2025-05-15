@@ -454,10 +454,11 @@ if analysis_mode == "Textual Analysis":
                 )
                 st.plotly_chart(fig_pos, use_container_width=True)
                 #2) Negatives Chart – auch aufsteigend sortieren, damit das Letzte (größter Wert) oben landet
-                neg_df = benchmark_df.sort_values("words_neg", ascending=True)
+                st.subheader("Negative Words")
+                
+                neg_df = benchmark_df.sort_values("words_neg", ascending=False)
                 orders_neg = neg_df["company"].tolist()
                 
-                st.subheader("Negative Words")
                 fig_neg = px.bar(
                     neg_df,                              # <— nicht benchmark_df
                     x="words_neg",
