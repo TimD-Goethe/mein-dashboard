@@ -18,7 +18,7 @@ def make_company_url(company_name: str) -> str:
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
 # --------------------------------------------------------------------
-# 1. Custom Header + CSS
+# 1. Custom Header+CSS
 # --------------------------------------------------------------------
 st.markdown(
     """
