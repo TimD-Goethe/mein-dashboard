@@ -18,25 +18,29 @@ def make_company_url(company_name: str) -> str:
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown("""
 <style>
-  /* Toolbar um 60px nach oben verschieben */
+  /* 1) Toolbar um ganz oben festkleben */
   .css-18e3th9 {
-    top: 0;           /* ganz oben */
-    position: fixed;  /* bleibt immer kleben */
-    z-index: 1000;    /* über dem restlichen Content */
+    top: 0;
+    position: fixed;
+    z-index: 1000;
+  }
+
+  /* 2) Full-page Gradient auf den App-Hintergrund */
+  html, body, [data-testid="stAppViewContainer"], .block-container {
+    background: linear-gradient(
+      180deg,
+      #E3DFFF 0%,    /* reines Violett oben */
+      #E3DFFF 60%,   /* Lila bleibt bis 60% */
+      #FFFFFF 100%   /* dann langsam ins Weiß ausfaden */
+    ) !important;
+  }
+
+  /* 3) Padding Top im Main-Container auf 0 setzen */
+  .appview-container .main .block-container {
+    padding-top: 0 !important;
   }
 </style>
-    /* 1) Full-page Gradient auf den App-Hintergrund */
-      html, body, [data-testid="stAppViewContainer"], .block-container {
-        background: linear-gradient(
-          180deg,
-          #E3DFFF 0%,    /* reines Violett oben */
-          #E3DFFF 60%,   /* Lila bleibt bis 60% */
-          #FFFFFF 100%   /* dann langsam ins Weiß ausfaden */
-        ) !important;
-      }
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 # --------------------------------------------------------------------
 # 2. Daten laden
 # --------------------------------------------------------------------
