@@ -263,23 +263,25 @@ if analysis_mode == "Textual Analysis":
 
 
             elif benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
-                # 1) Focal-Land bestimmen (innerhalb der Peer Group)
-                focal_country = benchmark_df.loc[
-                    benchmark_df["company"] == company, "country"
-                ].iat[0]
+                # 1) Focal Country ermitteln
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
-                st.subheader(f"Pages Distribution ({focal_country} vs Other Countries)")
+                st.subheader(f"Number of Pages Distribution ({focal_country} vs Other Countries)")
             
-                # 2) Nur innerhalb der Peer-Group vergleichen
-                hist_df = benchmark_df.copy()
+                # 2) DataFrame kopieren und Gruppen-Spalte anlegen
+                hist_df = df.copy()
                 hist_df["group"] = np.where(
                     hist_df["country"] == focal_country,
                     focal_country,
                     "Other Countries"
                 )
             
-                # 3) Überlagertes Histogramm
-                fig_hist = px.histogram(
+                # 3) Histogramm mit Überlagerung beider Gruppen
+                mean_all     = df["Sustainability_Page_Count"].mean()
+                mean_focal   = hist_df.loc[hist_df["group"] == focal_country, 
+                                           "Sustainability_Page_Count"].mean()
+            
+                fig = px.histogram(
                     hist_df,
                     x="Sustainability_Page_Count",
                     color="group",
@@ -287,69 +289,71 @@ if analysis_mode == "Textual Analysis":
                     nbins=20,
                     opacity=0.6,
                     color_discrete_map={
-                        focal_country:      "red",
-                        "Other Countries": "#1f77b4"
+                        focal_country:   "red",
+                        "Other Countries": "#1f77b4",
                     },
-                    labels={"Sustainability_Page_Count": "Pages", "group": ""}
+                    labels={
+                        "Sustainability_Page_Count": "Pages",
+                        "group": ""
+                    }
                 )
             
-                # 4) Peer-Average-Linie (ebenfalls nur innerhalb der Peer-Group)
-                overall_avg = benchmark_df["Sustainability_Page_Count"].mean()
-                fig_hist.add_vline(
-                    x=overall_avg,
+                # 4) Peer-Average (aller Länder) als schwarze VLine
+                fig.add_vline(
+                    x=mean_all,
                     line_dash="dash",
                     line_color="black",
                     line_width=2,
-                    annotation_text="<b>Peer Average</b>",
+                    annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
                     annotation_font_size=14
                 )
             
-                # 5) Feintuning
-                fig_hist.update_layout(
+                # 5) Focal-Country-Durchschnitt als rote VLine
+                fig.add_vline(
+                    x=mean_focal,
+                    line_dash="dash",
+                    line_color="red",
+                    line_width=2,
+                    annotation_text=f"<b>{focal_country} Avg</b>",
+                    annotation_position="top left",
+                    annotation_font_color="red",
+                    annotation_font_size=14
+                )
+            
+                fig.update_layout(
                     bargap=0.1,
                     legend_title_text="",
                     xaxis_title="Pages",
                     yaxis_title="Number of Companies"
                 )
             
-                st.plotly_chart(fig_hist, use_container_width=True)
+                st.plotly_chart(fig, use_container_width=True)
             
-                # 6) Und das kleine Vergleichs-Bar-Chart: Focal Country vs. Durchschnitt der anderen Länder
-                country_avg = (
-                    benchmark_df
-                    .groupby("country")["Sustainability_Page_Count"]
-                    .mean()
-                    .reset_index(name="Pages")
-                )
-                focal_mean = country_avg.loc[country_avg["country"] == focal_country, "Pages"].iat[0]
-                other_mean = country_avg.loc[country_avg["country"] != focal_country, "Pages"].mean()
-            
+                # 6) Kompaktes Vergleichs‐Balkendiagramm (optional)
                 comp_df = pd.DataFrame({
                     "Group": [focal_country, "Other Countries"],
-                    "Pages": [focal_mean, other_mean]
+                    "Pages": [mean_focal, (hist_df.loc[hist_df["group"]=="Other Countries","Sustainability_Page_Count"].mean())]
                 })
-            
-                fig_cmp = px.bar(
+                fig2 = px.bar(
                     comp_df,
                     x="Group",
                     y="Pages",
                     text="Pages",
                     color="Group",
                     color_discrete_map={
-                        focal_country:     "red",
-                        "Other Countries": "#1f77b4"
+                        focal_country:   "red",
+                        "Other Countries": "#1f77b4",
                     },
                     labels={"Pages": "Pages", "Group": ""}
                 )
-                fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
+                fig2.update_layout(
+                    xaxis={"categoryorder":"array","categoryarray":[focal_country,"Other Countries"]},
                     showlegend=False,
                     yaxis_title="Pages"
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-            
-                st.plotly_chart(fig_cmp, use_container_width=True)
+                fig2.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig2, use_container_width=True)
 
 
 
