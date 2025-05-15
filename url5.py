@@ -22,18 +22,19 @@ st.markdown(
       .block-container {
         padding-top: 2.5rem;
       }
-    <style>
-      /* 1) Damit der Body / das App‐Wrapper-Element den Gradient bekommt */
+    /* 1) Full-page Gradient auf den App-Hintergrund */
       html, body, [data-testid="stAppViewContainer"], .block-container {
         background: linear-gradient(
           180deg,
           #E3DFFF 0%,    /* reines Violett oben */
-          #E3DFFF 60%,   /* Lila hält sich bis 60% */
-          #FFFFFF 100%   /* und fadet dann bis ganz unten ins Weiß */
+          #E3DFFF 60%,   /* Lila bleibt bis 60% */
+          #FFFFFF 100%   /* dann langsam ins Weiß ausfaden */
         ) !important;
       }
-      /* 2) Falls Du noch abgerundete Ecken im Header möchtest, lass den Header transparent */
-      .sticky-header, .my-header {
+
+      /* 2) Header-Box transparent halten (falls Du sie oben draufsetzt) */
+      .sticky-header,
+      .my-header {
         background: transparent !important;
       }
     </style>
