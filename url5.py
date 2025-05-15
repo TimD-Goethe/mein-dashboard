@@ -231,6 +231,94 @@ if analysis_mode == "Textual Analysis":
             mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
             focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
 
+            if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+                # 1) Focal-Land bestimmen
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+            
+                st.subheader(f"Number of Pages Distribution ({focal_country} vs Other Countries)")
+            
+                # 2) Für Histogramm braucht’s eine Spalte, die „Focal vs Other“ markiert
+                hist_df = df.copy()
+                hist_df["group"] = np.where(
+                    hist_df["country"] == focal_country,
+                    focal_country,
+                    "Other Countries"
+                )
+            
+                # 3) Histogramm plotten – überlagerte Verteilungen
+                fig_hist = px.histogram(
+                    hist_df,
+                    x="Sustainability_Page_Count",
+                    color="group",
+                    barmode="overlay",
+                    nbins=20,
+                    opacity=0.6,
+                    color_discrete_map={
+                        focal_country:   "red",
+                        "Other Countries": "#1f77b4"
+                    },
+                    labels={"Sustainability_Page_Count": "Pages", "group": ""}
+                )
+            
+                # 4) Globale Peer-Average-Linie
+                overall_avg = df["Sustainability_Page_Count"].mean()
+                fig_hist.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top right",
+                    annotation_font_size=14
+                )
+            
+                # 5) Layout-Feinschliff
+                fig_hist.update_layout(
+                    bargap=0.1,
+                    legend_title_text="",
+                    xaxis_title="Pages",
+                    yaxis_title="Count of Companies"
+                )
+            
+                st.plotly_chart(fig_hist, use_container_width=True)
+            
+                # 6) Zweites Chart: Focal vs. Durchschnitt aller anderen Länder
+                #    (hier übernehmen wir den gleichen Code wie beim Bar Chart)
+                #    Durchschnitt der anderen Länder
+                country_avg = (
+                    df.groupby("country")["Sustainability_Page_Count"]
+                      .mean()
+                      .reset_index(name="Pages")
+                )
+                focal_mean = country_avg.loc[country_avg["country"] == focal_country, "Pages"].iat[0]
+                other_mean = country_avg.loc[country_avg["country"] != focal_country, "Pages"].mean()
+            
+                comp_df = pd.DataFrame({
+                    "Group": [focal_country, "Other Countries"],
+                    "Pages": [focal_mean, other_mean]
+                })
+            
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="Pages",
+                    text="Pages",
+                    color="Group",
+                    color_discrete_map={
+                        focal_country:   "red",
+                        "Other Countries": "#1f77b4"
+                    },
+                    labels={"Pages": "Pages", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
+                    showlegend=False,
+                    yaxis_title="Pages"
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+            
+                st.plotly_chart(fig_cmp, use_container_width=True)
+            
             if plot_type == "Histogram":
                 fig = px.histogram(
                     plot_df, x="Sustainability_Page_Count", nbins=20,
@@ -364,9 +452,7 @@ if analysis_mode == "Textual Analysis":
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
             
                 st.plotly_chart(fig_cmp, use_container_width=True)
-            
-                # 10) Fußnote
-                st.caption("Number of pages of companies’ sustainability reports.")                
+                            
 
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken
