@@ -22,9 +22,23 @@ st.markdown(
       .block-container {
         padding-top: 2.5rem;
       }
+    <style>
+      /* 1) Damit der Body / das App‐Wrapper-Element den Gradient bekommt */
+      html, body, [data-testid="stAppViewContainer"], .block-container {
+        background: linear-gradient(
+          180deg,
+          #E3DFFF 0%,    /* reines Violett oben */
+          #E3DFFF 60%,   /* Lila hält sich bis 60% */
+          #FFFFFF 100%   /* und fadet dann bis ganz unten ins Weiß */
+        ) !important;
+      }
+      /* 2) Falls Du noch abgerundete Ecken im Header möchtest, lass den Header transparent */
+      .sticky-header, .my-header {
+        background: transparent !important;
+      }
     </style>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 # --------------------------------------------------------------------
 # 2. Daten laden
