@@ -18,7 +18,7 @@ def make_company_url(company_name: str) -> str:
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
 # --------------------------------------------------------------------
-# 1. Fixed Header + CSS
+# 1. Fixed Header+CSS
 # --------------------------------------------------------------------
 #   - top: 64px → Höhe der Streamlit-Cloud-Bar
 #   - header height: ~120px (Title + Subtitle + Divider + Puffer)
