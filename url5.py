@@ -206,11 +206,14 @@ if analysis_mode == "Textual Analysis":
                 # Linien bleiben hier als VLines
                 fig.add_vline(
                     x=mean_pages,
+                    line_dash="dash"
                     line_color="#1f77b4",
                     line_width=1,
                     opacity=0.6,
-                    annotation_text="Peer Average",
-                    annotation_position="top right"
+                    annotation_text="<b>Peer Average<b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
                 )
                 fig.add_vline(
                     x=focal_pages,
