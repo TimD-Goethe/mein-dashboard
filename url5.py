@@ -359,8 +359,6 @@ if analysis_mode == "Textual Analysis":
                 fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
-            peers_df = plot_df.sort_values("words", ascending=True)
-
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen als horizontale Balken (Words)
                 peers_df = plot_df.sort_values("words", ascending=False)
