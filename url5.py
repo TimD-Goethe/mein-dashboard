@@ -263,8 +263,7 @@ if analysis_mode == "Textual Analysis":
 
 
             elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
-                st.subheader(f"Number of Pages ({focal_country} vs. Other Countries)")
-            
+                            
                 # 1) Bestimme das Land des gewählten Unternehmens
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -277,7 +276,8 @@ if analysis_mode == "Textual Analysis":
                 )
             
                 # 3) Sortiere so, dass das kleinste Mittel unten und das größte ganz oben erscheint
-                country_avg = country_avg.sort_values("Pages", ascending=True)
+                country_avg = country_avg.sort_values("Pages", ascending=False)
+                y_order = country_avg["country"].tolist()
             
                 # 4) Markiere Dein Land
                 country_avg["highlight"] = np.where(
@@ -286,10 +286,7 @@ if analysis_mode == "Textual Analysis":
                     "Other Countries"
                 )
             
-                # 5) Leg die Reihenfolge der Länder fest
-                y_order = country_avg["country"].tolist()
-            
-                # 6) Erstelle das horizontale Balkendiagramm
+                # 5) Erstelle das horizontale Balkendiagramm
                 fig_ctry = px.bar(
                     country_avg,
                     x="Pages",
@@ -303,7 +300,19 @@ if analysis_mode == "Textual Analysis":
                     category_orders={"country": y_order},
                     labels={"Pages":"Pages","country":""},
                 )
-            
+
+                # 6) Peer Average über **alle** Länder
+                overall_avg = df["Sustainability_Page_Count"].mean()
+                fig_ctry.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top right",
+                    annotation_font_size=14
+                )
+                
                 # 7) Werte als Beschriftung außen anzeigen
                 fig_ctry.update_traces(
                     texttemplate="%{x:.0f}",
@@ -318,6 +327,45 @@ if analysis_mode == "Textual Analysis":
                 )
 
                 st.plotly_chart(fig_ctry, use_container_width=True)
+
+                # 9) Zweiter Chart: Focal vs. Durchschnitt aller anderen Länder
+                # Durchschnitt der anderen Länder (aus country_avg)
+                other_mean = (
+                    country_avg
+                    .loc[country_avg["country"] != focal_country, "Pages"]
+                    .mean()
+                )
+                focal_mean = country_avg.loc[country_avg["country"] == focal_country, "Pages"].iat[0]
+            
+                comp_df = pd.DataFrame({
+                    "Group": [focal_country, "Other Countries"],
+                    "Pages": [focal_mean, other_mean]
+                })
+            
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="Pages",
+                    text="Pages",
+                    color="Group",
+                    color_discrete_map={
+                        focal_country:   "red",
+                        "Other Countries": "#1f77b4"
+                    },
+                    labels={"Pages": "Pages", "Group": ""}
+                )
+                # Focal-Land links
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
+                    showlegend=False,
+                    yaxis_title="Pages"
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+            
+                st.plotly_chart(fig_cmp, use_container_width=True)
+            
+                # 10) Fußnote
+                st.caption("Number of pages of companies’ sustainability reports.")                
 
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken
