@@ -237,8 +237,6 @@ if analysis_mode == "Textual Analysis":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
-                st.subheader(f"Number of Pages Distribution ({focal_country} vs Other Countries)")
-            
                 # 2) Länder‐Durchschnitt vorbereiten (egal ob vorher schon definiert)
                 country_avg = (
                     df
@@ -260,6 +258,8 @@ if analysis_mode == "Textual Analysis":
                     labels={"Pages": "Pages"},
                 )
                 
+                # 4) Alle Balken in Dunkelblau (#1f77b4)
+                fig.update_traces(marker_color="#1f77b4")
                 
                 # 4) V-Line für All Countries Avg (schwarz gestrichelt)
                 fig.add_vline(
@@ -300,6 +300,10 @@ if analysis_mode == "Textual Analysis":
                     plot_df, x="Sustainability_Page_Count", nbins=20,
                     labels={"Sustainability_Page_Count": "Pages", "_group" : "Group"}
                 )
+
+                # 4) Alle Balken in Dunkelblau (#1f77b4)
+                fig.update_traces(marker_color="#1f77b4")
+
                 # Linien bleiben hier als VLines
                 fig.add_vline(
                     x=mean_pages,
