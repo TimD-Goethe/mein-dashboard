@@ -279,7 +279,7 @@ if analysis_mode == "Textual Analysis":
                     line_color="red",
                     line_width=2,
                     annotation_text=f"<b>{focal_country} Avg</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom left",
                     annotation_font_color="red",
                     annotation_font_size=14,
                 )
@@ -322,7 +322,7 @@ if analysis_mode == "Textual Analysis":
                     line_color="red",
                     opacity=0.8,
                     annotation_text=f"<b>{company}</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom left",
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
@@ -562,7 +562,7 @@ if analysis_mode == "Textual Analysis":
                     line_color="red",
                     line_width=2,
                     annotation_text=f"<b>{focal_country} Avg</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom left",
                     annotation_font_color="red",
                     annotation_font_size=14,
                 )
@@ -579,7 +579,7 @@ if analysis_mode == "Textual Analysis":
 
 
             
-            elif benchmark_type == "Between Country Comparison" and view == "Number of Words" and plot_type == "Bar Chart":
+            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
                 # 1) Bestimme das Land des gewählten Unternehmens
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -678,6 +678,42 @@ if analysis_mode == "Textual Analysis":
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
             
                 st.plotly_chart(fig_cmp, use_container_width=True)
+
+
+            elif plot_type == "Histogram":
+                fig = px.histogram(
+                    plot_df, x="words", nbins=20,
+                    labels={"words": "Words"}
+                )
+
+                # 4) Alle Balken in Dunkelblau (#1f77b4)
+                fig.update_traces(marker_color="#1f77b4")
+
+                # Linien bleiben hier als VLines
+                fig.add_vline(
+                    x=mean_words,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=1,
+                    opacity=0.6,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_words,
+                    line_dash="dash",
+                    line_color="red",
+                    opacity=0.8,
+                    annotation_text=f"<b>{company}</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16,
+                )
+                fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
+                st.plotly_chart(fig, use_container_width=True)
+
             
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen als horizontale Balken (Words)
