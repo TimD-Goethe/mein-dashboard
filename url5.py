@@ -128,6 +128,19 @@ elif benchmark_type == "Market Cap Peers":
     lbl             = "Very Small" if terc == 1 else "Small" if terc == 2 else "Medium" if terc == 3 else "Large" if terc == 4 else "Huge" 
     benchmark_df    = df[df["Market_Cap_Cat"] == terc]
     benchmark_label = f"Market Cap Group: {lbl}"
+if benchmark_type == "Between Country Comparison":
+    # 1) Land der Focal Company rausfinden
+    focal_country = df.loc[df["company"] == company, "country"].iat[0]
+    # 2) Zwei Gruppen bilden
+    country_df = df[df["country"] == focal_country]
+    rest_df    = df[df["country"] != focal_country]
+    # 3) Gemeinsames DataFrame zum Plotten
+    #    je nach View später auf splitten
+    benchmark_df = pd.concat([
+        country_df.assign(_group=focal_country),
+        rest_df   .assign(_group="Others")
+    ], ignore_index=True)
+    benchmark_label = f"{focal_country} vs Others"
 if peer_selection:
     sel = Set(peer_selection)
     sel.add(company)
@@ -216,11 +229,12 @@ if analysis_mode == "Textual Analysis":
 
             # vorher sicherstellen, dass mean_pages definiert ist
             mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
+            focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
 
             if plot_type == "Histogram":
                 fig = px.histogram(
                     plot_df, x="Sustainability_Page_Count", nbins=20,
-                    labels={"Sustainability_Page_Count": "Pages"}
+                    labels={"Sustainability_Page_Count": "Pages", "_group" : "Group"}
                 )
                 # Linien bleiben hier als VLines
                 fig.add_vline(
@@ -246,6 +260,47 @@ if analysis_mode == "Textual Analysis":
                 )
                 fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
+
+
+            elif benchmark_type == "Country vs Rest" and plot_type == "Bar Chart":
+                st.subheader(f"Pages by Country ({focal_country} highlighted)")
+            
+                # 1) Durchschnitt pro Land berechnen
+                country_avg = (
+                    df  # das volle DataFrame mit allen Firmen
+                    .groupby("country")["Sustainability_Page_Count"]
+                    .mean()
+                    .reset_index(name="Pages")
+                )
+            
+                # 2) Sortieren → aufsteigend, damit der höchste Balken oben landet
+                country_avg = country_avg.sort_values("Pages", ascending=True)
+            
+                # 3) Highlight‐Spalte mit echtem Landnamen oder "Others" nicht nötig hier
+                country_avg["highlight"] = np.where(
+                    country_avg["country"] == focal_country,
+                    focal_country,
+                    "Other Countries"
+                )
+            
+                # 4) category_order bauen (Länder in der DataFrame‐Reihenfolge)
+                y_order = country_avg["country"].tolist()
+            
+                # 5) Bar‐Chart mit Highlight
+                fig_ctry = px.bar(
+                    country_avg,
+                    x="Pages",
+                    y="country",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
+                    labels={"Pages":"Pages","country":""},
+                    category_orders={"country": y_order},
+                )
+                fig_ctry.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
+                fig_ctry.update_layout(showlegend=False, xaxis_title="Pages")
+            
+                st.plotly_chart(fig_ctry, use_container_width=True)
 
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken
