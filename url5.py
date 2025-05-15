@@ -13,7 +13,7 @@ def make_company_url(company_name: str) -> str:
     return f"{base_url}?company={quote(company_name)}"
 
 # --------------------------------------------------------------------
-# 0. Page config
+# 1. Page config
 # --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
