@@ -516,7 +516,7 @@ if analysis_mode == "Textual Analysis":
             # 1) Peer-Average berechnen
             mean_words = benchmark_df["words"].mean()
 
-            elif benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+            if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
