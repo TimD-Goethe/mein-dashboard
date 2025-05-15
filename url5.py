@@ -255,7 +255,7 @@ if analysis_mode == "Textual Analysis":
                 fig = px.histogram(
                     country_avg,
                     x="Pages",
-                    nbins=10,  # nach Belieben anpassen
+                    nbins=20,  # nach Belieben anpassen
                     opacity=0.8,
                     labels={"Pages": "Pages"},
                 )
