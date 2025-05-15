@@ -458,7 +458,7 @@ if analysis_mode == "Textual Analysis":
                 neg_df = benchmark_df.sort_values("words_neg", ascending=False)
                 # Horizontal Bar Chart für words_neg
                 fig_neg = px.bar(
-                    benchmark_df,
+                    neg_df,
                     x="words_neg",
                     y="company",
                     orientation="h",
