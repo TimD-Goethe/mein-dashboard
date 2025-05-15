@@ -16,13 +16,15 @@ def make_company_url(company_name: str) -> str:
 # 1. Page config und CSS-Tweak
 # --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
+
 st.markdown(
     """
     <style>
-      /* 1. Unser Full-Width Header */
+      /* 1) Fixed-Header absetzen unter die Cloud-Toolbar (~64px) */
       .fixed-header {
         position: fixed;
-        top: 0; left: 0;
+        top: 64px;           /* statt 0px */
+        left: 0;
         width: 100%;
         background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 100%);
         padding: 1rem 2rem;
@@ -43,19 +45,19 @@ st.markdown(
         margin: 0;
       }
 
-      /* 2. Main-Content und Sidebar nach unten schieben */
+      /* 2) Sidebar und Main Content weiter nach unten schieben */
       [data-testid="stSidebar"] {
-        margin-top: 120px !important;
+        margin-top: 200px !important;    /* statt 120px */
       }
       [data-testid="stAppViewContainer"] .block-container {
-        padding-top: 120px !important;
+        padding-top: 200px !important;   /* statt 120px */
       }
     </style>
 
-    <!-- 3. HTML-Header -->
+    <!-- 3) Unser eigener Header -->
     <div class="fixed-header">
       <h1>CSRD Dashboard</h1>
-      <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are companies’ 2024 sustainability reports.</p>
+      <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.</p>
       <hr>
     </div>
     """,
