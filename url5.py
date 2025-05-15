@@ -17,76 +17,67 @@ def make_company_url(company_name: str) -> str:
 # --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
-# --- Header mit Gradient und Platz für das Radio ------------------
-header_html = """
-<style>
-  .my-header {
-    padding: 2rem;
-    background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 50%);
-    border-radius: 8px;
-    margin-bottom: 2rem;
-  }
-  .my-header h1 {
-    margin: 0;
-    font-size: 2.25rem;
-    color: #2E1E9A;
-  }
-  .my-header p {
-    margin: 0.5rem 0 1rem;
-    font-size: 1rem;
-    color: #333333;
-  }
-  .my-header .nav {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 1rem;
-  }
-  .my-header hr {
-    border: none;
-    border-top: 3px solid #E10600;
-    margin: 1rem 0;
-  }
-</style>
-<div class="my-header">
-  <div style="display:flex;justify-content:space-between;align-items:center;">
-    <div>
-      <h1>CSRD Dashboard</h1>
-      <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.</p>
-    </div>
-    <div class="nav">
-      <div id="analysis-placeholder"></div>
-    </div>
-  </div>
-  <hr/>
-</div>
-"""
-st.markdown(header_html, unsafe_allow_html=True)
-
-# 3) Jetzt das Streamlit-Radio erzeugen
-analysis_mode = st.radio(
-    label="",
-    options=["Textual Analysis"],
-    horizontal=True,
-    key="analysis_mode",
-    label_visibility="collapsed"
-)
-
-# 4) Und schließlich per JS in den Placeholder schieben
+# 1) Inject CSS for a sticky, full-width header inside the main container
 st.markdown(
     """
-    <script>
-      (function move() {
-        const widget = document.querySelector('div[data-testid="stRadio"]');
-        const target = document.getElementById('analysis-placeholder');
-        if (widget && target) {
-          target.appendChild(widget);
-        }
-      })();
-    </script>
+    <style>
+      /* Sticky header innerhalb des Streamlit-Main-Containers */
+      .streamlit-expanderHeader {
+        /* damit wir später unsere Header-Styles nicht stören */
+      }
+      .sticky-header {
+        position: sticky;
+        top: 0;                     /* bleibt immer am oberen Rand des Scroll-Containers */
+        z-index: 10;                /* über den Charts, aber unter dem Cloud-Bar */
+        background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 50%);
+        padding: 2rem 2rem 1.5rem;
+        border-radius: 0 0 8px 8px;
+        margin-bottom: 1rem;
+      }
+      .sticky-header h1 {
+        margin: 0;
+        color: #2E1E9A;
+        font-size: 2.25rem;
+      }
+      .sticky-header p {
+        margin: 0.5rem 0 1rem;
+        color: #333333;
+      }
+      .sticky-header .divider {
+        border: none;
+        border-top: 3px solid #E10600;
+        margin: 1rem 0;
+      }
+      .sticky-header .nav {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+      }
+    </style>
     """,
     unsafe_allow_html=True
 )
+
+# 2) Baue den Header-Container mit Columns
+with st.container():
+    st.markdown('<div class="sticky-header">', unsafe_allow_html=True)
+    left, right = st.columns([3,1])
+    with left:
+        st.markdown("## CSRD Dashboard")
+        st.markdown(
+            "Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. "
+            "All analyses are based on companies’ 2024 sustainability reports."
+        )
+    with right:
+        # Hier kommt das einzige Radio-Widget hin
+        analysis_mode = st.radio(
+            label="",
+            options=["Textual Analysis"],
+            horizontal=True,
+            key="analysis_mode",
+            label_visibility="collapsed"
+        )
+    st.markdown('<hr class="divider"/></div>', unsafe_allow_html=True)
 # --------------------------------------------------------------------
 # 2. Daten laden
 # --------------------------------------------------------------------
