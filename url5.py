@@ -16,71 +16,16 @@ def make_company_url(company_name: str) -> str:
 # 0. Page config
 # --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
-
-# 1) Sticky-Header + Sidebar-Offset + verlängerter Gradient
 st.markdown(
     """
     <style>
-      /* wie vorher: nur leichtes Padding oben im Main-Container */
       .block-container {
         padding-top: 2.5rem;
-      }
-
-      /* Unser Header innerhalb des Main-Flows sticky halten */
-      .sticky-header {
-        position: sticky;
-        top: 0;                 /* klebt genau am oberen Rand des Main-Containers */
-        z-index: 10;            /* steht über nachfolgenden Inhalten */
-        background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 50%);
-        padding: 2rem;
-        border-radius: 0 0 8px 8px;
-        margin-bottom: 1rem;
-      }
-      .sticky-header h1 {
-        margin: 0;
-        color: #2E1E9A;
-        font-size: 2.25rem;
-      }
-      .sticky-header p {
-        margin: 0.5rem 0 1rem;
-        color: #333333;
-      }
-      .sticky-header hr {
-        border: none;
-        border-top: 3px solid #E10600;
-        margin: 1rem 0;
-      }
-      .sticky-header .nav {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
       }
     </style>
     """,
     unsafe_allow_html=True,
 )
-
-# 3. Header-Container im normalen Streamlit-Fluss
-with st.container():
-    st.markdown('<div class="sticky-header">', unsafe_allow_html=True)
-    cols = st.columns([3,1])
-    with cols[0]:
-        st.markdown("## CSRD Dashboard")
-        st.markdown(
-            "Please select a peer group and variable of interest to benchmark your company’s "
-            "CSRD reporting. All analyses are based on companies’ 2024 sustainability reports."
-        )
-    with cols[1]:
-        # Dein Textual Analysis-Radio
-        analysis_mode = st.radio(
-            label="",
-            options=["Textual Analysis"],
-            horizontal=True,
-            key="analysis_mode",
-            label_visibility="collapsed"
-        )
-    st.markdown('<hr/>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 # --------------------------------------------------------------------
 # 2. Daten laden
 # --------------------------------------------------------------------
