@@ -454,7 +454,13 @@ if analysis_mode == "Textual Analysis":
                 
                 # 4) Peer-Average-Linie noch hinzufügen
                 mean_pos = pos_df["words_pos"].mean()
-                fig_pos.add_vline(x=mean_pos, line_dash="dash", line_color="#333333")
+                fig_pos.add_vline(x=mean_pos,
+                                  line_dash="dash",
+                                  line_color="#333333",
+                                  annotation_text="<b>Peer Average</b>",
+                                  annotation_position="top right",
+                                  annotation_font_color="black",
+                                  annotation_font_size=16,)
                 
                 st.plotly_chart(fig_pos, use_container_width=True)
 
@@ -477,10 +483,13 @@ if analysis_mode == "Textual Analysis":
                     x="words_neg",
                     y="company",
                     orientation="h",
-                    color=[("Company" if c == company else "Peers") for c in neg_df["company"]],
-                    color_discrete_map={"Peers":"#4C78A8","Company":"#E10600"},
-                    labels={"words_neg":"# Negative Words","company":""},
-                    category_orders={"company": orders_neg},  # <— Reihenfolge aus neg_df
+                    color="highlight_label",       # <— hier kommt die Spalte rein
+                    color_discrete_map={
+                        "Peers": "#4C78A8",        # Blau für alle anderen
+                        company: "#E10600",        # Rot für die aktuell ausgewählte Firma
+                    },
+                    labels={"words_pos":"# Positive Words","company":""},
+                    category_orders={"company": pos_df["company"].tolist()},
                 )
                 
                 mean_neg = neg_df["words_neg"].mean()       # peers‐Durchschnitt aus neg_df
