@@ -743,6 +743,123 @@ if analysis_mode == "Textual Analysis":
 
 
         elif view == "Sentiment":
+            
+            elif benchmark_type == "Between Country Comparison" and view == "Sentiment":
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+            
+                # 1) Länder-Durchschnitte berechnen
+                country_avg = (
+                    df
+                    .groupby("country")[["words_pos", "words_neg"]]
+                    .mean()
+                    .reset_index()
+                )
+            
+                # 2) Für positive Wörter: sortieren & highlight-Spalte
+                pos_ctry = country_avg.sort_values("words_pos", ascending=False)
+                pos_ctry["highlight"] = np.where(
+                    pos_ctry["country"] == focal_country,
+                    focal_country,
+                    "Other Countries"
+                )
+                y_order_pos = pos_ctry["country"].tolist()
+            
+                # 3) Bar Chart positive Wörter pro Land
+                fig_pos = px.bar(
+                    pos_ctry,
+                    x="words_pos",
+                    y="country",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={
+                        focal_country:   "red",
+                        "Other Countries": "#1f77b4"
+                    },
+                    category_orders={"country": y_order_pos},
+                    labels={"words_pos": "# Positive Words", "country": ""}
+                )
+                # Peer-Average (aller Länder) als schwarze Linie
+                overall_pos = country_avg["words_pos"].mean()
+                fig_pos.add_vline(
+                    x=overall_pos,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Countries Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_size=14
+                )
+                fig_pos.update_layout(showlegend=False, xaxis_title="# Positive Words")
+                st.subheader("Positive Words by Country")
+                st.plotly_chart(fig_pos, use_container_width=True)
+            
+            
+                # 4) Dasselbe für negative Wörter
+                neg_ctry = country_avg.sort_values("words_neg", ascending=False)
+                neg_ctry["highlight"] = np.where(
+                    neg_ctry["country"] == focal_country,
+                    focal_country,
+                    "Other Countries"
+                )
+                y_order_neg = neg_ctry["country"].tolist()
+            
+                fig_neg = px.bar(
+                    neg_ctry,
+                    x="words_neg",
+                    y="country",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={
+                        focal_country:   "red",
+                        "Other Countries": "#1f77b4"
+                    },
+                    category_orders={"country": y_order_neg},
+                    labels={"words_neg": "# Negative Words", "country": ""}
+                )
+                overall_neg = country_avg["words_neg"].mean()
+                fig_neg.add_vline(
+                    x=overall_neg,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Countries Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_size=14
+                )
+                fig_neg.update_layout(showlegend=False, xaxis_title="# Negative Words")
+                st.subheader("Negative Words by Country")
+                st.plotly_chart(fig_neg, use_container_width=True)
+            
+            
+                # 5) Kompaktvergleich: focal country vs alle anderen
+                focal_pos = country_avg.loc[country_avg["country"] == focal_country, "words_pos"].iat[0]
+                focal_neg = country_avg.loc[country_avg["country"] == focal_country, "words_neg"].iat[0]
+                other_pos = country_avg.loc[country_avg["country"] != focal_country, "words_pos"].mean()
+                other_neg = country_avg.loc[country_avg["country"] != focal_country, "words_neg"].mean()
+            
+                comp_df = pd.DataFrame({
+                    "Group": [focal_country, "Other Countries"],
+                    "Positive": [focal_pos, other_pos],
+                    "Negative": [focal_neg, other_neg]
+                })
+            
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y=["Positive", "Negative"],
+                    barmode="group",
+                    color_discrete_sequence=["#E10600", "#1f77b4"],
+                    labels={"value": "Count", "variable": "Sentiment", "Group": ""}
+                )
+                # focal country links anzeigen
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
+                    showlegend=True,
+                    legend_title_text=""
+                )
+                fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
+                st.subheader("Peer vs. Country Sentiment")
+                st.plotly_chart(fig_cmp, use_container_width=True)
+            
+            
             if plot_type == "Bar Chart":
                 st.subheader("Positive Words")
 
