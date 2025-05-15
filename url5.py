@@ -969,7 +969,7 @@ if analysis_mode == "Textual Analysis":
                     line_color="red",
                     line_width=2,
                     annotation_text=f"<b>{focal_country} Avg Neg</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom left",
                     annotation_font_size=14,
                 )
                 fig_hist2.add_vline(
@@ -1127,7 +1127,7 @@ if analysis_mode == "Textual Analysis":
                     line_color="red",
                     opacity=0.8,
                     annotation_text=f"<b>{company}</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom left",
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
@@ -1155,7 +1155,7 @@ if analysis_mode == "Textual Analysis":
                     line_color="red",
                     opacity=0.8,
                     annotation_text=f"<b>{company}</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom left",
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
@@ -1354,7 +1354,7 @@ if analysis_mode == "Textual Analysis":
                     x=focal_fog,
                     line_dash="dash", line_color="red", opacity=0.8,
                     annotation_text=f"<b>{company}</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom left",
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
