@@ -87,7 +87,7 @@ peer_group_opts = [
     "Sector Peers",
     "Country Peers",
     "Market Cap Peers",
-    "<b> Between Country Comparison</b>",
+    "Between Country Comparison",
     "All CSRD First Wave",
 ]
 
