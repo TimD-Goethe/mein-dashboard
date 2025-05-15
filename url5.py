@@ -230,8 +230,39 @@ if analysis_mode == "Textual Analysis":
             # vorher sicherstellen, dass mean_pages definiert ist
             mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
             focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
+            
+            if plot_type == "Histogram":
+                fig = px.histogram(
+                    plot_df, x="Sustainability_Page_Count", nbins=20,
+                    labels={"Sustainability_Page_Count": "Pages", "_group" : "Group"}
+                )
+                # Linien bleiben hier als VLines
+                fig.add_vline(
+                    x=mean_pages,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=1,
+                    opacity=0.6,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_pages,
+                    line_dash="dash",
+                    line_color="red",
+                    opacity=0.8,
+                    annotation_text=f"<b>{company}</b>",
+                    annotation_position="top left",
+                    annotation_font_color="red",
+                    annotation_font_size=16,
+                )
+                fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
+                st.plotly_chart(fig, use_container_width=True)
 
-            if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+
+            elif benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
                 # 1) Focal-Land bestimmen
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -318,36 +349,6 @@ if analysis_mode == "Textual Analysis":
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
             
                 st.plotly_chart(fig_cmp, use_container_width=True)
-            
-            if plot_type == "Histogram":
-                fig = px.histogram(
-                    plot_df, x="Sustainability_Page_Count", nbins=20,
-                    labels={"Sustainability_Page_Count": "Pages", "_group" : "Group"}
-                )
-                # Linien bleiben hier als VLines
-                fig.add_vline(
-                    x=mean_pages,
-                    line_dash="dash",
-                    line_color="black",
-                    line_width=1,
-                    opacity=0.6,
-                    annotation_text="<b>Peer Average</b>",
-                    annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16
-                )
-                fig.add_vline(
-                    x=focal_pages,
-                    line_dash="dash",
-                    line_color="red",
-                    opacity=0.8,
-                    annotation_text=f"<b>{company}</b>",
-                    annotation_position="top left",
-                    annotation_font_color="red",
-                    annotation_font_size=16,
-                )
-                fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
-                st.plotly_chart(fig, use_container_width=True)
 
 
             elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
