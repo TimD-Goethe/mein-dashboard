@@ -608,7 +608,11 @@ if analysis_mode == "Textual Analysis":
                     x="Words",
                     y="country",
                     orientation="h",
-                    color_discrete_sequence=["#1f77b4"],  # alle Balken dunkelblau
+                    color="highlight",
+                    color_discrete_map={
+                        "Focal Country": "red",
+                        "Other Countries": "#1f77b4"
+                    }
                     labels={"Words": "Words", "country": ""},
                     category_orders={"country": y_order},
                 )
