@@ -220,7 +220,7 @@ if analysis_mode == "Textual Analysis":
                     line_dash="dash",
                     line_color="red",
                     opacity=0.8,
-                    annotation_text=<b>company<b>,
+                    annotation_text=f"<b>company<b>",
                     annotation_position="top left",
                     annotation_font_color="red",
                     annotation_font_size=16,
