@@ -20,7 +20,7 @@ st.markdown(
     """
     <style>
       .block-container {
-        padding-top: 2.5 rem;
+        padding-top: 0 rem;
       }
     /* 1) Full-page Gradient auf den App-Hintergrund */
       html, body, [data-testid="stAppViewContainer"], .block-container {
