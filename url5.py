@@ -17,23 +17,31 @@ def make_company_url(company_name: str) -> str:
 # --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
-# 1) Inject CSS for a sticky, full-width header inside the main container
+# 1) Sticky-Header + Sidebar-Offset + verlängerter Gradient
 st.markdown(
     """
     <style>
-      /* Sticky header innerhalb des Streamlit-Main-Containers */
-      .streamlit-expanderHeader {
-        /* damit wir später unsere Header-Styles nicht stören */
+      /* — Sidebar auf Header-Höhe absenken — */
+      [data-testid="stSidebar"] {
+        margin-top: 240px !important;  /* <- auf die tatsächliche Header-Höhe anpassen */
       }
+
+      /* — Sticky Header, full-bleed in Main-Container — */
       .sticky-header {
         position: sticky;
-        top: 0;                     /* bleibt immer am oberen Rand des Scroll-Containers */
-        z-index: 10;                /* über den Charts, aber unter dem Cloud-Bar */
-        background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 50%);
+        top: 0;
+        z-index: 10;
+        background: linear-gradient(
+          180deg,
+          #E3DFFF 0%,
+          #E3DFFF 40%,   /* Lila bis 40% der Höhe */
+          #FFFFFF 100%   /* erst ganz unten Weiß */
+        );
         padding: 2rem 2rem 1.5rem;
         border-radius: 0 0 8px 8px;
         margin-bottom: 1rem;
       }
+
       .sticky-header h1 {
         margin: 0;
         color: #2E1E9A;
@@ -55,10 +63,10 @@ st.markdown(
       }
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
-# 2) Baue den Header-Container mit Columns
+# 2) Header per Streamlit-Container mit position:sticky
 with st.container():
     st.markdown('<div class="sticky-header">', unsafe_allow_html=True)
     left, right = st.columns([3,1])
@@ -69,7 +77,6 @@ with st.container():
             "All analyses are based on companies’ 2024 sustainability reports."
         )
     with right:
-        # Hier kommt das einzige Radio-Widget hin
         analysis_mode = st.radio(
             label="",
             options=["Textual Analysis"],
