@@ -206,7 +206,7 @@ if analysis_mode == "Textual Analysis":
                 # Linien bleiben hier als VLines
                 fig.add_vline(
                     x=mean_pages,
-                    line_dash="dash"
+                    line_dash="dash",
                     line_color="#1f77b4",
                     line_width=1,
                     opacity=0.6,
