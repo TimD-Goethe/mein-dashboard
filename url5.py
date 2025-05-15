@@ -469,7 +469,7 @@ if analysis_mode == "Textual Analysis":
                 st.subheader("Negative Words")
                 
                 neg_df = benchmark_df.sort_values("words_neg", ascending=False)
-                orders_neg = neg_df["company"].tolist()
+                
 
                 # 2) Highlight-Spalte mit echtem Firmennamen
                 pos_df["highlight_label"] = np.where(
