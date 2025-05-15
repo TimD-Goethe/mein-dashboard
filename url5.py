@@ -18,73 +18,65 @@ def make_company_url(company_name: str) -> str:
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
 # --------------------------------------------------------------------
-# 1. Custom Header + CSS
+# 1. Fixed Header + CSS
 # --------------------------------------------------------------------
+#   - top: 64px → Höhe der Streamlit-Cloud-Bar
+#   - header height: ~120px (Title + Subtitle + Divider + Puffer)
 st.markdown(
     """
     <style>
-      /* a) Versteck den kleinen Sidebar-Toggle oben links */
+      /* 1. Hide the Streamlit Cloud sidebar‐toggle */
       [data-testid="collapsedControl"] {
         display: none !important;
       }
 
-      /* b) Push für gesamten App-Container */
-      [data-testid="stAppViewContainer"] {
-        padding-top: 180px !important;  /* = Cloud-Bar ~60px + Header ~120px */
-      }
-      /* c) Push für Sidebar */
+      /* 2. Push both Sidebar und Main-Container um Cloud-Bar + Header nach unten */
       [data-testid="stSidebar"] {
-        margin-top: 180px !important;
+        margin-top: calc(64px + 120px) !important;
+      }
+      [data-testid="stAppViewContainer"] {
+        padding-top: calc(64px + 120px) !important;
       }
 
-      /* d) Full-width Fixed Header */
+      /* 3. Unser Full-Width, Fixed Header */
       .header-container {
         position: fixed;
-        top: 60px;                /* Höhe der Streamlit-Cloud-Bar */
+        top: 64px;                /* direkt unter der Cloud-Bar */
         left: 0;
         width: 100%;
-        height: 120px;            /* passe an, je nachdem wie groß Dein Header wirklich ist */
         background: linear-gradient(to bottom, #E3DFFF 0%, #FFFFFF 50%);
-        padding: 16px 32px;
+        padding: 16px 32px 24px;  /* oben 16px, seitlich 32px, unten 24px Puffer */
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        z-index: 9999;            /* ganz oben */
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        z-index: 1000;            /* ganz oben lassen */
       }
 
-      /* e) Flex-Zeile für Title + Nav */
-      .header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;    /* wichtig: Baseline für Text+Radio */
-      }
+      /* 4. Title & Subtitle */
       .header-title {
         margin: 0;
         font-size: 28px;
         color: #1C1C1E;
       }
       .header-sub {
-        margin: 4px 0 0;
+        margin: 8px 0 0;
+        font-size: 16px;
         color: #4A4A4A;
       }
 
-      /* f) Platzhalter für Radio-Buttons */
-      #header-nav-placeholder {
-        display: flex;
-        align-items: baseline;
-        gap: 16px;
+      /* 5. Absolute placement für das Radio im Header */
+      .header-nav {
+        position: absolute;
+        top: 40px;     /* Höhe bis zur Grundlinie des Subtitle */
+        right: 32px;   /* identisch zu padding-right des Headers */
       }
 
-      /* g) Roter Strich */
-      #header-divider {
+      /* 6. Roter Divider exakt _unter_ Subtitle */
+      .header-divider {
         border: none;
-        border-top: 3px solid #E10600;  /* gleiche Farbe wie Euer Button */
-        margin: 0;
-        width: 100%;
+        border-top: 3px solid #E10600;
+        margin: 16px 0 0;  /* 16px Abstand nach unten */
       }
 
-      /* h) alle anderen <hr> im Main-Bereich verstecken */
+      /* 7. Alle anderen <hr> in Main ausblenden */
       .block-container hr {
         display: none !important;
       }
@@ -92,42 +84,42 @@ st.markdown(
 
     <!-- HTML des Headers -->
     <div class="header-container">
-      <div class="header-row">
-        <div>
-          <h1 class="header-title">CSRD Dashboard</h1>
-          <div class="header-sub">
-            Please select a peer group and variable of interest to benchmark your company’s CSRD reporting.
-          </div>
-        </div>
-        <div id="header-nav-placeholder"></div>
+      <h1 class="header-title">CSRD Dashboard</h1>
+      <div class="header-sub">
+        Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.
       </div>
-      <hr id="header-divider"/>
+      <div class="header-nav" id="header-nav-placeholder"></div>
+      <hr class="header-divider"/>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-# 2) Textual Analysis Radio erzeugen und verschieben
+# --------------------------------------------------------------------
+# 2. Das Textual Analysis‐Radio erzeugen (normal)
+# --------------------------------------------------------------------
 analysis_mode = st.radio(
     label="",
     options=["Textual Analysis"],
     horizontal=True,
     key="analysis_mode",
-    label_visibility="collapsed"
+    label_visibility="collapsed",
 )
+
+# --------------------------------------------------------------------
+# 3. Radio via JS in unser Header‐Nav verschieben
+# --------------------------------------------------------------------
 st.markdown(
     """
     <script>
-      (function() {
-        // warte bis der Radio-Container da ist
-        const interval = setInterval(() => {
-          const radioDiv = document.querySelector('div[data-testid="stRadio"]');
-          const placeholder = document.getElementById('header-nav-placeholder');
-          if (radioDiv && placeholder) {
-            placeholder.appendChild(radioDiv);
-            clearInterval(interval);
-          }
-        }, 100);
+      (function waitAndMove() {
+        const radioDiv   = document.querySelector('div[data-testid="stRadio"]');
+        const placeholder = document.getElementById('header-nav-placeholder');
+        if (radioDiv && placeholder) {
+          placeholder.appendChild(radioDiv);
+        } else {
+          setTimeout(waitAndMove, 100);
+        }
       })();
     </script>
     """,
