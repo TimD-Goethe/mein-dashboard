@@ -108,6 +108,10 @@ peer_selection = st.sidebar.multiselect(
     default=[],
 )
 
+peer_group_opts = [
+    "<b> Between Country Comparison</b>",
+]
+
 # --------------------------------------------------------------------
 # 6. Build benchmark_df
 # --------------------------------------------------------------------
