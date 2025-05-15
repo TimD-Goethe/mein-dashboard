@@ -983,6 +983,109 @@ if analysis_mode == "Textual Analysis":
                 )
             
                 st.plotly_chart(fig, use_container_width=True)
+
+            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart" and view == "Language Complexity":
+                # 1) Bestimme das Land des gewählten Unternehmens
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+            
+                # 2) Berechne den Durchschnitt des Fog-Scores pro Land
+                country_avg = (
+                    df
+                    .groupby("country")["fog"]
+                    .mean()
+                    .reset_index(name="FogScore")
+                )
+            
+                # 3) Sortiere so, dass das kleinste Mittel unten und das größte ganz oben erscheint
+                country_avg = country_avg.sort_values("FogScore", ascending=False)
+                y_order = country_avg["country"].tolist()
+            
+                # 4) Markiere Dein Land zum Hervorheben
+                country_avg["highlight"] = np.where(
+                    country_avg["country"] == focal_country,
+                    focal_country,
+                    "Other Countries"
+                )
+            
+                # 5) Erstelle das horizontale Balkendiagramm
+                fig_ctry = px.bar(
+                    country_avg,
+                    x="FogScore",
+                    y="country",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={
+                        focal_country: "red",
+                        "Other Countries": "#1f77b4"
+                    },
+                    category_orders={"country": y_order},
+                    labels={"FogScore": "Language Complexity (Fog)", "country": ""},
+                )
+            
+                # 6) Peer Average über **alle** Länder als schwarze VLine
+                overall_avg = country_avg["FogScore"].mean()
+                fig_ctry.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>All Countries Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16,
+                )
+            
+                # 7) Werte als Beschriftung außen anzeigen
+                fig_ctry.update_traces(
+                    texttemplate="%{x:.1f}",   # hier 1 Nachkommastelle
+                    textposition="outside",
+                    cliponaxis=False
+                )
+            
+                # 8) Legende ausblenden und Achsentitel setzen
+                fig_ctry.update_layout(
+                    showlegend=False,
+                    xaxis_title="Fog Score",
+                )
+            
+                st.plotly_chart(fig_ctry, use_container_width=True)
+            
+                # 9) Zweiter Chart: Focal vs. Durchschnitt aller anderen Länder
+                other_mean = (
+                    country_avg
+                    .loc[country_avg["country"] != focal_country, "FogScore"]
+                    .mean()
+                )
+                focal_mean = country_avg.loc[
+                    country_avg["country"] == focal_country, "FogScore"
+                ].iat[0]
+            
+                comp_df = pd.DataFrame({
+                    "Group": [focal_country, "Other Countries"],
+                    "FogScore": [focal_mean, other_mean]
+                })
+            
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="FogScore",
+                    text="FogScore",
+                    color="Group",
+                    color_discrete_map={
+                        focal_country:   "red",
+                        "Other Countries": "#1f77b4"
+                    },
+                    labels={"FogScore": "Fog Score", "Group": ""}
+                )
+                # Focal-Country links  
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
+                    showlegend=False,
+                    yaxis_title="Fog Score"
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+            
+                st.plotly_chart(fig_cmp, use_container_width=True)
             
             elif plot_type == "Histogram":
                 fig_fog = px.histogram(
