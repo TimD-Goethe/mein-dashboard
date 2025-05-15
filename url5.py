@@ -31,13 +31,6 @@ st.markdown(
           #FFFFFF 100%   /* dann langsam ins Weiß ausfaden */
         ) !important;
       }
-
-      /* 2) Header-Box transparent halten (falls Du sie oben draufsetzt) */
-      .sticky-header,
-      .my-header {
-        background: transparent !important;
-      }
-    </style>
     """,
     unsafe_allow_html=True
 )
