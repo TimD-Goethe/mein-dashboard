@@ -471,7 +471,15 @@ if analysis_mode == "Textual Analysis":
                 )
                 st.plotly_chart(fig_neg, use_container_width=True)
             
+                mean_pos  = benchmark_df["words_pos"].mean()
+                focal_pos = df.loc[df["company"] == company, "words_pos"].iat[0]
+                mean_neg  = benchmark_df["words_neg"].mean()
+                focal_neg = df.loc[df["company"] == company, "words_neg"].iat[0]
+
+                
                 st.subheader("Peer vs. Company Sentiment")
+
+                
                 # Vergleich positive vs. negative als grouped bar
                 comp_df = pd.DataFrame({
                     "company": ["Peer Average", company],
