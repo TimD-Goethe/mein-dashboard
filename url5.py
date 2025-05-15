@@ -576,8 +576,117 @@ if analysis_mode == "Textual Analysis":
                 )
             
                 st.plotly_chart(fig, use_container_width=True)
-          
 
+
+            
+            elif benchmark_type == "Between Country Comparison" and view == "Number of Words" and plot_type == "Bar Chart":
+                # 1) Bestimme das Land des gewählten Unternehmens
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+            
+                # 2) Berechne den Durchschnitt der Wörter pro Land
+                country_avg_words = (
+                    df
+                    .groupby("country")["words"]
+                    .mean()
+                    .reset_index(name="Words")
+                )
+            
+                # 3) Sortiere so, dass das kleinste Mittel unten und das größte ganz oben erscheint
+                country_avg_words = country_avg_words.sort_values("Words", ascending=False)
+                y_order = country_avg_words["country"].tolist()
+            
+                # 4) Füge eine Markierungsspalte hinzu (Focal Country vs. Others)
+                country_avg_words["highlight"] = np.where(
+                    country_avg_words["country"] == focal_country,
+                    "Focal Country",
+                    "Other Countries"
+                )
+            
+                # 5) Erstelle das horizontale Balkendiagramm
+                fig_ctry = px.bar(
+                    country_avg_words,
+                    x="Words",
+                    y="country",
+                    orientation="h",
+                    color_discrete_sequence=["#1f77b4"],  # alle Balken dunkelblau
+                    labels={"Words": "Words", "country": ""},
+                    category_orders={"country": y_order},
+                )
+            
+                # 6) Gesamt- und Focal-Durchschnitt berechnen
+                overall_avg_words = country_avg_words["Words"].mean()
+                focal_avg_words   = country_avg_words.loc[
+                    country_avg_words["country"] == focal_country, "Words"
+                ].iat[0]
+            
+                # 7) Schwarze Peer-Average-Linie (alle Länder)
+                fig_ctry.add_vline(
+                    x=overall_avg_words,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>All Countries Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=14,
+                )
+            
+                # 8) Roter Strich für Focal Country Avg
+                fig_ctry.add_vline(
+                    x=focal_avg_words,
+                    line_dash="dash",
+                    line_color="red",
+                    line_width=2,
+                    annotation_text=f"<b>{focal_country} Avg</b>",
+                    annotation_position="top left",
+                    annotation_font_color="red",
+                    annotation_font_size=14,
+                )
+            
+                # 9) Layout-Anpassungen: Legende aus, Werte außen anzeigen
+                fig_ctry.update_traces(
+                    texttemplate="%{x:.0f}",
+                    textposition="outside",
+                    cliponaxis=False
+                )
+                fig_ctry.update_layout(
+                    showlegend=False,
+                    xaxis_title="Words",
+                )
+            
+                st.plotly_chart(fig_ctry, use_container_width=True)
+            
+                # 10) Kompakter Vergleich: Focal vs. Durchschnitt aller anderen Länder
+                other_mean_words = country_avg_words.loc[
+                    country_avg_words["country"] != focal_country, "Words"
+                ].mean()
+            
+                comp_df = pd.DataFrame({
+                    "Group": [focal_country, "Other Countries"],
+                    "Words": [focal_avg_words, other_mean_words]
+                })
+            
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="Words",
+                    text="Words",
+                    color="Group",
+                    color_discrete_map={
+                        focal_country:   "red",
+                        "Other Countries": "#1f77b4"
+                    },
+                    labels={"Words": "Words", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
+                    showlegend=False,
+                    yaxis_title="Words"
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+            
+                st.plotly_chart(fig_cmp, use_container_width=True)
+            
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen als horizontale Balken (Words)
                 peers_df = plot_df.sort_values("words", ascending=False)
