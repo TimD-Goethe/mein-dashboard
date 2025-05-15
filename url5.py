@@ -362,37 +362,34 @@ if analysis_mode == "Textual Analysis":
             peers_df = plot_df.sort_values("words", ascending=True)
 
         elif plot_type == "Bar Chart":    
-                peers_df = plot_df.sort_values("words", ascending=True).copy()
+                # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken
+                # nach Wert absteigend sortieren
+                peers_df = plot_df.sort_values("words", ascending=False)
 
-                # 2) Markiere die ausgewählte Firma mit dem tatsächlichen Namen
-                peers_df["highlight_label"] = np.where(
-                    peers_df["company"] == company,
-                    company,    # dynamisch aus Deiner Auswahl
-                    "Peers"
-                )
-            
-                # 3) Definiere die Reihenfolge der Y-Achse
-                y_order = peers_df["company"].tolist()
-            
-                # 4) Baue das Bar-Chart mit der neuen Highlight-Spalte
-                fig2w = px.bar(
+                
+                mean_words = benchmark_df["words"].mean()
+
+                 # Wir drehen die Firmenliste, damit die größte ganz oben landet
+                y_order = peers_df["company"].tolist()[::-1]
+                
+                fig2 = px.bar(
                     peers_df,
                     x="words",
                     y="company",
                     orientation="h",
-                    color="highlight_label",           # Spalte nutzen, nicht eine List-Comprehension
-                    color_discrete_map={
-                        "Peers": "#1f77b4",
-                        company:   "red"
+                    color="highlight_label",
+                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
+                    labels={
+                        "words": "words",
+                        "company": "Company",
+                        "highlight_label": ""
                     },
-                    labels={"words": "Words", "company": ""},
-                    category_orders={"company": y_order},
+                    # hier verwenden wir die umgedrehte Liste
+                    category_orders={"company": y_order}
                 )
-            
-                # 5) Peer-Average als vertikale Linie
-                mean_words = peers_df["words"].mean()
-                fig2w.add_vline(
-                    x=mean_words,
+                
+                fig2.add_vline(
+                    x=mean_pages,
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
@@ -400,33 +397,45 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
-            
-                # 6) Legende und Achsenlayout
-                fig2w.update_layout(
+                
+                fig2.update_layout(
                     showlegend=True,
                     legend_title_text="",
-                    yaxis={"categoryorder": "array", "categoryarray": y_order},
-                    xaxis_title="Words",
+                    yaxis={
+                        "categoryorder": "array",
+                        # auch hier die umgedrehte Liste, damit "Imerys" ganz oben steht
+                        "categoryarray": y_order
+                    }
                 )
-                st.plotly_chart(fig2w, use_container_width=True, key="words_detail")
-                fig_avg2 = px.bar(
-                    comp_df2,
+                
+                st.plotly_chart(fig2, use_container_width=True)
+            
+                # 2) Peer Average vs. Focal Company, jetzt als vertikale Balken mit rotem Balken links
+                avg_words = mean_words
+                comp_df = pd.DataFrame({
+                    "Group": ["Peer Average", company],
+                    "Pages": [avg_words, focal_pages]
+                })
+            
+                fig_avg = px.bar(
+                    comp_df,
                     x="Group",
                     y="Words",
                     text="Words",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"Words": "Words", "Group": ""},
+                    labels={"Pages": "Pages", "Group": ""}
                 )
-                fig_avg2.update_layout(
+                # rote Firma links (als erste Kategorie) anzeigen
+                fig_avg.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
-                    showlegend=False,
-                    yaxis_title="Words",
+                    showlegend=False
                 )
-                fig_avg2.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-                st.plotly_chart(fig_avg2, use_container_width=True, key="words_comparison")
-            
-                st.caption("Number of words in companies’ sustainability statements.")
+                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_avg, use_container_width=True)
+
+            # Fußnote
+            st.caption("Number of words of companies’ sustainability reports.")")
 
 
         elif view == "Sentiment":
