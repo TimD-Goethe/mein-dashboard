@@ -536,7 +536,7 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig_h1, use_container_width=True)
 
                 # Peer Average als vertikale Linie mit Beschriftung
-                fig.add_vline(
+                fig_h1.add_vline(
                     x=mean_pos,
                     line_color="black",
                     line_width=1,
@@ -547,7 +547,7 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_size=16,
                 )
                 # Focal Company
-                fig.add_vline(
+                fig_h1.add_vline(
                     x=focal_pos,
                     line_dash="dash",
                     line_color="red",
@@ -564,7 +564,7 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig_h2, use_container_width=True)
 
                 # Peer Average als vertikale Linie mit Beschriftung
-                fig.add_vline(
+                fig_h2.add_vline(
                     x=mean_neg,
                     line_color="black",
                     line_width=1,
@@ -575,7 +575,7 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_size=16,
                 )
                 # Focal Company
-                fig.add_vline(
+                fig_h2.add_vline(
                     x=focal_neg,
                     line_dash="dash",
                     line_color="red",
