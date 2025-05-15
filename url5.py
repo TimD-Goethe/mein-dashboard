@@ -18,32 +18,37 @@ def make_company_url(company_name: str) -> str:
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
 # --------------------------------------------------------------------
-# 1. Custom Header+CSS
+# 1. Custom Header + CSS
 # --------------------------------------------------------------------
 st.markdown(
     """
     <style>
-      /* 1. Hide Streamlit-Cloud Sidebar-Toggle */
+      /* a) Sidebar-Toggle ausblenden */
       [data-testid="collapsedControl"] {
         display: none !important;
       }
 
-      /* 2. Full-width header */
+      /* b) Fixed Full-Bleed Header unter der Cloud-Bar */
       .header-container {
-        position: relative;
-        left: calc(-50vw + 50%);
-        width: 100vw;
+        position: fixed;
+        top: 64px;              /* anpassen auf Deine Cloud-Bar-Höhe */
+        left: 0;
+        width: 100%;
         background: linear-gradient(to bottom, #E3DFFF 0%, #FFFFFF 50%);
-        padding: 2rem 2rem 4rem;  /* oben 2rem, unten 4rem Puffer für Buttons */
+        padding: 2rem 2rem 2rem; /* oben/unten Puffer */
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        z-index: 100;           /* drüber, damit Sidebar darunter bleibt */
+        z-index: 1000;          /* ganz oben, damit Sidebar drunter liegt */
       }
+
+      /* c) Flex-Container mit Baseline-Alignment */
       .header-cols {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: baseline;   /* ← hier Baseline statt center */
         flex-wrap: wrap;
       }
+
+      /* d) Titel/Text */
       .header-title h1 {
         margin: 0;
         color: #1C1C1E;
@@ -54,31 +59,31 @@ st.markdown(
         color: #4A4A4A;
       }
 
-      /* 3. Placeholder für unsere Buttons im Header */
+      /* e) Placeholder fürs Radio */
       #header-nav-placeholder {
         display: flex;
         gap: 1rem;
       }
 
-      /* 4. Roter Strich unter dem Header */
+      /* f) Roter Strich */
       .header-divider {
         border: none;
         border-top: 3px solid #E10600;
-        margin: 1rem 0 2rem;
+        margin: 1rem 0;
       }
 
-      /* 5. Verschiebe nur die Sidebar nach unten */
+      /* g) Sidebar nur nach unten schieben */
       [data-testid="stSidebar"] {
-        margin-top: 300px !important;  /* <-- auf Deine Header-Höhe anpassen */
+        margin-top: 160px !important; /* Cloud-Bar (64px) + Header (≈96px) */
       }
 
-      /* 6. Unterdrücke alle anderen <hr> im Main-Container */
+      /* h) alle anderen <hr> ausblenden */
       .block-container hr {
         display: none !important;
       }
     </style>
 
-    <!-- HTML-Struktur des Headers -->
+    <!-- HTML des Headers -->
     <div class="header-container">
       <div class="header-cols">
         <div class="header-title">
@@ -94,9 +99,8 @@ st.markdown(
 )
 
 # --------------------------------------------------------------------
-# 2. Textual Analysis Radio (initial) + JS-Move in den Header
+# 2. Textual Analysis Radio + JS-Move
 # --------------------------------------------------------------------
-# Erst erzeugen wir das Widget ganz normal
 analysis_mode = st.radio(
     label="",
     options=["Textual Analysis"],
@@ -104,14 +108,12 @@ analysis_mode = st.radio(
     key="analysis_mode",
     label_visibility="collapsed"
 )
-
-# Dann schieben wir es per JS in unseren Header-Placeholder
 st.markdown(
     """
     <script>
       (function() {
         const radioDiv = document.querySelector('div[data-testid="stRadio"]');
-        const target    = document.getElementById('header-nav-placeholder');
+        const target   = document.getElementById('header-nav-placeholder');
         if (radioDiv && target) {
           target.appendChild(radioDiv);
         }
