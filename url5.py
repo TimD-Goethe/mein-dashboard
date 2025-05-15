@@ -361,7 +361,7 @@ if analysis_mode == "Textual Analysis":
 
             peers_df = plot_df.sort_values("words", ascending=True)
 
-           elif plot_type == "Bar Chart":
+            elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen als horizontale Balken (Words)
                 peers_df = plot_df.sort_values("words", ascending=False)
                 mean_words = benchmark_df["words"].mean()
