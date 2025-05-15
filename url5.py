@@ -110,7 +110,7 @@ elif benchmark_type == "Size Peers":
     benchmark_df    = df[df["market_cap_tercile"] == terc]
     benchmark_label = f"Market Cap Group: {lbl}"
 if peer_selection:
-    benchmark_df    = df[df["company"].isin(peer_selection)]
+    benchmark_df    = df.loc[df["company"].isin(peer_selection)]
     benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
 
 # Focal-Werte
