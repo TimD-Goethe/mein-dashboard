@@ -300,31 +300,6 @@ if analysis_mode == "Textual Analysis":
                 )
             
                 st.plotly_chart(fig, use_container_width=True)
-            
-                # 6) Kompaktes Vergleichs‐Balkendiagramm (optional)
-                comp_df = pd.DataFrame({
-                    "Group": [focal_country, "Other Countries"],
-                    "Pages": [mean_focal, (hist_df.loc[hist_df["group"]=="Other Countries","Sustainability_Page_Count"].mean())]
-                })
-                fig2 = px.bar(
-                    comp_df,
-                    x="Group",
-                    y="Pages",
-                    text="Pages",
-                    color="Group",
-                    color_discrete_map={
-                        focal_country:   "red",
-                        "Other Countries": "#1f77b4",
-                    },
-                    labels={"Pages": "Pages", "Group": ""}
-                )
-                fig2.update_layout(
-                    xaxis={"categoryorder":"array","categoryarray":[focal_country,"Other Countries"]},
-                    showlegend=False,
-                    yaxis_title="Pages"
-                )
-                fig2.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-                st.plotly_chart(fig2, use_container_width=True)
 
             
             elif plot_type == "Histogram":
