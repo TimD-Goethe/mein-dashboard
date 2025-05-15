@@ -239,39 +239,42 @@ if analysis_mode == "Textual Analysis":
             
                 st.subheader(f"Number of Pages Distribution ({focal_country} vs Other Countries)")
             
-                # 2) DataFrame kopieren und Gruppen-Spalte anlegen
-                hist_df = df.copy()
-                hist_df["group"] = np.where(
-                    hist_df["country"] == focal_country,
+                # 2) Länder-Durchschnitt in Pages
+                country_avg = (
+                    df
+                    .groupby("country")["Sustainability_Page_Count"]
+                    .mean()
+                    .reset_index(name="Pages")
+                )
+            
+                # 3) Focal-Country herausgreifen
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+                
+                # 4) Gruppe setzen
+                country_avg["group"] = np.where(
+                    country_avg["country"] == focal_country,
                     focal_country,
                     "Other Countries"
                 )
             
-                # 3) Histogramm mit Überlagerung beider Gruppen
-                mean_all     = df["Sustainability_Page_Count"].mean()
-                mean_focal   = hist_df.loc[hist_df["group"] == focal_country, 
-                                           "Sustainability_Page_Count"].mean()
-            
                 fig = px.histogram(
-                    hist_df,
-                    x="Sustainability_Page_Count",
+                    country_avg,
+                    x="Pages",
                     color="group",
-                    barmode="overlay",
-                    nbins=20,
+                    barmode="overlay",  # oder 'group', ganz wie Du’s magst
+                    nbins=10,           # je nach Breite Deiner Daten anpassen
                     opacity=0.6,
                     color_discrete_map={
                         focal_country:   "red",
-                        "Other Countries": "#1f77b4",
+                        "Other Countries": "#1f77b4"
                     },
-                    labels={
-                        "Sustainability_Page_Count": "Pages",
-                        "group": ""
-                    }
+                    labels={"Pages": "Average Pages per Country", "group": ""}
                 )
-            
-                # 4) Peer-Average (aller Länder) als schwarze VLine
+                
+                # Schwarze Linie: Durchschnitt aller Länder-Durchschnitte
+                overall_avg = country_avg["Pages"].mean()
                 fig.add_vline(
-                    x=mean_all,
+                    x=overall_avg,
                     line_dash="dash",
                     line_color="black",
                     line_width=2,
@@ -279,10 +282,11 @@ if analysis_mode == "Textual Analysis":
                     annotation_position="top right",
                     annotation_font_size=14
                 )
-            
-                # 5) Focal-Country-Durchschnitt als rote VLine
+                
+                # Rote Linie: Dein Land
+                focal_avg = country_avg.loc[country_avg["group"]==focal_country, "Pages"].iat[0]
                 fig.add_vline(
-                    x=mean_focal,
+                    x=focal_avg,
                     line_dash="dash",
                     line_color="red",
                     line_width=2,
@@ -291,14 +295,14 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_color="red",
                     annotation_font_size=14
                 )
-            
+                
                 fig.update_layout(
                     bargap=0.1,
                     legend_title_text="",
                     xaxis_title="Pages",
-                    yaxis_title="Number of Companies"
+                    yaxis_title="Number of Countries"
                 )
-            
+                
                 st.plotly_chart(fig, use_container_width=True)
 
             
