@@ -409,7 +409,6 @@ if analysis_mode == "Textual Analysis":
                     xaxis_title="Words",
                 )
                 st.plotly_chart(fig2w, use_container_width=True, key="words_detail")
-                )
                 fig_avg2 = px.bar(
                     comp_df2,
                     x="Group",
