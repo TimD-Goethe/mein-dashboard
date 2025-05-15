@@ -18,112 +18,76 @@ def make_company_url(company_name: str) -> str:
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
 # --------------------------------------------------------------------
-# 1. Fixed Header + CSS
-# --------------------------------------------------------------------
-#   - top: 64px → Höhe der Streamlit-Cloud-Bar
-#   - header height: ~120px (Title + Subtitle + Divider + Puffer)
-st.markdown(
-    """
-    <style>
-      /* 1. Hide the Streamlit Cloud sidebar‐toggle */
-      [data-testid="collapsedControl"] {
-        display: none !important;
-      }
-
-      /* 2. Push both Sidebar und Main-Container um Cloud-Bar + Header nach unten */
-      [data-testid="stSidebar"] {
-        margin-top: calc(64px + 120px) !important;
-      }
-      [data-testid="stAppViewContainer"] {
-        padding-top: calc(64px + 120px) !important;
-      }
-
-      /* 3. Unser Full-Width, Fixed Header */
-      .header-container {
-        position: fixed;
-        top: 64px;                /* direkt unter der Cloud-Bar */
-        left: 0;
-        width: 100%;
-        background: linear-gradient(to bottom, #E3DFFF 0%, #FFFFFF 50%);
-        padding: 16px 32px 24px;  /* oben 16px, seitlich 32px, unten 24px Puffer */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        z-index: 1000;            /* ganz oben lassen */
-      }
-
-      /* 4. Title & Subtitle */
-      .header-title {
-        margin: 0;
-        font-size: 28px;
-        color: #1C1C1E;
-      }
-      .header-sub {
-        margin: 8px 0 0;
-        font-size: 16px;
-        color: #4A4A4A;
-      }
-
-      /* 5. Absolute placement für das Radio im Header */
-      .header-nav {
-        position: absolute;
-        top: 40px;     /* Höhe bis zur Grundlinie des Subtitle */
-        right: 32px;   /* identisch zu padding-right des Headers */
-      }
-
-      /* 6. Roter Divider exakt _unter_ Subtitle */
-      .header-divider {
-        border: none;
-        border-top: 3px solid #E10600;
-        margin: 16px 0 0;  /* 16px Abstand nach unten */
-      }
-
-      /* 7. Alle anderen <hr> in Main ausblenden */
-      .block-container hr {
-        display: none !important;
-      }
-    </style>
-
-    <!-- HTML des Headers -->
-    <div class="header-container">
-      <h1 class="header-title">CSRD Dashboard</h1>
-      <div class="header-sub">
-        Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.
-      </div>
-      <div class="header-nav" id="header-nav-placeholder"></div>
-      <hr class="header-divider"/>
+# 2) Einfachen Container für Header + Gradient
+header_html = """
+<style>
+  .my-header {
+    padding: 2rem;
+    background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 50%);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+  .my-header h1 {
+    margin: 0;
+    font-size: 2.25rem;
+    color: #2E1E9A;
+  }
+  .my-header p {
+    margin: 0.5rem 0 1rem;
+    font-size: 1rem;
+    color: #333333;
+  }
+  .my-header .nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+  }
+  .my-header hr {
+    border: none;
+    border-top: 3px solid #E10600;
+    margin: 1rem 0;
+  }
+</style>
+<div class="my-header">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <h1>CSRD Dashboard</h1>
+      <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.</p>
     </div>
-    """,
-    unsafe_allow_html=True,
-)
+    <div class="nav">
+      <!-- Hier wird das Streamlit-Widget reingezogen -->
+      <div id="analysis-placeholder"></div>
+    </div>
+  </div>
+  <hr/>
+</div>
+"""
+st.markdown(header_html, unsafe_allow_html=True)
 
-# --------------------------------------------------------------------
-# 2. Das Textual Analysis‐Radio erzeugen (normal)
-# --------------------------------------------------------------------
+# 3) Jetzt das Streamlit-Radio erzeugen
 analysis_mode = st.radio(
     label="",
     options=["Textual Analysis"],
     horizontal=True,
     key="analysis_mode",
-    label_visibility="collapsed",
+    label_visibility="collapsed"
 )
 
-# --------------------------------------------------------------------
-# 3. Radio via JS in unser Header‐Nav verschieben
-# --------------------------------------------------------------------
+# 4) Und schließlich per JS in den Placeholder schieben
 st.markdown(
     """
     <script>
-      (function waitAndMove() {
-        const radioDiv   = document.querySelector('div[data-testid="stRadio"]');
-        const placeholder = document.getElementById('header-nav-placeholder');
-        if (radioDiv && placeholder) {
-          placeholder.appendChild(radioDiv);
-        } else {
-          setTimeout(waitAndMove, 100);
+      (function move() {
+        const widget = document.querySelector('div[data-testid="stRadio"]');
+        const target = document.getElementById('analysis-placeholder');
+        if (widget && target) {
+          target.appendChild(widget);
         }
       })();
     </script>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 # --------------------------------------------------------------------
 # 2. Daten laden
