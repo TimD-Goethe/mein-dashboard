@@ -921,7 +921,69 @@ if analysis_mode == "Textual Analysis":
             # 1) Peer-Average und Focal-Wert holen
             mean_fog  = benchmark_df["fog"].mean()
             focal_fog = df.loc[df["company"] == company, "fog"].iat[0]
-        
+
+
+            elif benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+                # 1) Focal Country ermitteln
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+            
+                # 2) Länder-Durchschnitt für fog berechnen
+                country_avg = (
+                    df
+                    .groupby("country")["fog"]           # statt Sustainability_Page_Count jetzt fog
+                    .mean()
+                    .reset_index(name="FogScore")
+                )
+            
+                # 3) Gesamt-Durchschnitt und Focal-Land-Durchschnitt
+                overall_avg = country_avg["FogScore"].mean()
+                focal_avg   = country_avg.loc[
+                    country_avg["country"] == focal_country, "FogScore"
+                ].iat[0]
+            
+                # 4) Histogramm der Länder-Durchschnitte in Dunkelblau
+                fig = px.histogram(
+                    country_avg,
+                    x="FogScore",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"FogScore": "Language Complexity (Fog)"}
+                )
+                fig.update_traces(marker_color="#1f77b4")  # alle Balken dunkelblau
+            
+                # 5) VLine für All Countries Avg (schwarz gestrichelt)
+                fig.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>All Countries Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_size=14,
+                )
+            
+                # 6) VLine für Focal Country Avg (rot gestrichelt)
+                fig.add_vline(
+                    x=focal_avg,
+                    line_dash="dash",
+                    line_color="red",
+                    line_width=2,
+                    annotation_text=f"<b>{focal_country} Avg</b>",
+                    annotation_position="top left",
+                    annotation_font_color="red",
+                    annotation_font_size=14,
+                )
+            
+                # 7) Layout-Feinschliff
+                fig.update_layout(
+                    showlegend=False,
+                    xaxis_title="Language Complexity (Fog)",
+                    yaxis_title="Number of Countries",
+                    bargap=0.1,
+                )
+            
+                st.plotly_chart(fig, use_container_width=True)
+            
             if plot_type == "Histogram":
                 fig_fog = px.histogram(
                     plot_df, x="fog", nbins=20,
