@@ -923,7 +923,7 @@ if analysis_mode == "Textual Analysis":
             focal_fog = df.loc[df["company"] == company, "fog"].iat[0]
 
 
-            elif benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+            if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -984,7 +984,7 @@ if analysis_mode == "Textual Analysis":
             
                 st.plotly_chart(fig, use_container_width=True)
             
-            if plot_type == "Histogram":
+            elif plot_type == "Histogram":
                 fig_fog = px.histogram(
                     plot_df, x="fog", nbins=20,
                     labels={"fog": "Fog Index"}
