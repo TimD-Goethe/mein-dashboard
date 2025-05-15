@@ -197,10 +197,10 @@ st.markdown(
 # 9. Content Rendering
 # --------------------------------------------------------------------
 if analysis_mode == "Textual Analysis":
-    col_content, col_view = st.columns([3, 1])
+    col_content, col_view = st.columns([4, 1])
     with col_view:
         view = st.selectbox(
-            "Analysis:", 
+            "What do you want to benchmark?", 
             ["Number of Pages", "Number of Words", "Sentiment", "Peer Company List"],
             key="view_selector"
         )
@@ -423,7 +423,7 @@ if analysis_mode == "Textual Analysis":
 
 
         elif view == "Sentiment":
-            if plot_type = "Bar Chart":
+            if plot_type == "Bar Chart":
                 st.subheader("Positive Words")
                 # Horizontal Bar Chart für words_pos
                 fig_pos = px.bar(
