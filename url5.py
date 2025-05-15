@@ -142,7 +142,7 @@ if benchmark_type == "Between Country Comparison":
     ], ignore_index=True)
     benchmark_label = f"{focal_country} vs Others"
 if peer_selection:
-    sel = Set(peer_selection)
+    sel = set(peer_selection)
     sel.add(company)
     benchmark_df    = df.loc[df["company"].isin(peer_selection)]
     benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
