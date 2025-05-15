@@ -23,61 +23,68 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* a) Sidebar-Toggle ausblenden */
+      /* a) Versteck den kleinen Sidebar-Toggle oben links */
       [data-testid="collapsedControl"] {
         display: none !important;
       }
 
-      /* b) Fixed Full-Bleed Header unter der Cloud-Bar */
+      /* b) Push für gesamten App-Container */
+      [data-testid="stAppViewContainer"] {
+        padding-top: 180px !important;  /* = Cloud-Bar ~60px + Header ~120px */
+      }
+      /* c) Push für Sidebar */
+      [data-testid="stSidebar"] {
+        margin-top: 180px !important;
+      }
+
+      /* d) Full-width Fixed Header */
       .header-container {
         position: fixed;
-        top: 64px;              /* anpassen auf Deine Cloud-Bar-Höhe */
+        top: 60px;                /* Höhe der Streamlit-Cloud-Bar */
         left: 0;
         width: 100%;
+        height: 120px;            /* passe an, je nachdem wie groß Dein Header wirklich ist */
         background: linear-gradient(to bottom, #E3DFFF 0%, #FFFFFF 50%);
-        padding: 2rem 2rem 2rem; /* oben/unten Puffer */
+        padding: 16px 32px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        z-index: 1000;          /* ganz oben, damit Sidebar drunter liegt */
+        z-index: 9999;            /* ganz oben */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
 
-      /* c) Flex-Container mit Baseline-Alignment */
-      .header-cols {
+      /* e) Flex-Zeile für Title + Nav */
+      .header-row {
         display: flex;
         justify-content: space-between;
-        align-items: baseline;   /* ← hier Baseline statt center */
-        flex-wrap: wrap;
+        align-items: baseline;    /* wichtig: Baseline für Text+Radio */
       }
-
-      /* d) Titel/Text */
-      .header-title h1 {
+      .header-title {
         margin: 0;
+        font-size: 28px;
         color: #1C1C1E;
-        font-size: 2rem;
       }
-      .header-title p {
-        margin: 0.5rem 0 0;
+      .header-sub {
+        margin: 4px 0 0;
         color: #4A4A4A;
       }
 
-      /* e) Placeholder fürs Radio */
+      /* f) Platzhalter für Radio-Buttons */
       #header-nav-placeholder {
         display: flex;
-        gap: 1rem;
+        align-items: baseline;
+        gap: 16px;
       }
 
-      /* f) Roter Strich */
-      .header-divider {
+      /* g) Roter Strich */
+      #header-divider {
         border: none;
-        border-top: 3px solid #E10600;
-        margin: 1rem 0;
+        border-top: 3px solid #E10600;  /* gleiche Farbe wie Euer Button */
+        margin: 0;
+        width: 100%;
       }
 
-      /* g) Sidebar nur nach unten schieben */
-      [data-testid="stSidebar"] {
-        margin-top: 160px !important; /* Cloud-Bar (64px) + Header (≈96px) */
-      }
-
-      /* h) alle anderen <hr> ausblenden */
+      /* h) alle anderen <hr> im Main-Bereich verstecken */
       .block-container hr {
         display: none !important;
       }
@@ -85,22 +92,22 @@ st.markdown(
 
     <!-- HTML des Headers -->
     <div class="header-container">
-      <div class="header-cols">
-        <div class="header-title">
-          <h1>CSRD Dashboard</h1>
-          <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.</p>
+      <div class="header-row">
+        <div>
+          <h1 class="header-title">CSRD Dashboard</h1>
+          <div class="header-sub">
+            Please select a peer group and variable of interest to benchmark your company’s CSRD reporting.
+          </div>
         </div>
         <div id="header-nav-placeholder"></div>
       </div>
-      <hr class="header-divider"/>
+      <hr id="header-divider"/>
     </div>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
-# --------------------------------------------------------------------
-# 2. Textual Analysis Radio + JS-Move
-# --------------------------------------------------------------------
+# 2) Textual Analysis Radio erzeugen und verschieben
 analysis_mode = st.radio(
     label="",
     options=["Textual Analysis"],
@@ -112,15 +119,19 @@ st.markdown(
     """
     <script>
       (function() {
-        const radioDiv = document.querySelector('div[data-testid="stRadio"]');
-        const target   = document.getElementById('header-nav-placeholder');
-        if (radioDiv && target) {
-          target.appendChild(radioDiv);
-        }
+        // warte bis der Radio-Container da ist
+        const interval = setInterval(() => {
+          const radioDiv = document.querySelector('div[data-testid="stRadio"]');
+          const placeholder = document.getElementById('header-nav-placeholder');
+          if (radioDiv && placeholder) {
+            placeholder.appendChild(radioDiv);
+            clearInterval(interval);
+          }
+        }, 100);
       })();
     </script>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 # --------------------------------------------------------------------
