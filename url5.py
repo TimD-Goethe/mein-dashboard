@@ -538,8 +538,8 @@ if analysis_mode == "Textual Analysis":
                 focal_neg = df.loc[df["company"] == company, "words_neg"].iat[0]
                                 
                 st.write("Histogram of positive words")
-                fig_h1 = px.histogram(benchmark_df, x="words_pos", nbins=20)
-                st.plotly_chart(fig_h1, use_container_width=True)
+                fig_h1 = px.histogram(benchmark_df, x="words_pos", nbins=20,
+                                     )
 
                 # Peer Average als vertikale Linie mit Beschriftung
                 fig_h1.add_vline(
@@ -563,12 +563,12 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
-
+                fig.update_layout(xaxis_title="Number of positive Words", yaxis_title="Number of Companies")
+                st.plotly_chart(fig_h1, use_container_width=True)
                 
                 st.write("Histogram of negative words")
                 fig_h2 = px.histogram(benchmark_df, x="words_neg", nbins=20)
-                st.plotly_chart(fig_h2, use_container_width=True)
-
+        
                 # Peer Average als vertikale Linie mit Beschriftung
                 fig_h2.add_vline(
                     x=mean_neg,
@@ -591,6 +591,8 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
+                fig.update_layout(xaxis_title="Number of negative Words", yaxis_title="Number of Companies")
+                st.plotly_chart(fig_h2, use_container_width=True)
         
         else:
             st.subheader("Peer Company List")
