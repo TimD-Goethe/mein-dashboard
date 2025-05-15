@@ -426,7 +426,7 @@ if analysis_mode == "Textual Analysis":
             if plot_type == "Bar Chart":
                 st.subheader("Positive Words")
 
-                pos_df = benchmark_df.sort_values("words_pos", ascending=True)
+                pos_df = benchmark_df.sort_values("words_pos", ascending=False)
 
                 # 2) Erzeuge die Highlight-Spalte mit genau den beiden Werten:
                 #    - Für alle Peers:          "Peers"
