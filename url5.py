@@ -362,6 +362,7 @@ if analysis_mode == "Textual Analysis":
             peers_df = plot_df.sort_values("words", ascending=True)
 
         elif plot_type == "Bar Chart":    
+                peers_df = plot_df.sort_values("words", ascending=False).copy()
                 # 2) Highlight-Spalte für Legende und Farb­mapping
                 peers_df["highlight_label"] = np.where(
                     peers_df["company"] == company,
