@@ -426,40 +426,39 @@ if analysis_mode == "Textual Analysis":
             if plot_type == "Bar Chart":
                 st.subheader("Positive Words")
 
-                pos_df = benchmark_df.sort_values("words_pos", ascending=False)
+                pos_df = benchmark_df.sort_values("words_pos", ascending=True)
 
-                orders = pos_df["company"].tolist()
-
-                # 2) Highlight-Spalte mit echtem Firmennamen
+                # 2) Erzeuge die Highlight-Spalte mit genau den beiden Werten:
+                #    - Für alle Peers:          "Peers"
+                #    - Für Deine Focal-Company: den String aus company
                 pos_df["highlight_label"] = np.where(
                     pos_df["company"] == company,
-                    company,      # hier kommt der echte Name rein
+                    company,
                     "Peers"
                 )
-
-                # Horizontal Bar Chart für words_pos
+                
+                # 3) Erzeuge die Bar-Chart und gib color="highlight_label" an
                 fig_pos = px.bar(
-                    pos_df,
-                    x="words_pos",
-                    y="company",
+                    pos_df,                        
+                    x="words_pos",                 
+                    y="company",                   
                     orientation="h",
-                    color=[("Company" if c == company else "Peers") for c in benchmark_df["company"]],
-                    color_discrete_map={"Peers":"#4C78A8","Company":"#E10600"},
+                    color="highlight_label",       # <— hier kommt die Spalte rein
+                    color_discrete_map={
+                        "Peers": "#4C78A8",        # Blau für alle anderen
+                        company: "#E10600",        # Rot für die aktuell ausgewählte Firma
+                    },
                     labels={"words_pos":"# Positive Words","company":""},
-                    category_orders={"company": orders},
+                    category_orders={"company": pos_df["company"].tolist()},
                 )
-                # Peer-Average Linie
-                mean_pos = benchmark_df["words_pos"].mean()
-                fig_pos.add_vline(
-                    x=mean_pos,
-                    line_dash="dash",
-                    line_color="#333333",
-                    annotation_text="<b>Peer Average</b>",
-                    annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16,
-                )
+                
+                # 4) Peer-Average-Linie noch hinzufügen
+                mean_pos = pos_df["words_pos"].mean()
+                fig_pos.add_vline(x=mean_pos, line_dash="dash", line_color="#333333")
+                
                 st.plotly_chart(fig_pos, use_container_width=True)
+
+                
                 #2) Negatives Chart – auch aufsteigend sortieren, damit das Letzte (größter Wert) oben landet
                 st.subheader("Negative Words")
                 
