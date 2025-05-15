@@ -526,6 +526,7 @@ if analysis_mode == "Textual Analysis":
                     y=["Positive","Negative"],
                     barmode="group",
                     labels={"value":"Count","company":""},
+                    category_orders={"company": [company, "Peer Average"]},
                 )
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
