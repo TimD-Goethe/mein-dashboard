@@ -56,7 +56,6 @@ header_html = """
       <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.</p>
     </div>
     <div class="nav">
-      <!-- Hier wird das Streamlit-Widget reingezogen -->
       <div id="analysis-placeholder"></div>
     </div>
   </div>
