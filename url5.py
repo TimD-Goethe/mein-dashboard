@@ -17,65 +17,78 @@ def make_company_url(company_name: str) -> str:
 # -------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
+# 1) CSS für den Full-Bleed Header
 st.markdown(
     """
     <style>
-      /* Header-Gradient + Abstand nach unten */
       .header-container {
-        background: linear-gradient(180deg,#E3DFFF 0%,#FFFFFF 100%);
-        padding: 1.5rem 2rem 2rem 2rem;
-        margin-bottom: 2rem;           /* sorgt dafür, dass der Main-Content nicht drunter rutscht */
-        border-radius: 0 0 8px 8px;
+        position: relative;
+        left: calc(-50vw + 50%);
+        width: 100vw;
+        background: linear-gradient(
+          to bottom,
+          #E3DFFF 0%,
+          #FFFFFF 50%
+        );
+        padding: 2rem 2rem 4rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        z-index: 100;
       }
-      /* Roter Strich */
       .header-divider {
         border: none;
         border-top: 3px solid #E10600;
-        margin: 1rem 0;
+        margin: 1rem 0 2rem;
       }
-      /* Überschrift und Text etwas schicker */
-      .header-container h1 {
-        color: #1C1C1E;
+      .header-cols {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .header-title {
+        max-width: 70%;
+      }
+      .header-nav {
+        display: flex;
+        gap: 1rem;
+      }
+      .header-title h1 {
         margin: 0;
+        color: #1C1C1E;
+        font-size: 2rem;
       }
-      .header-container p {
-        color: #4A4A4A;
+      .header-title p {
         margin: 0.5rem 0 0;
+        color: #4A4A4A;
       }
     </style>
+
+    <div class="header-container">
+      <div class="header-cols">
+        <div class="header-title">
+          <h1>CSRD Dashboard</h1>
+          <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.</p>
+        </div>
+        <div class="header-nav">
+          <!-- Hier kommt unser einziger Mode-Button hin -->
+        </div>
+      </div>
+      <hr class="header-divider"/>
+    </div>
     """,
     unsafe_allow_html=True,
 )
 
-# -------------------------------------------------
-# 1. Header in Streamlit bauen
-# -------------------------------------------------
-# Wir öffnen einen HTML-Wrapper-DIV, damit unsere CSS-Klassen greifen
-st.markdown('<div class="header-container">', unsafe_allow_html=True)
-
-# Zwei Spalten: Links Titel+Text, rechts Radio-Button
-col_title, nav_col = st.columns([4, 1])
-
-with col_title:
-    st.markdown("## CSRD Dashboard")
-    st.markdown("Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.")
-
-with nav_col:
-    # Hier kommt Dein Radio-Button hin
+# 2) In den Platzhalter für header-nav die Streamlit-Widgets packen
+cols = st.columns([7, 3])
+with cols[1]:
     analysis_mode = st.radio(
-        label="", 
-        options=["Textual Analysis"], 
-        horizontal=True, 
+        label="",
+        options=["Textual Analysis"],   # nur noch dieser eine Eintrag
+        horizontal=True,
         key="analysis_mode",
         label_visibility="collapsed"
     )
-
-# Roter Trennstrich am Ende des Headers
-st.markdown('<hr class="header-divider"/>', unsafe_allow_html=True)
-
-# Wir schließen das DIV
-st.markdown('</div>', unsafe_allow_html=True)
-
 
 # --------------------------------------------------------------------
 # 2. Daten laden
