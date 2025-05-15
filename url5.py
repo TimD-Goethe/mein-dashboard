@@ -860,7 +860,7 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
 
-            elif benchmark_type == "Between Country Comparison" and view == "Sentiment" and plot_type == "Histogram":
+            elif benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
                 # 1) Fokus-Land
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -894,8 +894,9 @@ if analysis_mode == "Textual Analysis":
                     line_color="red",
                     line_width=2,
                     annotation_text=f"<b>{focal_country} Avg Pos</b>",
-                    annotation_position="top left",
-                    annotation_font_size=14,
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16,
                 )
                 # Gesamt-Average
                 fig_hist.add_vline(
@@ -905,7 +906,8 @@ if analysis_mode == "Textual Analysis":
                     line_width=2,
                     annotation_text="<b>All Countries Avg Pos</b>",
                     annotation_position="top right",
-                    annotation_font_size=14,
+                    annotation_font_color="black",
+                    annotation_font_size=16,
                 )
                 fig_hist.update_layout(
                     showlegend=False,
