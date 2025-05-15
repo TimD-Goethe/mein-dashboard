@@ -48,7 +48,7 @@ st.markdown(
         font-size: 2.25rem;
       }
       .sticky-header p {
-        margin: 0.5rem 0 1rem;
+        margin: 0rem 0 0rem;
         color: #333333;
       }
       .sticky-header .divider {
