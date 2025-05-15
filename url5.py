@@ -19,8 +19,8 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      .block-container {
-        padding-top: 0 rem !important;
+      .appview-container .main .block-container {
+        padding-top: 0rem !important;
       }
     /* 1) Full-page Gradient auf den App-Hintergrund */
       html, body, [data-testid="stAppViewContainer"], .block-container {
