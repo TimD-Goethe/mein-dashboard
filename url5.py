@@ -184,7 +184,7 @@ with header_col:
     )
 
 # 2. Voll-breiter, farbiger Strich
-color = "#e63946"
+color = "#b34747"
 st.markdown(
     f"""
     <div style="
