@@ -744,7 +744,7 @@ if analysis_mode == "Textual Analysis":
 
         elif view == "Sentiment":
             
-            elif benchmark_type == "Between Country Comparison" and view == "Sentiment":
+            elif benchmark_type == "Between Country Comparison" and plot_type = "Bar Chart":
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
                 # 1) Länder-Durchschnitte berechnen
