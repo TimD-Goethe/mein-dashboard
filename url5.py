@@ -262,45 +262,62 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig, use_container_width=True)
 
 
-            elif benchmark_type == "Country vs Rest" and plot_type == "Bar Chart":
-                st.subheader(f"Pages by Country ({focal_country} highlighted)")
+            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
+                st.subheader(f"Number of Pages ({focal_country} vs. Other Countries)")
             
-                # 1) Durchschnitt pro Land berechnen
+                # 1) Bestimme das Land des gewählten Unternehmens
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+            
+                # 2) Berechne den Durchschnitt der Seiten pro Land
                 country_avg = (
-                    df  # das volle DataFrame mit allen Firmen
+                    df
                     .groupby("country")["Sustainability_Page_Count"]
                     .mean()
                     .reset_index(name="Pages")
                 )
             
-                # 2) Sortieren → aufsteigend, damit der höchste Balken oben landet
+                # 3) Sortiere so, dass das kleinste Mittel unten und das größte ganz oben erscheint
                 country_avg = country_avg.sort_values("Pages", ascending=True)
             
-                # 3) Highlight‐Spalte mit echtem Landnamen oder "Others" nicht nötig hier
+                # 4) Markiere Dein Land
                 country_avg["highlight"] = np.where(
                     country_avg["country"] == focal_country,
                     focal_country,
                     "Other Countries"
                 )
             
-                # 4) category_order bauen (Länder in der DataFrame‐Reihenfolge)
+                # 5) Leg die Reihenfolge der Länder fest
                 y_order = country_avg["country"].tolist()
             
-                # 5) Bar‐Chart mit Highlight
+                # 6) Erstelle das horizontale Balkendiagramm
                 fig_ctry = px.bar(
                     country_avg,
                     x="Pages",
                     y="country",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
-                    labels={"Pages":"Pages","country":""},
+                    color_discrete_map={
+                        focal_country: "red",
+                        "Other Countries": "#1f77b4"
+                    },
                     category_orders={"country": y_order},
+                    labels={"Pages":"Pages","country":""},
                 )
-                fig_ctry.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
-                fig_ctry.update_layout(showlegend=False, xaxis_title="Pages")
             
-                st.plotly_chart(fig_ctry, use_container_width=True)
+                # 7) Werte als Beschriftung außen anzeigen
+                fig_ctry.update_traces(
+                    texttemplate="%{x:.0f}",
+                    textposition="outside",
+                    cliponaxis=False
+                )
+            
+                # 8) Legende ausblenden (nur Farb­unterscheidung über Balken)
+                fig_ctry.update_layout(
+                    showlegend=False,
+                    xaxis_title="Pages",
+                )
+
+    st.plotly_chart(fig_ctry, use_container_width=True)
 
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken
