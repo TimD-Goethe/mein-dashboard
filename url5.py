@@ -744,7 +744,7 @@ if analysis_mode == "Textual Analysis":
 
         elif view == "Sentiment":
             
-            elif benchmark_type == "Between Country Comparison" and plot_type = "Bar Chart":
+            if benchmark_type == "Between Country Comparison" and plot_type = "Bar Chart":
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
                 # 1) Länder-Durchschnitte berechnen
@@ -860,7 +860,7 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
             
-            if plot_type == "Bar Chart":
+            elif plot_type == "Bar Chart":
                 st.subheader("Positive Words")
 
                 pos_df = benchmark_df.sort_values("words_pos", ascending=False)
