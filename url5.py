@@ -310,7 +310,8 @@ if analysis_mode == "Textual Analysis":
                     line_width=2,
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="top right",
-                    annotation_font_size=14
+                    annotation_font_color="black",
+                    annotation_font_size=16
                 )
                 
                 # 7) Werte als Beschriftung außen anzeigen
