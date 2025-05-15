@@ -634,19 +634,7 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_color="black",
                     annotation_font_size=14,
                 )
-            
-                # 8) Roter Strich für Focal Country Avg
-                fig_ctry.add_vline(
-                    x=focal_avg_words,
-                    line_dash="dash",
-                    line_color="red",
-                    line_width=2,
-                    annotation_text=f"<b>{focal_country} Avg</b>",
-                    annotation_position="bottom left",
-                    annotation_font_color="red",
-                    annotation_font_size=14,
-                )
-            
+                     
                 # 9) Layout-Anpassungen: Legende aus, Werte außen anzeigen
                 fig_ctry.update_traces(
                     texttemplate="%{x:.0f}",
