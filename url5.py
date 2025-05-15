@@ -428,6 +428,8 @@ if analysis_mode == "Textual Analysis":
 
                 pos_df = benchmark_df.sort_values("words_pos", ascending=False)
 
+                orders = pos_df["company"].tolist()
+
                 # Horizontal Bar Chart für words_pos
                 fig_pos = px.bar(
                     benchmark_df,
@@ -437,10 +439,7 @@ if analysis_mode == "Textual Analysis":
                     color=[("Company" if c == company else "Peers") for c in benchmark_df["company"]],
                     color_discrete_map={"Peers":"#4C78A8","Company":"#E10600"},
                     labels={"words_pos":"# Positive Words","company":""},
-                    category_orders={
-                        # wichtig: in der Reihenfolge, wie sie in der sortierten pos_df stehen
-                        "company": pos_df["company"].tolist()[::-1]
-                    }
+                    category_orders={"company": orders},
                 )
                 # Peer-Average Linie
                 mean_pos = benchmark_df["words_pos"].mean()
@@ -454,7 +453,7 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_size=16,
                 )
                 st.plotly_chart(fig_pos, use_container_width=True)
-            
+                orders = pos_df["company"].tolist()
                 st.subheader("Negative Words")
                 neg_df = benchmark_df.sort_values("words_neg", ascending=False)
                 # Horizontal Bar Chart für words_neg
@@ -466,9 +465,7 @@ if analysis_mode == "Textual Analysis":
                     color=[("Company" if c == company else "Peers") for c in benchmark_df["company"]],
                     color_discrete_map={"Peers":"#4C78A8","Company":"#E10600"},
                     labels={"words_neg":"# Negative Words","company":""},
-                    category_orders={
-                        "company": neg_df["company"].tolist()[::-1]
-                    }
+                    category_orders={"company": orders},
                 )
                 mean_neg = benchmark_df["words_neg"].mean()
                 fig_neg.add_vline(
