@@ -563,7 +563,7 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
-                fig.update_layout(xaxis_title="Number of positive Words", yaxis_title="Number of Companies")
+                fig_h1.update_layout(xaxis_title="Number of positive Words", yaxis_title="Number of Companies")
                 st.plotly_chart(fig_h1, use_container_width=True)
                 
                 st.write("Histogram of negative words")
@@ -591,7 +591,7 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
-                fig.update_layout(xaxis_title="Number of negative Words", yaxis_title="Number of Companies")
+                fig_h2.update_layout(xaxis_title="Number of negative Words", yaxis_title="Number of Companies")
                 st.plotly_chart(fig_h2, use_container_width=True)
         
         else:
