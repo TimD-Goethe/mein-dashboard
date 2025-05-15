@@ -365,14 +365,13 @@ if analysis_mode == "Textual Analysis":
                 mean_words = benchmark_df["words"].mean()
             
                 # categoryarray umdrehen, damit die höchste ganz oben ist
-                y_order = peers_df["company"].tolist()[::-1]
+                y_order = peers_df["company"].tolist()
             
                 fig2w = px.bar(
                     peers_df,
                     x="words",
                     y="company",
                     orientation="h",
-                    color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={"words": "Words", "company": "Company", "highlight_label": ""},
                     category_orders={"company": y_order},
