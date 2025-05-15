@@ -269,7 +269,7 @@ if analysis_mode == "Textual Analysis":
                 st.subheader(f"Number of Pages Distribution ({focal_country} vs Other Countries)")
             
                 # 2) Für Histogramm braucht’s eine Spalte, die „Focal vs Other“ markiert
-                hist_df = df.copy()
+                hist_df = benchmark_df.copy()
                 hist_df["group"] = np.where(
                     hist_df["country"] == focal_country,
                     focal_country,
@@ -292,7 +292,7 @@ if analysis_mode == "Textual Analysis":
                 )
             
                 # 4) Globale Peer-Average-Linie
-                overall_avg = df["Sustainability_Page_Count"].mean()
+                overall_avg = benchmark_df["Sustainability_Page_Count"].mean()
                 fig_hist.add_vline(
                     x=overall_avg,
                     line_dash="dash",
