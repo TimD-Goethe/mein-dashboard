@@ -858,6 +858,99 @@ if analysis_mode == "Textual Analysis":
                 fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
                 st.subheader("Peer vs. Country Sentiment")
                 st.plotly_chart(fig_cmp, use_container_width=True)
+
+
+            elif benchmark_type == "Between Country Comparison" and view == "Sentiment" and plot_type == "Histogram":
+                # 1) Fokus-Land
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+            
+                # 2) Länder-Durchschnitte vorbereiten
+                country_avg = (
+                    df
+                    .groupby("country")[["words_pos", "words_neg"]]
+                    .mean()
+                    .reset_index()
+                )
+                # Gesamt-Mittelwerte
+                overall_pos = country_avg["words_pos"].mean()
+                overall_neg = country_avg["words_neg"].mean()
+                # Fokus-Land-Mittelwerte
+                focal_pos   = country_avg.loc[country_avg["country"] == focal_country, "words_pos"].iat[0]
+                focal_neg   = country_avg.loc[country_avg["country"] == focal_country, "words_neg"].iat[0]
+            
+                # 3) Histogramm für alle Länder-Durchschnitte (überlagert, dunkelblau)
+                fig_hist = px.histogram(
+                    country_avg,
+                    x="words_pos",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"words_pos": "# Positive Words"},
+                )
+                fig_hist.update_traces(marker_color="#1f77b4")
+                # Fokus-Land als rote Linie
+                fig_hist.add_vline(
+                    x=focal_pos,
+                    line_dash="dash",
+                    line_color="red",
+                    line_width=2,
+                    annotation_text=f"<b>{focal_country} Avg Pos</b>",
+                    annotation_position="top left",
+                    annotation_font_size=14,
+                )
+                # Gesamt-Average
+                fig_hist.add_vline(
+                    x=overall_pos,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>All Countries Avg Pos</b>",
+                    annotation_position="top right",
+                    annotation_font_size=14,
+                )
+                fig_hist.update_layout(
+                    showlegend=False,
+                    xaxis_title="# Positive Words",
+                    yaxis_title="Number of Countries",
+                    bargap=0.1,
+                )
+                st.subheader("Positive Words Distribution by Country")
+                st.plotly_chart(fig_hist, use_container_width=True)
+            
+                # 4) Dasselbe noch für negative Wörter
+                fig_hist2 = px.histogram(
+                    country_avg,
+                    x="words_neg",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"words_neg": "# Negative Words"},
+                )
+                fig_hist2.update_traces(marker_color="#1f77b4")
+                fig_hist2.add_vline(
+                    x=focal_neg,
+                    line_dash="dash",
+                    line_color="red",
+                    line_width=2,
+                    annotation_text=f"<b>{focal_country} Avg Neg</b>",
+                    annotation_position="top left",
+                    annotation_font_size=14,
+                )
+                fig_hist2.add_vline(
+                    x=overall_neg,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>All Countries Avg Neg</b>",
+                    annotation_position="top right",
+                    annotation_font_size=14,
+                )
+                fig_hist2.update_layout(
+                    showlegend=False,
+                    xaxis_title="# Negative Words",
+                    yaxis_title="Number of Countries",
+                    bargap=0.1,
+                )
+                st.subheader("Negative Words Distribution by Country")
+                st.plotly_chart(fig_hist2, use_container_width=True)
             
             
             elif plot_type == "Bar Chart":
