@@ -19,18 +19,47 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* sanfter violetter Verlauf im Header */
-      .block-container {
+      /* 1. Unser Full-Width Header */
+      .fixed-header {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
         background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 100%);
-        padding-top: 2rem;
+        padding: 1rem 2rem;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
-      /* obere Trennlinie in primaryColor */
-      .block-container > h1 + div {
-        border-top: 3px solid #7C6CF0 !important;
+      .fixed-header h1 {
+        margin: 0;
+        color: #1C1C1E;
+      }
+      .fixed-header p {
+        margin: 0.25rem 0 0.75rem;
+        color: #4A4A4A;
+      }
+      .fixed-header hr {
+        border: 0;
+        border-top: 3px solid #E10600;
+        margin: 0;
+      }
+
+      /* 2. Main-Content und Sidebar nach unten schieben */
+      [data-testid="stSidebar"] {
+        margin-top: 120px !important;
+      }
+      [data-testid="stAppViewContainer"] .block-container {
+        padding-top: 120px !important;
       }
     </style>
+
+    <!-- 3. HTML-Header -->
+    <div class="fixed-header">
+      <h1>CSRD Dashboard</h1>
+      <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are companies’ 2024 sustainability reports.</p>
+      <hr>
+    </div>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 # --------------------------------------------------------------------
