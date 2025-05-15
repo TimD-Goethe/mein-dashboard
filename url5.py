@@ -472,7 +472,7 @@ if analysis_mode == "Textual Analysis":
                 
 
                 # 2) Highlight-Spalte mit echtem Firmennamen
-                pos_df["highlight_label"] = np.where(
+                neg_df["highlight_label"] = np.where(
                     neg_df["company"] == company,
                     company,      # hier kommt der echte Name rein
                     "Peers"
