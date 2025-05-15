@@ -16,31 +16,40 @@ def make_company_url(company_name: str) -> str:
 # 1. Page config
 # --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
-st.markdown("""
-<style>
-  /* 1) Toolbar um ganz oben festkleben */
-  .css-18e3th9 {
-    top: 0;
-    position: fixed;
-    z-index: 1000;
-  }
+st.markdown(
+    """
+    <style>
+      /* --- Sidebar oben komplett dichtmachen --- */
+      [data-testid="stSidebar"] > .css-1lcbmhc {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+      }
 
-  /* 2) Full-page Gradient auf den App-Hintergrund */
-  html, body, [data-testid="stAppViewContainer"], .block-container {
-    background: linear-gradient(
-      180deg,
-      #E3DFFF 0%,    /* reines Violett oben */
-      #E3DFFF 60%,   /* Lila bleibt bis 60% */
-      #FFFFFF 100%   /* dann langsam ins Weiß ausfaden */
-    ) !important;
-  }
+      /* --- Dein Toolbar-Fix --- */
+      .css-18e3th9 {
+        top: 0 !important;
+        position: fixed !important;
+        z-index: 1000 !important;
+      }
 
-  /* 3) Padding Top im Main-Container auf 0 setzen */
-  .appview-container .main .block-container {
-    padding-top: 0 !important;
-  }
-</style>
-""", unsafe_allow_html=True)
+      /* --- Full-page Gradient auf den App-Hintergrund --- */
+      html, body, [data-testid="stAppViewContainer"], .block-container {
+        background: linear-gradient(
+          180deg,
+          #E3DFFF 0%,   /* reines Violett oben */
+          #E3DFFF 60%,  /* lila bis 60% */
+          #FFFFFF 100%  /* dann ins Weiß ausfaden */
+        ) !important;
+      }
+
+      /* --- Haupt-Content ganz oben anflanschen --- */
+      .appview-container .main .block-container {
+        padding-top: 0 !important;
+      }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 # --------------------------------------------------------------------
 # 2. Daten laden
 # --------------------------------------------------------------------
