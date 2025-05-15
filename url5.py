@@ -434,8 +434,8 @@ if analysis_mode == "Textual Analysis":
                 fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_avg, use_container_width=True)
 
-            # Fußnote
-            st.caption("Number of words of companies’ sustainability reports.")
+                # Fußnote
+                st.caption("Number of words of companies’ sustainability reports.")
 
 
         elif view == "Sentiment":
