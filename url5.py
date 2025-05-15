@@ -359,24 +359,36 @@ if analysis_mode == "Textual Analysis":
                 fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
 
-            elif plot_type == "Bar Chart":
-                # 1) Detail-Bar-Chart aller Peer-Unternehmen als horizontale Balken (Words)
-                peers_df = plot_df.sort_values("words", ascending=False)
-                mean_words = benchmark_df["words"].mean()
+            peers_df = plot_df.sort_values("words", ascending=True)
+
+        elif plot_type == "Bar Chart":    
+                # 2) Highlight-Spalte für Legende und Farb­mapping
+                peers_df["highlight_label"] = np.where(
+                    peers_df["company"] == company,
+                    company,    # hier der dynamische Firmen­name
+                    "Peers"
+                )
             
-                # categoryarray umdrehen, damit die höchste ganz oben ist
+                # Kategorie-Reihenfolge (geliefert in aufsteigender Reihenfolge)
                 y_order = peers_df["company"].tolist()
             
+                # 3) Bar-Chart mit highlight_label als color
                 fig2w = px.bar(
                     peers_df,
                     x="words",
                     y="company",
                     orientation="h",
-                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"words": "Words", "company": "Company", "highlight_label": ""},
+                    color="highlight_label",  # Spalte mit Deinen beiden Labels
+                    color_discrete_map={
+                        "Peers": "#1f77b4",     # Blau für alle Peers
+                        company:   "red"        # Rot für Deine Firma
+                    },
+                    labels={"words": "Words", "company": ""},
                     category_orders={"company": y_order},
                 )
-                # vertikale Peer-Average-Linie
+            
+                # 4) Vertikale Peer-Average-Linie
+                mean_words = benchmark_df["words"].mean()
                 fig2w.add_vline(
                     x=mean_words,
                     line_dash="dash",
@@ -386,16 +398,18 @@ if analysis_mode == "Textual Analysis":
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
-                # eindeutige Element-ID verhindern Kollision
+            
+                # 5) Legende / Achsen-Layout
                 fig2w.update_layout(
                     showlegend=True,
                     legend_title_text="",
                     yaxis={"categoryorder": "array", "categoryarray": y_order},
                     xaxis_title="Words",
                 )
+            
                 st.plotly_chart(fig2w, use_container_width=True, key="words_detail")
             
-                # 2) Peer Average vs. Focal Company als vertikale Balken (roter Balken links)
+                # 6) Peer vs. Company Vergleich (vertikaler Chart)
                 comp_df2 = pd.DataFrame({
                     "Group": ["Peer Average", company],
                     "Words": [mean_words, focal_words],
@@ -409,7 +423,6 @@ if analysis_mode == "Textual Analysis":
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
                     labels={"Words": "Words", "Group": ""},
                 )
-                # sortiere x-Achse so, dass red Company links steht
                 fig_avg2.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False,
