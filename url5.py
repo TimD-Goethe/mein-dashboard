@@ -44,7 +44,7 @@ st.markdown(
 # --------------------------------------------------------------------
 # 2. Daten laden
 # --------------------------------------------------------------------
-df = pd.read_csv("summary_with_meta.csv")
+df = pd.read_csv("summary_with_meta_with_mcap_and_cat.csv")
 
 # --------------------------------------------------------------------
 # 3. URL-Param lesen, decodieren & auf Default-Firma mappen
