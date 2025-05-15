@@ -430,9 +430,16 @@ if analysis_mode == "Textual Analysis":
 
                 orders = pos_df["company"].tolist()
 
+                # 2) Highlight-Spalte mit echtem Firmennamen
+                pos_df["highlight_label"] = np.where(
+                    pos_df["company"] == company,
+                    company,      # hier kommt der echte Name rein
+                    "Peers"
+                )
+
                 # Horizontal Bar Chart für words_pos
                 fig_pos = px.bar(
-                    benchmark_df,
+                    pos_df,
                     x="words_pos",
                     y="company",
                     orientation="h",
@@ -458,6 +465,13 @@ if analysis_mode == "Textual Analysis":
                 
                 neg_df = benchmark_df.sort_values("words_neg", ascending=False)
                 orders_neg = neg_df["company"].tolist()
+
+                # 2) Highlight-Spalte mit echtem Firmennamen
+                pos_df["highlight_label"] = np.where(
+                    neg_df["company"] == company,
+                    company,      # hier kommt der echte Name rein
+                    "Peers"
+                )
                 
                 fig_neg = px.bar(
                     neg_df,                              # <— nicht benchmark_df
