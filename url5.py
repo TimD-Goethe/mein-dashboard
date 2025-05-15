@@ -17,8 +17,7 @@ def make_company_url(company_name: str) -> str:
 # --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
-# --------------------------------------------------------------------
-# 2) Einfachen Container für Header + Gradient
+# --- Header mit Gradient und Platz für das Radio ------------------
 header_html = """
 <style>
   .my-header {
