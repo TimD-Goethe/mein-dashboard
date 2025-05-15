@@ -220,8 +220,10 @@ if analysis_mode == "Textual Analysis":
                     line_dash="dash",
                     line_color="red",
                     opacity=0.8,
-                    annotation_text=company,
-                    annotation_position="top left"
+                    annotation_text=<b>company<b>,
+                    annotation_position="top left",
+                    annotation_font_color="red",
+                    annotation_font_size=16,
                 )
                 fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
                 st.plotly_chart(fig, use_container_width=True)
