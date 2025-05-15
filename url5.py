@@ -425,6 +425,9 @@ if analysis_mode == "Textual Analysis":
         elif view == "Sentiment":
             if plot_type == "Bar Chart":
                 st.subheader("Positive Words")
+
+                pos_df = benchmark_df.sort_values("words_pos", ascending=False)
+
                 # Horizontal Bar Chart für words_pos
                 fig_pos = px.bar(
                     benchmark_df,
@@ -434,6 +437,10 @@ if analysis_mode == "Textual Analysis":
                     color=[("Company" if c == company else "Peers") for c in benchmark_df["company"]],
                     color_discrete_map={"Peers":"#4C78A8","Company":"#E10600"},
                     labels={"words_pos":"# Positive Words","company":""},
+                    category_orders={
+                        # wichtig: in der Reihenfolge, wie sie in der sortierten pos_df stehen
+                        "company": pos_df["company"].tolist()[::-1]
+                    }
                 )
                 # Peer-Average Linie
                 mean_pos = benchmark_df["words_pos"].mean()
@@ -441,14 +448,15 @@ if analysis_mode == "Textual Analysis":
                     x=mean_pos,
                     line_dash="dash",
                     line_color="#333333",
-                    annotation_text="Peer Average",
+                    annotation_text="<b>Peer Average<b>",
                     annotation_position="top right",
-                    annotation_font_color="#333333",
-                    annotation_font_size=12,
+                    annotation_font_color="#black",
+                    annotation_font_size=16,
                 )
                 st.plotly_chart(fig_pos, use_container_width=True)
             
                 st.subheader("Negative Words")
+                neg_df = benchmark_df.sort_values("words_neg", ascending=False)
                 # Horizontal Bar Chart für words_neg
                 fig_neg = px.bar(
                     benchmark_df,
@@ -458,16 +466,19 @@ if analysis_mode == "Textual Analysis":
                     color=[("Company" if c == company else "Peers") for c in benchmark_df["company"]],
                     color_discrete_map={"Peers":"#4C78A8","Company":"#E10600"},
                     labels={"words_neg":"# Negative Words","company":""},
+                    category_orders={
+                        "company": neg_df["company"].tolist()[::-1]
+                    }
                 )
                 mean_neg = benchmark_df["words_neg"].mean()
                 fig_neg.add_vline(
                     x=mean_neg,
                     line_dash="dash",
                     line_color="#333333",
-                    annotation_text="Peer Average",
+                    annotation_text="<b>Peer Average<b>",
                     annotation_position="top right",
-                    annotation_font_color="#333333",
-                    annotation_font_size=12,
+                    annotation_font_color="black",
+                    annotation_font_size=16,
                 )
                 st.plotly_chart(fig_neg, use_container_width=True)
             
