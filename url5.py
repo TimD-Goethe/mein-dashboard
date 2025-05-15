@@ -448,9 +448,9 @@ if analysis_mode == "Textual Analysis":
                     x=mean_pos,
                     line_dash="dash",
                     line_color="#333333",
-                    annotation_text="<b>Peer Average<b>",
+                    annotation_text="<b>Peer Average</b>",
                     annotation_position="top right",
-                    annotation_font_color="#black",
+                    annotation_font_color="black",
                     annotation_font_size=16,
                 )
                 st.plotly_chart(fig_pos, use_container_width=True)
@@ -475,7 +475,7 @@ if analysis_mode == "Textual Analysis":
                     x=mean_neg,
                     line_dash="dash",
                     line_color="#333333",
-                    annotation_text="<b>Peer Average<b>",
+                    annotation_text="<b>Peer Average</b>",
                     annotation_position="top right",
                     annotation_font_color="black",
                     annotation_font_size=16,
