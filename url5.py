@@ -969,7 +969,7 @@ if analysis_mode == "Textual Analysis":
                     line_color="red",
                     line_width=2,
                     annotation_text=f"<b>{focal_country} Avg</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom left",
                     annotation_font_color="red",
                     annotation_font_size=14,
                 )
