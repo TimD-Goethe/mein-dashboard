@@ -19,33 +19,24 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* --- Sidebar oben komplett dichtmachen --- */
-      [data-testid="stSidebar"] > .css-1lcbmhc {
-        padding-top: 0 !important;
-        margin-top: 0 !important;
+      /* 0) Toolbar komplett ausblenden */
+      [data-testid="stToolbar"] {
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
       }
 
-      /* --- Dein Toolbar-Fix --- */
-      .css-18e3th9 {
-        top: 0 !important;
-        position: fixed !important;
-        z-index: 1000 !important;
-      }
-
-      /* --- Full-page Gradient auf den App-Hintergrund --- */
+      /* 1) Full-page Gradient auf den App-Hintergrund */
       html, body, [data-testid="stAppViewContainer"], .block-container {
         background: linear-gradient(
           180deg,
-          #E3DFFF 0%,   /* reines Violett oben */
-          #E3DFFF 60%,  /* lila bis 60% */
-          #FFFFFF 100%  /* dann ins Weiß ausfaden */
+          #E3DFFF 0%,
+          #E3DFFF 60%,
+          #FFFFFF 100%
         ) !important;
       }
 
-      /* --- Haupt-Content ganz oben anflanschen --- */
-      .appview-container .main .block-container {
-        padding-top: 0 !important;
-      }
+      /* … Deine weiteren CSS-Regeln … */
     </style>
     """,
     unsafe_allow_html=True
