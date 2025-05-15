@@ -1,2 +1,2 @@
-[client]
-useHashRouter = false
+[theme]
+base = "light"
