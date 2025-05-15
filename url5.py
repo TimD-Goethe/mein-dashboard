@@ -37,7 +37,7 @@ st.markdown(
           #E3DFFF 40%,   /* Lila bis 40% der Höhe */
           #FFFFFF 100%   /* erst ganz unten Weiß */
         );
-        padding: 2rem 2rem 1.5rem;
+        padding: 0rem 0rem 0rem;
         border-radius: 0 0 8px 8px;
         margin-bottom: 0.5rem;
       }
