@@ -531,6 +531,12 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
             elif plot_type == "Histogram":
+                
+                mean_pos  = benchmark_df["words_pos"].mean()
+                focal_pos = df.loc[df["company"] == company, "words_pos"].iat[0]
+                mean_neg  = benchmark_df["words_neg"].mean()
+                focal_neg = df.loc[df["company"] == company, "words_neg"].iat[0]
+                                
                 st.write("Histogram of positive words")
                 fig_h1 = px.histogram(benchmark_df, x="words_pos", nbins=20)
                 st.plotly_chart(fig_h1, use_container_width=True)
