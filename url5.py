@@ -596,100 +596,100 @@ if analysis_mode == "Textual Analysis":
 
 
         elif view == "Language Complexity":
-    st.subheader(f"Language Complexity ({benchmark_label})")
-
-    # 1) Peer-Average und Focal-Wert holen
-    mean_fog  = benchmark_df["fog"].mean()
-    focal_fog = df.loc[df["company"] == company, "fog"].iat[0]
-
-    if plot_type == "Histogram":
-        fig_fog = px.histogram(
-            plot_df, x="fog", nbins=20,
-            labels={"fog": "Fog Index"}
-        )
-        # Peer Average
-        fig_fog.add_vline(
-            x=mean_fog,
-            line_dash="dash", line_color="black", line_width=1, opacity=0.6,
-            annotation_text="<b>Peer Average</b>",
-            annotation_position="top right",
-            annotation_font_color="black",
-            annotation_font_size=16,
-        )
-        # Focal Company
-        fig_fog.add_vline(
-            x=focal_fog,
-            line_dash="dash", line_color="red", opacity=0.8,
-            annotation_text=f"<b>{company}</b>",
-            annotation_position="top left",
-            annotation_font_color="red",
-            annotation_font_size=16,
-        )
-        fig_fog.update_layout(
-            xaxis_title="Fog Index",
-            yaxis_title="Number of Companies",
-        )
-        st.plotly_chart(fig_fog, use_container_width=True)
-
-    elif plot_type == "Bar Chart":
-        # sortieren und Legend-Hilfsspalte
-        peers_fog = plot_df.sort_values("fog", ascending=False)
-        peers_fog["highlight_label"] = np.where(
-            peers_fog["company"] == company, company, "Peers"
-        )
-        y_order = peers_fog["company"].tolist()[::-1]
-
-        fig_fog_bar = px.bar(
-            peers_fog,
-            x="fog",
-            y="company",
-            orientation="h",
-            color="highlight_label",
-            color_discrete_map={company: "red", "Peers": "#1f77b4"},
-            labels={
-                "fog": "Fog Index",
-                "company": "",
-                "highlight_label": ""
-            },
-            category_orders={"company": y_order},
-        )
-        fig_fog_bar.add_vline(
-            x=mean_fog,
-            line_dash="dash", line_color="black",
-            annotation_text="<b>Peer Average</b>",
-            annotation_position="top left",
-            annotation_font_color="black",
-            annotation_font_size=16,
-        )
-        fig_fog_bar.update_layout(
-            showlegend=True,
-            legend_title_text="",
-            yaxis={"categoryorder":"array","categoryarray":y_order},
-        )
-        st.plotly_chart(fig_fog_bar, use_container_width=True)
-
-        # Vergleichsbalken
-        comp_fog = pd.DataFrame({
-            "Group": ["Peer Average", company],
-            "Fog": [mean_fog, focal_fog],
-        })
-        fig_fog_cmp = px.bar(
-            comp_fog,
-            x="Group",
-            y="Fog",
-            text="Fog",
-            color="Group",
-            color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-            labels={"Fog": "Fog Index", "Group": ""}
-        )
-        fig_fog_cmp.update_layout(
-            xaxis={"categoryorder":"array","categoryarray":[company,"Peer Average"]},
-            showlegend=False
-        )
-        fig_fog_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
-        st.plotly_chart(fig_fog_cmp, use_container_width=True)
-
-    st.caption("Fog index (Gunningʼs language complexity measure).")
+            st.subheader(f"Language Complexity ({benchmark_label})")
+        
+            # 1) Peer-Average und Focal-Wert holen
+            mean_fog  = benchmark_df["fog"].mean()
+            focal_fog = df.loc[df["company"] == company, "fog"].iat[0]
+        
+            if plot_type == "Histogram":
+                fig_fog = px.histogram(
+                    plot_df, x="fog", nbins=20,
+                    labels={"fog": "Fog Index"}
+                )
+                # Peer Average
+                fig_fog.add_vline(
+                    x=mean_fog,
+                    line_dash="dash", line_color="black", line_width=1, opacity=0.6,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16,
+                )
+                # Focal Company
+                fig_fog.add_vline(
+                    x=focal_fog,
+                    line_dash="dash", line_color="red", opacity=0.8,
+                    annotation_text=f"<b>{company}</b>",
+                    annotation_position="top left",
+                    annotation_font_color="red",
+                    annotation_font_size=16,
+                )
+                fig_fog.update_layout(
+                    xaxis_title="Fog Index",
+                    yaxis_title="Number of Companies",
+                )
+                st.plotly_chart(fig_fog, use_container_width=True)
+        
+            elif plot_type == "Bar Chart":
+                # sortieren und Legend-Hilfsspalte
+                peers_fog = plot_df.sort_values("fog", ascending=False)
+                peers_fog["highlight_label"] = np.where(
+                    peers_fog["company"] == company, company, "Peers"
+                )
+                y_order = peers_fog["company"].tolist()[::-1]
+        
+                fig_fog_bar = px.bar(
+                    peers_fog,
+                    x="fog",
+                    y="company",
+                    orientation="h",
+                    color="highlight_label",
+                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
+                    labels={
+                        "fog": "Fog Index",
+                        "company": "",
+                        "highlight_label": ""
+                    },
+                    category_orders={"company": y_order},
+                )
+                fig_fog_bar.add_vline(
+                    x=mean_fog,
+                    line_dash="dash", line_color="black",
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top left",
+                    annotation_font_color="black",
+                    annotation_font_size=16,
+                )
+                fig_fog_bar.update_layout(
+                    showlegend=True,
+                    legend_title_text="",
+                    yaxis={"categoryorder":"array","categoryarray":y_order},
+                )
+                st.plotly_chart(fig_fog_bar, use_container_width=True)
+        
+                # Vergleichsbalken
+                comp_fog = pd.DataFrame({
+                    "Group": ["Peer Average", company],
+                    "Fog": [mean_fog, focal_fog],
+                })
+                fig_fog_cmp = px.bar(
+                    comp_fog,
+                    x="Group",
+                    y="Fog",
+                    text="Fog",
+                    color="Group",
+                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
+                    labels={"Fog": "Fog Index", "Group": ""}
+                )
+                fig_fog_cmp.update_layout(
+                    xaxis={"categoryorder":"array","categoryarray":[company,"Peer Average"]},
+                    showlegend=False
+                )
+                fig_fog_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_fog_cmp, use_container_width=True)
+        
+            st.caption("Fog index (Gunningʼs language complexity measure).")
         
         
         else:
