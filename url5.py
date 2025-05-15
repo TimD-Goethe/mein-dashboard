@@ -184,7 +184,7 @@ with header_col:
     )
 
 # 2. Voll-breiter, farbiger Strich
-color = "#e63946" if analysis_mode == "Textual Analysis" else "#457b9d"
+color = "#e63946"
 st.markdown(
     f"""
     <div style="
