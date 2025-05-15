@@ -23,7 +23,7 @@ st.markdown(
     <style>
       /* — Sidebar auf Header-Höhe absenken — */
       [data-testid="stSidebar"] {
-        margin-top: 240px !important;  /* <- auf die tatsächliche Header-Höhe anpassen */
+        margin-top: 0 !important;  /* <- auf die tatsächliche Header-Höhe anpassen */
       }
 
       /* — Sticky Header, full-bleed in Main-Container — */
@@ -39,7 +39,7 @@ st.markdown(
         );
         padding: 2rem 2rem 1.5rem;
         border-radius: 0 0 8px 8px;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
       }
 
       .sticky-header h1 {
