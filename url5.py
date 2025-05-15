@@ -85,9 +85,9 @@ st.sidebar.header("Benchmark Group")
 # 5.2 Optionen-Liste zusammenbauen
 peer_group_opts = [
     "Sector Peers",
-    "All CSRD First Wave",
     "Country Peers",
     "Market Cap Peers",
+    "All CSRD First Wave",
 ]
 
 # Wenn für dieses Unternehmen keine Market_Cap_Cat existiert,
