@@ -488,8 +488,8 @@ if analysis_mode == "Textual Analysis":
                         "Peers": "#4C78A8",        # Blau für alle anderen
                         company: "#E10600",        # Rot für die aktuell ausgewählte Firma
                     },
-                    labels={"words_pos":"# Positive Words","company":""},
-                    category_orders={"company": pos_df["company"].tolist()},
+                    labels={"words_neg":"# Negative Words","company":""},
+                    category_orders={"company": neg_df["company"].tolist()},
                 )
                 
                 mean_neg = neg_df["words_neg"].mean()       # peers‐Durchschnitt aus neg_df
