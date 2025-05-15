@@ -16,12 +16,15 @@ def make_company_url(company_name: str) -> str:
 # 1. Page config
 # --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
-st.markdown(
-    """
-    <style>
-      .appview-container .main .block-container {
-        padding-top: 0rem !important;
-      }
+st.markdown("""
+<style>
+  /* Toolbar um 60px nach oben verschieben */
+  .css-18e3th9 {
+    top: 0;           /* ganz oben */
+    position: fixed;  /* bleibt immer kleben */
+    z-index: 1000;    /* über dem restlichen Content */
+  }
+</style>
     /* 1) Full-page Gradient auf den App-Hintergrund */
       html, body, [data-testid="stAppViewContainer"], .block-container {
         background: linear-gradient(
