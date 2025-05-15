@@ -87,6 +87,7 @@ peer_group_opts = [
     "Sector Peers",
     "Country Peers",
     "Market Cap Peers",
+    "<b> Between Country Comparison</b>",
     "All CSRD First Wave",
 ]
 
@@ -107,10 +108,6 @@ peer_selection = st.sidebar.multiselect(
     options=company_list,
     default=[],
 )
-
-peer_group_opts = [
-    "<b> Between Country Comparison</b>",
-]
 
 # --------------------------------------------------------------------
 # 6. Build benchmark_df
