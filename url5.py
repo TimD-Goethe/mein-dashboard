@@ -19,12 +19,18 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
+      /* sanfter violetter Verlauf im Header */
       .block-container {
-        padding-top: 2.5rem;
+        background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 100%);
+        padding-top: 2rem;
+      }
+      /* obere Trennlinie in primaryColor */
+      .block-container > h1 + div {
+        border-top: 3px solid #7C6CF0 !important;
       }
     </style>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
 # --------------------------------------------------------------------
