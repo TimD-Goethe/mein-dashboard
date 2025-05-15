@@ -13,63 +13,69 @@ def make_company_url(company_name: str) -> str:
     return f"{base_url}?company={quote(company_name)}"
 
 # --------------------------------------------------------------------
-# 1. Page config und CSS-Tweak
-# --------------------------------------------------------------------
+# 0. Page Config & CSS
+# -------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
 st.markdown(
     """
     <style>
-      /* 1) Streamlit-Cloud-Leiste (Share/Edit) belassen, Sidebar-Toggle verstecken */
-      [data-testid="collapsedControl"] {
-        display: none !important;
+      /* Header-Gradient + Abstand nach unten */
+      .header-container {
+        background: linear-gradient(180deg,#E3DFFF 0%,#FFFFFF 100%);
+        padding: 1.5rem 2rem 2rem 2rem;
+        margin-bottom: 2rem;           /* sorgt dafür, dass der Main-Content nicht drunter rutscht */
+        border-radius: 0 0 8px 8px;
       }
-      /* 2) Unser Full-Width Header unter der Cloud-Bar */
-      .fixed-header {
-        position: fixed;
-        top: 64px;             /* knapp unter der Cloud-Bar */
-        left: 0;
-        width: 100%;
-        background: linear-gradient(180deg, #E3DFFF 0%, #FFFFFF 100%);
-        padding: 1.5rem 2rem;
-        z-index: 1000;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-      .fixed-header h1 {
-        margin: 0;
-        color: #1C1C1E;
-        font-size: 2rem;
-      }
-      .fixed-header p {
-        margin: 0.5rem 0 1rem;
-        color: #4A4A4A;
-      }
-      .fixed-header hr {
-        border: 0;
+      /* Roter Strich */
+      .header-divider {
+        border: none;
         border-top: 3px solid #E10600;
+        margin: 1rem 0;
+      }
+      /* Überschrift und Text etwas schicker */
+      .header-container h1 {
+        color: #1C1C1E;
         margin: 0;
       }
-
-      /* 3) Sidebar & Main-Content weit nach unten schieben */
-      [data-testid="stSidebar"] {
-        margin-top: 240px !important;     /* Header-Höhe (≈160px) + Abstand */
-      }
-      [data-testid="stAppViewContainer"] .block-container {
-        padding-top: 240px !important;
+      .header-container p {
+        color: #4A4A4A;
+        margin: 0.5rem 0 0;
       }
     </style>
-
-    <!-- 4) Eigener Header -->
-    <div class="fixed-header">
-      <h1>CSRD Dashboard</h1>
-      <p>Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.</p>
-      <hr>
-      <!-- 5) Placeholder für das Analysis-Widget -->
-      <div id="analysis-widget"></div>
-    </div>
     """,
     unsafe_allow_html=True,
 )
+
+# -------------------------------------------------
+# 1. Header in Streamlit bauen
+# -------------------------------------------------
+# Wir öffnen einen HTML-Wrapper-DIV, damit unsere CSS-Klassen greifen
+st.markdown('<div class="header-container">', unsafe_allow_html=True)
+
+# Zwei Spalten: Links Titel+Text, rechts Radio-Button
+col_title, nav_col = st.columns([4, 1])
+
+with col_title:
+    st.markdown("## CSRD Dashboard")
+    st.markdown("Please select a peer group and variable of interest to benchmark your company’s CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.")
+
+with nav_col:
+    # Hier kommt Dein Radio-Button hin
+    analysis_mode = st.radio(
+        label="", 
+        options=["Textual Analysis"], 
+        horizontal=True, 
+        key="analysis_mode",
+        label_visibility="collapsed"
+    )
+
+# Roter Trennstrich am Ende des Headers
+st.markdown('<hr class="header-divider"/>', unsafe_allow_html=True)
+
+# Wir schließen das DIV
+st.markdown('</div>', unsafe_allow_html=True)
+
 
 # --------------------------------------------------------------------
 # 2. Daten laden
