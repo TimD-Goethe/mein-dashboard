@@ -984,7 +984,7 @@ if analysis_mode == "Textual Analysis":
             
                 st.plotly_chart(fig, use_container_width=True)
 
-            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart" and view == "Language Complexity":
+            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
                 # 1) Bestimme das Land des gewählten Unternehmens
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
