@@ -74,6 +74,9 @@ company = st.sidebar.selectbox(
     key="company",
 )
 
+cat = df.loc[df["company"] == company, "Market_Cap_Cat"]
+has_cat = not cat.isna().all()
+
 # --------------------------------------------------------------------
 # 5. Sidebar: Benchmark Group Selection
 # --------------------------------------------------------------------
@@ -86,6 +89,11 @@ peer_group_opts = [
     "Country Peers",
     "Size Peers",
 ]
+
+# Wenn für dieses Unternehmen keine Market_Cap_Cat existiert,
+# dann entferne die Size-Peers–Option:
+if not has_cat and "Size Peers" in peer_group_opts:
+    peer_group_opts.remove("Size Peers")
 
 # 5.3 Radio-Widget mit nur gültigen Optionen
 benchmark_type = st.sidebar.radio(
