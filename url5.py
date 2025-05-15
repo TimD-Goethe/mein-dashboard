@@ -207,7 +207,7 @@ if analysis_mode == "Textual Analysis":
                 fig.add_vline(
                     x=mean_pages,
                     line_dash="dash",
-                    line_color="#1f77b4",
+                    line_color="black",
                     line_width=1,
                     opacity=0.6,
                     annotation_text="<b>Peer Average</b>",
@@ -258,7 +258,7 @@ if analysis_mode == "Textual Analysis":
                 fig2.add_vline(
                     x=mean_pages,
                     line_dash="dash",
-                    line_color="#1f77b4",
+                    line_color="black",
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="top left",
                     annotation_font_color="black",
@@ -319,7 +319,7 @@ if analysis_mode == "Textual Analysis":
                 # Peer Average als vertikale Linie mit Beschriftung
                 fig.add_vline(
                     x=mean_words,
-                    line_color="#1f77b4",
+                    line_color="black",
                     line_width=1,
                     opacity=0.6,
                     annotation_text="<b>Peer Average</b>",
@@ -363,7 +363,7 @@ if analysis_mode == "Textual Analysis":
                 fig2w.add_vline(
                     x=mean_words,
                     line_dash="dash",
-                    line_color="#1f77b4",
+                    line_color="black",
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="top left",
                     annotation_font_color="black",
