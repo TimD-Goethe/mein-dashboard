@@ -435,7 +435,7 @@ if analysis_mode == "Textual Analysis":
                 st.plotly_chart(fig_avg, use_container_width=True)
 
             # Fußnote
-            st.caption("Number of words of companies’ sustainability reports.")")
+            st.caption("Number of words of companies’ sustainability reports.")
 
 
         elif view == "Sentiment":
