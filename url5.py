@@ -115,9 +115,9 @@ elif benchmark_type == "Country Peers":
     benchmark_df    = df[df["country"] == country]
     benchmark_label = f"Country Peers: {country}"
 elif benchmark_type == "Size Peers":
-    terc            = df.loc[df["name"] == company, "market_cap_tercile"].iat[0]
-    lbl             = "Small" if terc == 1 else "Mid" if terc == 2 else "Large"
-    benchmark_df    = df[df["market_cap_tercile"] == terc]
+    terc            = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
+    lbl             = "Very Small" if terc == 1 else "Small" if terc == 2 else "Medium" if terc == 3 else "Large" if terc == 4 else "Huge" 
+    benchmark_df    = df[df["Market_Cap_Cat"] == terc]
     benchmark_label = f"Market Cap Group: {lbl}"
 if peer_selection:
     sel = Set(peer_selection)
