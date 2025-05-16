@@ -6,16 +6,33 @@ import plotly.graph_objects as go
 from urllib.parse import unquote, quote  # zum Percent-Decoding und URL-Encoding
 
 # --------------------------------------------------------------------
-# Helper: Erzeuge company-spezifische URL
-# --------------------------------------------------------------------
-def make_company_url(company_name: str) -> str:
-    base_url = "https://mein-dashboard-fphsbzmbpbzpscuephvjfu.streamlit.app/"
-    return f"{base_url}?company={quote(company_name)}"
-
-# --------------------------------------------------------------------
 # 1. Page config
 # --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
+
+# --------------------------------------------------------------------
+# 1a. CSS: linke & rechte Spalte einfärben + Schatten
+# --------------------------------------------------------------------
+st.markdown(
+    """
+    <style>
+      /* Eltern-Container der drei Spalten */
+      [data-testid="stAppViewContainer"] > div > div:nth-child(2) > div {
+        display: flex;
+      }
+      /* Erste und dritte Spalte (links & rechts) einfärben */
+      [data-testid="stAppViewContainer"] > div > div:nth-child(2) > div > div:nth-child(1),
+      [data-testid="stAppViewContainer"] > div > div:nth-child(2) > div > div:nth-child(3) {
+        background-color: #E3DFFF;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        border-radius: 0.5rem;
+        padding: 1rem;
+      }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.markdown(
     """
     <style>
@@ -36,7 +53,7 @@ st.markdown(
       }
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 # --------------------------------------------------------------------
@@ -45,17 +62,16 @@ st.markdown(
 df = pd.read_csv("summary_with_meta_with_mcap_and_cat.csv")
 
 # --------------------------------------------------------------------
-# 3. URL-Param lesen, decodieren & Default-Firma wählen
+# 3. URL-Param lesen → Default-Firma
 # --------------------------------------------------------------------
 company_list    = df["company"].dropna().unique().tolist()
 mapping_ci      = {n.strip().casefold(): n for n in company_list}
 raw             = st.query_params.get("company", [""])[0] or ""
 raw             = unquote(raw)
-key             = raw.strip().casefold()
-default_company = mapping_ci.get(key, company_list[0])
+default_company = mapping_ci.get(raw.strip().casefold(), company_list[0])
 
 # --------------------------------------------------------------------
-# 4. Layout: drei Spalten (links|mitte|rechts)
+# 4. Layout: drei Spalten (links│mitte│rechts)
 # --------------------------------------------------------------------
 left, main, right = st.columns([1, 4, 1])
 
@@ -66,16 +82,15 @@ with left:
         "Select a company:",
         options=company_list,
         index=default_idx,
-        key="company_selector",   # korrigierter Key
+        key="company_selector",
     )
 
-    # Prüfen, ob Market_Cap_Cat für diese Firma existiert
     cat     = df.loc[df["company"] == company, "Market_Cap_Cat"]
     has_cat = not cat.isna().all()
 
     st.header("Benchmark Group")
     peer_group_opts = [
-        "SASB Sector Peers",
+        "Sector Peers",
         "Country Peers",
         "Market Cap Peers",
         "Between Country Comparison",
@@ -95,14 +110,15 @@ with left:
         default=[],
     )
 
-# 4b. Rechte Spalte: „What do you want to benchmark?“ & Chart Type
+# 4b. Rechte Spalte: „What do you want to benchmark?“ als Radio & Chart-Type
 with right:
     st.header("What do you want to benchmark?")
     view = st.radio(
-        "",
+        "Select Your View:",
         ["Number of Pages", "Number of Words", "Sentiment", "Language Complexity", "Peer Company List"],
         key="view_selector",
     )
+
     st.header("Chart Type")
     plot_type = st.radio(
         "",
@@ -113,10 +129,10 @@ with right:
 # --------------------------------------------------------------------
 # 6. Build `benchmark_df`
 # --------------------------------------------------------------------
-if benchmark_type == "SASB Sector Peers":
-    sector       = df.loc[df["company"] == company, "SASB_industry"].iat[0]
-    benchmark_df = df[df["SASB_industry"] == sector]
-    benchmark_label = f"SASB Sector Peers: {sector}"
+if benchmark_type == "Sector Peers":
+    sector          = df.loc[df["company"] == company, "SASB_industry"].iat[0]
+    benchmark_df    = df[df["SASB_industry"] == sector]
+    benchmark_label = f"Sector Peers: {sector}"
 elif benchmark_type == "All CSRD First Wave":
     benchmark_df    = df.copy()
     benchmark_label = "All CSRD First Wave"
@@ -126,20 +142,18 @@ elif benchmark_type == "Country Peers":
     benchmark_label = f"Country Peers: {country}"
 elif benchmark_type == "Market Cap Peers":
     terc            = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
-    lbl = (
-        "Very Small" if terc == 1 else
-        "Small"      if terc == 2 else
-        "Medium"     if terc == 3 else
-        "Large"      if terc == 4 else
-        "Huge"
-    )
+    lbl             = ("Very Small" if terc == 1 else
+                       "Small"      if terc == 2 else
+                       "Medium"     if terc == 3 else
+                       "Large"      if terc == 4 else
+                       "Huge")
     benchmark_df    = df[df["Market_Cap_Cat"] == terc]
     benchmark_label = f"Market Cap Group: {lbl}"
 elif benchmark_type == "Between Country Comparison":
-    focal_country = df.loc[df["company"] == company, "country"].iat[0]
-    country_df    = df[df["country"] == focal_country]
-    rest_df       = df[df["country"] != focal_country]
-    benchmark_df  = pd.concat([
+    focal_country   = df.loc[df["company"] == company, "country"].iat[0]
+    country_df      = df[df["country"] == focal_country]
+    rest_df         = df[df["country"] != focal_country]
+    benchmark_df    = pd.concat([
         country_df.assign(_group=focal_country),
         rest_df.assign(_group="Others")
     ], ignore_index=True)
@@ -150,15 +164,15 @@ if peer_selection:
     benchmark_df    = df.loc[df["company"].isin(sel)]
     benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
 
-# focal values für Linien o.ä.
+# focal values
 focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
 focal_words = df.loc[df["company"] == company, "words"].iat[0]
 
 # --------------------------------------------------------------------
-# 8. Main-Bereich: Header + Plot-Container
+# 8. Main-Bereich: Header + Trennstrich + Content-Spalten
 # --------------------------------------------------------------------
 with main:
-    # Header + Untertitel
+    # Header und Subtitel
     header_col, nav_col = st.columns([3, 1], gap="large")
     with header_col:
         st.header("CSRD Dashboard")
@@ -177,7 +191,7 @@ with main:
             unsafe_allow_html=True,
         )
 
-    # Farbiger Trennstrich
+    # Roter Trennstrich
     color = "#b34747"
     st.markdown(
         f"""
