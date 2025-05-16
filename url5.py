@@ -75,7 +75,7 @@ with left:
 
     st.header("Benchmark Group")
     peer_group_opts = [
-        "Sector Peers",
+        "SASB Sector Peers",
         "Country Peers",
         "Market Cap Peers",
         "Between Country Comparison",
@@ -113,10 +113,10 @@ with right:
 # --------------------------------------------------------------------
 # 6. Build `benchmark_df`
 # --------------------------------------------------------------------
-if benchmark_type == "Sector Peers":
+if benchmark_type == "SASB Sector Peers":
     sector       = df.loc[df["company"] == company, "SASB_industry"].iat[0]
     benchmark_df = df[df["SASB_industry"] == sector]
-    benchmark_label = f"Sector Peers: {sector}"
+    benchmark_label = f"SASB Sector Peers: {sector}"
 elif benchmark_type == "All CSRD First Wave":
     benchmark_df    = df.copy()
     benchmark_label = "All CSRD First Wave"
