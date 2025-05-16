@@ -48,6 +48,16 @@ left, main, right = st.columns([1, 4, 1])
 # 3. Linke “Sidebar” (bisher st.sidebar.*)
 # --------------------------------------------------------------------
 with left:
+    default_idx = company_list.index(default_company) if default_company in company_list else 0
+    company = st.sidebar.selectbox(
+        "Select a company:",
+        options=company_list,
+        index=default_idx,
+        key="company",
+    )
+
+cat = df.loc[df["company"] == company, "Market_Cap_Cat"]
+has_cat = not cat.isna().all() 
     company = st.selectbox(
         "Select a company:",
         options=company_list,
