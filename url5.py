@@ -16,31 +16,42 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* --- Toolbar komplett ausblenden --- */
+      /* komplette Toolbar ausblenden */
       [data-testid="stToolbar"] {
         display: none !important;
       }
 
-      /* --- Sidebars (1. & 3. Column) hell-lila + Schatten --- */
+      /* 1. und 3. Column (Sidebars): hell-lila + Schatten */
       [data-testid="stColumn"]:nth-of-type(1),
       [data-testid="stColumn"]:nth-of-type(3) {
         background-color: #F3E8FF !important;
-        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.1) !important;
         border-radius: 0.5rem;
         padding: 1rem;
       }
 
-      /* --- Main (2. Column) transparent + kein Schatten --- */
+      /* 2. Column (Main): transparent, damit Gradient vom Body durchscheint */
       [data-testid="stColumn"]:nth-of-type(2) {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 1rem;
       }
 
-      /* --- Alle Block-Container (Überschrift, Chart-Wrapper usw.) ohne Schatten --- */
-      .block-container {
+      /* Innerhalb der mittleren Column: alle block-containers (Cards/Charts) ohne Schatten */
+      [data-testid="stColumn"]:nth-of-type(2) .block-container {
         box-shadow: none !important;
-        background-color: transparent !important;
+        /* Hintergrund auf Weiß zurücksetzen, falls er vorher per CSS überschrieben wurde */
+        background-color: white !important;
+      }
+
+      /* Body‐Gradient: auf html/body/AppContainer, nicht mehr auf .block-container! */
+      html, body, [data-testid="stAppViewContainer"] {
+        background: linear-gradient(
+          180deg,
+          #E3DFFF 0%,
+          #E3DFFF 60%,
+          #FFFFFF 100%
+        ) !important;
       }
     </style>
     """,
