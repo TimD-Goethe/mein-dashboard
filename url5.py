@@ -9,56 +9,25 @@ from urllib.parse import unquote, quote
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
 # 1a. Globales CSS – direkt nach set_page_config, vor allen st.columns(...)
-st.markdown(
-    """
-    <style>
-      /* 1) Toolbar (Hamburger/Share/…) ausblenden */
-      [data-testid="stToolbar"] {
-        display: none !important;
-      }
-
-      /* 2) Hintergrund-Gradient über die gesamte App */
-      html, body, [data-testid="stAppViewContainer"] {
-        background: linear-gradient(
-          180deg,
-          #E3DFFF 0%,
-          #E3DFFF 60%,
-          #FFFFFF 100%
-        ) !important;
-      }
-
-      /* 3) Sidebars einfärben + Schatten (erste und letzte Column) */
-      section[data-testid="column"]:first-of-type,
-      section[data-testid="column"]:last-of-type {
-        background-color: #F3E8FF !important;
-        box-shadow:       2px 2px 8px rgba(0,0,0,0.1) !important;
-        border-radius:    0.5rem;
-        padding:          1rem;
-      }
-
-      /* 4) Mittlere Column transparent + alle Schatten killen */
-      section[data-testid="column"]:nth-of-type(2) {
-        background-color: transparent !important;
-        box-shadow:       none        !important;
-      }
-      section[data-testid="column"]:nth-of-type(2) * {
-        box-shadow: none               !important;
-        background: transparent        !important;
-      }
-
-      /* 5) In der mittleren Column: die Standard-.block-container-Abstände auf 0 */
-      [data-testid="stAppViewContainer"]
-        > div[class*="block-container"]
-        > section[data-testid="column"]:nth-of-type(2)
-        > div[class*="block-container"] {
-        padding-left:  0 !important;
-        padding-right: 0 !important;
-      }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
+st.markdown("""
+<style>
+  /* 1) Toolbar verstecken */
+  [data-testid="stToolbar"] {
+    display: none !important;
+  }
+  /* 2) Linke & rechte Column: nur Schatten (Farbe kommt aus theme.secondaryBackgroundColor) */
+  section[data-testid="column"]:first-of-type,
+  section[data-testid="column"]:last-of-type {
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1) !important;
+    border-radius: 0.5rem !important;
+  }
+  /* 3) Mittlere Column: alle Schatten killen */
+  section[data-testid="column"]:nth-of-type(2),
+  section[data-testid="column"]:nth-of-type(2) * {
+    box-shadow: none !important;
+  }
+</style>
+""", unsafe_allow_html=True)
 # 2. Daten laden
 df = pd.read_csv("summary_with_meta_with_mcap_and_cat.csv")
 
