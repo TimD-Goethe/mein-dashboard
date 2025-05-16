@@ -721,6 +721,8 @@ with main:
             
                 # categoryarray umdrehen, damit die höchste ganz oben ist
                 y_order = peers_df["company"].tolist()[::-1]
+
+                peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
             
                 fig2w = px.bar(
                     peers_df,
@@ -1009,6 +1011,8 @@ with main:
                     company,
                     "Peers"
                 )
+
+                pos_df["company_short"] = pos_df["company"].str.slice(0, 15)
                 
                 # 3) Erzeuge die Bar-Chart und gib color="highlight_label" an
                 fig_pos = px.bar(
@@ -1050,6 +1054,8 @@ with main:
                     company,      # hier kommt der echte Name rein
                     "Peers"
                 )
+
+                neg_df["company_short"] = neg_df["company"].str.slice(0, 15)
                 
                 fig_neg = px.bar(
                     neg_df,                              # <— nicht benchmark_df
@@ -1379,6 +1385,8 @@ with main:
                     peers_fog["company"] == company, company, "Peers"
                 )
                 y_order = peers_fog["company"].tolist()[::-1]
+
+                peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
         
                 fig_fog_bar = px.bar(
                     peers_fog,
