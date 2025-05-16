@@ -590,6 +590,9 @@ with main:
                 # 3) Sortiere so, dass das kleinste Mittel unten und das größte ganz oben erscheint
                 country_avg_words = country_avg_words.sort_values("Words", ascending=False)
                 y_order = country_avg_words["country"].tolist()
+
+                 # 4) Kürze die Ländernamen auf max. 15 Zeichen
+                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
             
                 # 4) Füge eine Markierungsspalte hinzu (Focal Country vs. Others)
                 country_avg_words["highlight"] = np.where(
@@ -795,6 +798,9 @@ with main:
                     "Other Countries"
                 )
                 y_order_pos = pos_ctry["country"].tolist()
+
+                 # 4) Kürze die Ländernamen auf max. 15 Zeichen
+                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
             
                 # 3) Bar Chart positive Wörter pro Land
                 fig_pos = px.bar(
@@ -833,6 +839,9 @@ with main:
                     "Other Countries"
                 )
                 y_order_neg = neg_ctry["country"].tolist()
+
+                 # 4) Kürze die Ländernamen auf max. 15 Zeichen
+                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
             
                 fig_neg = px.bar(
                     neg_ctry,
@@ -1243,6 +1252,9 @@ with main:
                 # 3) Sortiere so, dass das kleinste Mittel unten und das größte ganz oben erscheint
                 country_avg = country_avg.sort_values("FogScore", ascending=False)
                 y_order = country_avg["country"].tolist()
+
+                 # 4) Kürze die Ländernamen auf max. 15 Zeichen
+                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
             
                 # 4) Markiere Dein Land zum Hervorheben
                 country_avg["highlight"] = np.where(
