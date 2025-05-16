@@ -91,7 +91,6 @@ with left:
         "Sector Peers",
         "Country Peers",
         "Market Cap Peers",
-        "Between Country Comparison",
         "All CSRD First Wave",
     ]
     if not has_cat and "Size Peers" in peer_group_opts:
@@ -106,6 +105,17 @@ with left:
         "Or choose specific peer companies:",
         options=company_list,
         default=[],
+    )
+
+    # 4a.4 Neu: Cross Country / Cross Industry Benchmarking
+    st.subheader("Cross Country / Cross Industry Benchmarking")
+    cross_benchmark = st.radio(
+        "Select a cross-benchmark type:",
+        [
+            "Between Country Comparison",
+            "Between Industry Comparison",
+        ],
+        key="cross_benchmark_type",
     )
 
 # 4b. Rechte Spalte: „What do you want to benchmark?“ als Radio & Chart-Type
