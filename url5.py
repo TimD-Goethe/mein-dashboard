@@ -405,11 +405,21 @@ with main:
                     line_dash="dash",
                     line_color="black",
                     line_width=2,
-                    annotation_text="<b>Peer Average</b>",
-                    annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16
+                    opacity=0.6,
                 )
+
+                # 2) Füge die Beschriftung oberhalb des Plots ein
+                fig.add_annotation(
+                    text="<b>Peer Average</b>",
+                    x=mean_pages,           # an derselben x-Position wie die Linie
+                    y=1.02,                 # 2% oberhalb der Zeichenfläche
+                    xref="x",               # Bezug auf die x-Achse
+                    yref="paper",           # „paper“ heißt: 0–1 über/unterhalb des Plot-Rahmens
+                    showarrow=False,        # kein Pfeil
+                    font=dict(size=14),     # Schriftgröße
+                    align="center"
+                )
+                
             
                 # 9) Werte außen anzeigen
                 fig_ctry.update_traces(
