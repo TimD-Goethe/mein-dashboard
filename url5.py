@@ -13,39 +13,47 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 # --------------------------------------------------------------------
 # 1a. CSS: linke & rechte Spalte einfärben+Schatten
 # --------------------------------------------------------------------
-st.markdown("""
-  <style>
-    [data-testid="stColumn"] { box-shadow: none !important; }
-    /* … evtl. weitere Resets … */
-  </style>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <style>
+      /* Toolbar komplett verstecken */
+      [data-testid="stToolbar"] {
+        display: none !important;
+      }
 
-# 2) Dann Basestyle – Gradient auf Body
-st.markdown("""
-  <style>
-    html, body, [data-testid="stAppViewContainer"] { background: …; }
-  </style>
-""", unsafe_allow_html=True)
+      /* 1. & 3. Column: hell-lila + Schatten */
+      [data-testid="stColumn"]:nth-of-type(1),
+      [data-testid="stColumn"]:nth-of-type(3) {
+        background-color: #F3E8FF !important;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1) !important;
+        border-radius: 0.5rem;
+        padding: 1rem;
+      }
 
-# 3) Dann spezifische Styles (Sidebars + mittlere Column)
-st.markdown("""
-  <style>
-    /* Sidebars hell-lila + Schatten */
-    [data-testid="stColumn"]:nth-of-type(1),
-    [data-testid="stColumn"]:nth-of-type(3) {
-      background-color: #F3E8FF !important;
-      box-shadow: 2px 2px 8px rgba(0,0,0,0.1) !important;
-    }
-    /* Mitte transparent (kein Schatten) */
-    [data-testid="stColumn"]:nth-of-type(2) {
-      background-color: transparent !important;
-    }
-    /* ganz unten: wirklich alle Schatten im mittleren Column entfernen */
-    [data-testid="stColumn"]:nth-of-type(2) *[style*="box-shadow"] {
-      box-shadow: none !important;
-    }
-  </style>
-""", unsafe_allow_html=True)
+      /* 2. Column: transparent, damit Gradient vom Body durchscheint */
+      [data-testid="stColumn"]:nth-of-type(2) {
+        background-color: transparent !important;
+        padding: 1rem;
+      }
+
+      /* Im mittleren Column alle Schatten entfernen */
+      [data-testid="stColumn"]:nth-of-type(2) * {
+        box-shadow: none !important;
+      }
+
+      /* Body‐Gradient (unverändert) */
+      html, body, [data-testid="stAppViewContainer"] {
+        background: linear-gradient(
+          180deg,
+          #E3DFFF 0%,
+          #E3DFFF 60%,
+          #FFFFFF 100%
+        ) !important;
+      }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 # --------------------------------------------------------------------
 # 2. Daten laden
 # --------------------------------------------------------------------
