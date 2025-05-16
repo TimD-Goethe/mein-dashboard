@@ -409,7 +409,7 @@ with main:
                 )
 
                 # 2) Füge die Beschriftung oberhalb des Plots ein
-                fig.add_annotation(
+                fig_ctry.add_annotation(
                     text="<b>Peer Average</b>",
                     x=mean_pages,           # an derselben x-Position wie die Linie
                     y=1.02,                 # 2% oberhalb der Zeichenfläche
