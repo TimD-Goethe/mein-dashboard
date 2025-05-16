@@ -378,7 +378,9 @@ with main:
                     focal_country,
                     "Other Countries"
                 )
-            
+
+                peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
+                
                 # 5) Erstelle das horizontale Balkendiagramm
                 fig_ctry = px.bar(
                     country_avg,
