@@ -16,54 +16,36 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* Die gesamte obere Toolbar (Share, Stern, GitHub etc.) ausblenden */
+      /* --- Toolbar komplett ausblenden --- */
       [data-testid="stToolbar"] {
         display: none !important;
       }
 
-      /* Reset aller Columns */
-      [data-testid="stColumn"] {
-        background-color: transparent !important;
-        box-shadow: none !important;
-      }
-      /* 1. und 3. Column hell-lila + Schatten */
+      /* --- Sidebars (1. & 3. Column) hell-lila + Schatten --- */
       [data-testid="stColumn"]:nth-of-type(1),
       [data-testid="stColumn"]:nth-of-type(3) {
         background-color: #F3E8FF !important;
-        box-shadow: 2px 2px 8px rgba(0,0,0,0.1) !important;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1) !important;
         border-radius: 0.5rem;
         padding: 1rem;
       }
-      /* Mittlere Column transparent lassen (Gradient kommt aufs body) */
+
+      /* --- Main (2. Column) transparent + kein Schatten --- */
       [data-testid="stColumn"]:nth-of-type(2) {
         background-color: transparent !important;
         box-shadow: none !important;
         padding: 1rem;
       }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
 
-# --------------------------------------------------------------------
-# 1b. Body-Gradient (global, hinter den Columns)
-# --------------------------------------------------------------------
-st.markdown(
-    """
-    <style>
-      html, body, [data-testid="stAppViewContainer"], .block-container {
-        background: linear-gradient(
-          180deg,
-          #E3DFFF 0%,
-          #E3DFFF 60%,
-          #FFFFFF 100%
-        ) !important;
+      /* --- Alle Block-Container (Überschrift, Chart-Wrapper usw.) ohne Schatten --- */
+      .block-container {
+        box-shadow: none !important;
+        background-color: transparent !important;
       }
     </style>
     """,
     unsafe_allow_html=True,
 )
-
 # --------------------------------------------------------------------
 # 2. Daten laden
 # --------------------------------------------------------------------
@@ -81,7 +63,7 @@ default_company = mapping_ci.get(raw.strip().casefold(), company_list[0])
 # --------------------------------------------------------------------
 # 4. Layout: drei Spalten (links│mitte│rechts)
 # --------------------------------------------------------------------
-left, main, right = st.columns([1, 4, 1])
+left, main, right = st.columns([2, 5, 2])
 
 # 4a. Linke Spalte: Focal Company & Benchmark Group
 with left:
