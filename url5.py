@@ -21,8 +21,8 @@ st.markdown("""
   }
 
   /* 1. & 3. Column: hell-lila + Schatten */
-  [data-testid="stColumn"]:nth-of-type(1),
-  [data-testid="stColumn"]:nth-of-type(3) {
+  [data-testid="stColumn"] > [data-testid="stColumn"]:first-child,
+  [data-testid="stColumn"] > [data-testid="stColumn"]:last-child {
     background-color: #F3E8FF !important;
     box-shadow:       2px 2px 8px rgba(0,0,0,0.1) !important;
     border-radius:    0.5rem;
