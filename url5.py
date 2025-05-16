@@ -133,17 +133,31 @@ with left:
 # 4b. Rechte Spalte: View & Chart Type
 with right:
     st.header("What do you want to benchmark?")
+
+    # Hier ganz bewusst *nur* die echten Auswahl-Strings
+    view_options = [
+        "Number of Pages",
+        "Number of Words",
+        "Words per ESRS standard",
+        "Numbers",
+        "Tables",
+        "Images",
+        "Standardized Language",
+        "Language Complexity",
+        "Sentiment",
+        "Peer Company List",
+    ]
     view = st.radio(
         "Select Your View:",
-        ["Number of Pages", "Number of Words", "Words per ESRS standard", "Numbers", "Tables", "Images", "Standardized Language", "Language Complexity", "Sentiment", "Peer Company List"],
-        key="view_selector",
+        view_options,
+        key="view_selector"
     )
 
     st.header("Chart Type")
     plot_type = st.radio(
         "",
         ["Bar Chart", "Histogram"],
-        key="plot_type",
+        key="plot_type"
     )
 
 # --------------------------------------------------------------------
