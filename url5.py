@@ -85,7 +85,7 @@ left, main, right = st.columns([2, 5, 2])
 
 # 4a. Linke Sidebar: Company + EIN Radio für alle 7 Möglichkeiten
 with left:
-    # 1) Focal Company (bleibt unverändert)
+    # 1) Company bleibt unverändert
     default_idx = company_list.index(default_company) if default_company in company_list else 0
     company = st.selectbox(
         "Select a company:",
@@ -94,55 +94,45 @@ with left:
         key="company_selector",
     )
 
-    # 2) Erster Radio: Gruppe wählen
-    menu = st.radio(
-        "Select benchmark category:",
-        ["Benchmark Group", "Cross Country / Cross Industry"],
-        key="top_choice",
+    # 2) Wir legen zwei Spalten an: eine für die Überschrift, eine für das Radio
+    hdr_col, radio_col = st.columns([4,1], gap="small")
+
+    with hdr_col:
+        st.markdown("<h2 style='margin-bottom:0;'>Benchmark Group</h2>", unsafe_allow_html=True)
+
+    with radio_col:
+        # ausblenden des Labels, damit nur der Kreis angezeigt wird
+        benchmark_type = st.radio(
+            "", 
+            ["Sector Peers", "Country Peers", "Market Cap Peers", "All CSRD First Wave", "Choose individual Peer Group"],
+            key="peer_choice",
+            label_visibility="collapsed",
+        )
+
+    # 3) Bei „Choose individual Peer Group“ noch das Multiselect darunter
+    if benchmark_type == "Choose individual Peer Group":
+        peer_selection = st.multiselect(
+            "Or choose specific peer companies:",
+            options=company_list,
+            key="peer_selection",
+        )
+    else:
+        peer_selection = []
+
+
+    hdr2_col, radio2_col = st.columns([4,1], gap="small")
+
+with hdr2_col:
+    st.markdown("<h2 style='margin-bottom:0;'>Cross Country / Cross Industry Benchmarking</h2>", unsafe_allow_html=True)
+
+with radio2_col:
+    cross_type = st.radio(
+        "",
+        ["Between Country Comparison", "Between Industry Comparison"],
+        key="cross_choice",
+        label_visibility="collapsed",
     )
 
-    # 3a) Wenn Benchmark Group…
-    if menu == "Benchmark Group":
-        st.header("Benchmark Group")
-        peer_opts = [
-            "Sector Peers",
-            "Country Peers",
-            "Market Cap Peers",
-            "All CSRD First Wave",
-            "Choose individual Peer Group",
-        ]
-        peer_choice = st.radio(
-            "Select your peer group:",
-            peer_opts,
-            key="peer_choice",
-        )
-        if peer_choice == "Choose individual Peer Group":
-            peer_selection = st.multiselect(
-                "Or choose specific peer companies:",
-                options=company_list,
-                key="peer_selection",
-            )
-        else:
-            peer_selection = []
-
-        # Merke Dir in einer gemeinsamen Variable:
-        benchmark_type = peer_choice
-
-    # 3b) Wenn Cross-Benchmark…
-    else:
-        st.header("Cross Country / Cross Industry Benchmarking")
-        cross_opts = [
-            "Between Country Comparison",
-            "Between Industry Comparison",
-        ]
-        cross_choice = st.radio(
-            "Select a cross-benchmark type:",
-            cross_opts,
-            key="cross_choice",
-        )
-        peer_selection = []  # hier nicht relevant
-
-        benchmark_type = cross_choice
 
 # 4b. Rechte Spalte: „What do you want to benchmark?“ als Radio & Chart-Type
 with right:
@@ -193,7 +183,7 @@ elif benchmark_type == "Choose individual Peer Group":
     benchmark_df    = df[df["company"].isin(sel)]
     benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
 
-elif benchmark_type == "Between Country Comparison":
+elif cross_type == "Between Country Comparison":
     focal_country   = df.loc[df["company"] == company, "country"].iat[0]
     country_df      = df[df["country"] == focal_country]
     rest_df         = df[df["country"] != focal_country]
@@ -203,7 +193,7 @@ elif benchmark_type == "Between Country Comparison":
                        ], ignore_index=True)
     benchmark_label = f"{focal_country} vs Others"
 
-elif benchmark_type == "Between Industry Comparison":
+elif cross_type == "Between Industry Comparison":
     focal_ind        = df.loc[df["company"] == company, "SASB_industry"].iat[0]
     industry_df      = df[df["SASB_industry"] == focal_ind]
     rest_industry_df = df[df["SASB_industry"] != focal_ind]
