@@ -408,12 +408,12 @@ with main:
                     opacity=0.6,
                 )
 
-                fig.update_layout(
+                fig_ctry.update_layout(
                     margin=dict(t=80)   # z.B. 80 Pixel oberer Abstand
                 )
                 
                 # --- 3) Annotation OBEN auf weißem Grund
-                fig.add_annotation(
+                fig_ctry.add_annotation(
                     text="<b>Peer Average</b>",
                     x=mean_pages,         # an derselben x-Position wie die Linie
                     y=1.02,               # 2% oberhalb des Plot-Randes
