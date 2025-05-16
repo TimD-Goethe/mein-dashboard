@@ -65,7 +65,7 @@ key = raw.strip().casefold()
 # 3.4 Lookup oder Fallback
 default_company = mapping_ci.get(key, company_list[0])
 
----------------------------------------------------------------------
+# ---------------------------------------------------------------------
 # 4. Sidebar: Focal Company Selection
 # --------------------------------------------------------------------
 default_idx = company_list.index(default_company) if default_company in company_list else 0
@@ -79,7 +79,7 @@ company = st.sidebar.selectbox(
 cat = df.loc[df["company"] == company, "Market_Cap_Cat"]
 has_cat = not cat.isna().all()            
             
-----------------------------------------------------------------------            
+# ----------------------------------------------------------------------            
 # 5. Sidebar: Benchmark Group Selection
 # --------------------------------------------------------------------
 st.sidebar.header("Benchmark Group")
