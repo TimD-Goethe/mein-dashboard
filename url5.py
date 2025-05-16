@@ -5,7 +5,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 from urllib.parse import unquote, quote
 
+
+#-------------------------------------------------------------------------
 # 1. Page config
+#-------------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
 # 1a. Globales CSS – direkt nach set_page_config, vor allen st.columns(...)
@@ -59,18 +62,25 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
+#-------------------------------------------------------------------------------------
 # 2. Daten laden
+#--------------------------------------------------------------------------------------
 df = pd.read_csv("summary_with_meta_with_mcap_and_cat.csv")
 
+#--------------------------------------------------------------------------------------
 # 3. URL-Param & Default
+#--------------------------------------------------------------------------------------
+
 company_list    = df["company"].dropna().unique().tolist()
 mapping_ci      = {n.strip().casefold(): n for n in company_list}
 raw             = st.query_params.get("company", [""])[0] or ""
 raw             = unquote(raw)
 default_company = mapping_ci.get(raw.strip().casefold(), company_list[0])
 
+#-----------------------------------------------------------------------------------------
 # 4. Layout: drei Columns
+#------------------------------------------------------------------------------------------
+
 left, main, right = st.columns([2, 5, 2])
 
 # 4a. Linke Sidebar (styled per CSS oben)
