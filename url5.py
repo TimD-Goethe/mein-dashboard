@@ -58,32 +58,32 @@ with left:
 
 cat = df.loc[df["company"] == company, "Market_Cap_Cat"]
 has_cat = not cat.isna().all() 
-    company = st.selectbox(
-        "Select a company:",
-        options=company_list,
-        index=default_idx,
-        key="company",
-    )
+company = st.selectbox(
+    "Select a company:",
+    options=company_list,
+    index=default_idx,
+    key="company",
+)
 
-    peer_group_opts = [
-        "Sector Peers",
-        "Country Peers",
-        "Market Cap Peers",
-        "Between Country Comparison",
-        "All CSRD First Wave",
-    ]
-    
-    st.header("Benchmark Group")
-    benchmark_type = st.radio(
-        "Select Your Peer Group:",
-        peer_group_opts,
-        key="benchmark_type",
-    )
-    peer_selection = st.multiselect(
-        "Or choose specific peer companies:",
-        options=company_list,
-        default=[],
-    )
+peer_group_opts = [
+    "Sector Peers",
+    "Country Peers",
+    "Market Cap Peers",
+    "Between Country Comparison",
+    "All CSRD First Wave",
+]
+
+st.header("Benchmark Group")
+benchmark_type = st.radio(
+    "Select Your Peer Group:",
+    peer_group_opts,
+    key="benchmark_type",
+)
+peer_selection = st.multiselect(
+    "Or choose specific peer companies:",
+    options=company_list,
+    default=[],
+)
 
 # --------------------------------------------------------------------
 # 4. Rechte “Pseudo-Sidebar” (statt rechts unten im Main)
