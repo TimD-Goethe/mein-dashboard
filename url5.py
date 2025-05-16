@@ -98,7 +98,7 @@ with left:
 # 4b. Rechte Spalte: „What do you want to benchmark?“ & Chart Type
 with right:
     st.header("What do you want to benchmark?")
-    view = st.selectbox(
+    view = st.radio(
         "",
         ["Number of Pages", "Number of Words", "Sentiment", "Language Complexity", "Peer Company List"],
         key="view_selector",
