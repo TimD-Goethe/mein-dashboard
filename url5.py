@@ -83,9 +83,9 @@ default_company = mapping_ci.get(raw.strip().casefold(), company_list[0])
 
 left, main, right = st.columns([2, 5, 2])
 
-# 4a. Linke Sidebar (styled per CSS oben)
+# 4a. Linke Sidebar: Company + EIN Radio für alle 7 Möglichkeiten
 with left:
-    # 1) Focal Company bleibt unverändert
+    # Company dropdown (bleibt unverändert)
     default_idx = company_list.index(default_company) if default_company in company_list else 0
     company = st.selectbox(
         "Select a company:",
@@ -94,28 +94,26 @@ with left:
         key="company_selector",
     )
 
-    # 2) Überschrift
+    # Header
     st.header("Benchmark Group")
 
-    # 3) Baue Dir eine einzige Options-Liste mit allen 6+1 Möglichkeiten
-    peer_group_opts = [
+    # Ein einziges Radio mit ALLEN 7 Optionen
+    all_options = [
         "Sector Peers",
         "Country Peers",
         "Market Cap Peers",
         "All CSRD First Wave",
-        "Choose individual Peer Group",          # neu: Multiselect-Trigger
+        "Choose individual Peer Group",     # Multiselect-Trigger
         "Between Country Comparison",
         "Between Industry Comparison",
     ]
-
-    # 4) Ein einziges Radio-Widget mit ALLEN Optionen
     benchmark_type = st.radio(
         "Select a peer or cross-benchmark type:",
-        peer_group_opts,
+        all_options,
         key="benchmark_type",
     )
 
-    # 5) Wenn der User „Select Specific Peer Companies“ wählt, zeige das Multiselect:
+    # Wenn „Choose individual Peer Group“ ausgewählt ist, zeige das Multiselect
     if benchmark_type == "Choose individual Peer Group":
         peer_selection = st.multiselect(
             "Or choose specific peer companies:",
@@ -149,36 +147,51 @@ if benchmark_type == "Sector Peers":
     sector          = df.loc[df["company"] == company, "SASB_industry"].iat[0]
     benchmark_df    = df[df["SASB_industry"] == sector]
     benchmark_label = f"Sector Peers: {sector}"
-elif benchmark_type == "All CSRD First Wave":
-    benchmark_df    = df.copy()
-    benchmark_label = "All CSRD First Wave"
+
 elif benchmark_type == "Country Peers":
     country         = df.loc[df["company"] == company, "country"].iat[0]
     benchmark_df    = df[df["country"] == country]
     benchmark_label = f"Country Peers: {country}"
+
 elif benchmark_type == "Market Cap Peers":
     terc            = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
-    lbl             = ("Very Small" if terc == 1 else
-                       "Small"      if terc == 2 else
-                       "Medium"     if terc == 3 else
-                       "Large"      if terc == 4 else
+    lbl             = ("Very Small" if   terc == 1 else
+                       "Small"      if   terc == 2 else
+                       "Medium"     if   terc == 3 else
+                       "Large"      if   terc == 4 else
                        "Huge")
     benchmark_df    = df[df["Market_Cap_Cat"] == terc]
-    benchmark_label = f"Market Cap Group: {lbl}"
+    benchmark_label = f"Market Cap Peers: {lbl}"
+
+elif benchmark_type == "All CSRD First Wave":
+    benchmark_df    = df.copy()
+    benchmark_label = "All CSRD First Wave"
+
+elif benchmark_type == "Choose individual Peer Group":
+    # nutze peer_selection
+    sel = set(peer_selection) | {company} if peer_selection else {company}
+    benchmark_df    = df[df["company"].isin(sel)]
+    benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
+
 elif benchmark_type == "Between Country Comparison":
     focal_country   = df.loc[df["company"] == company, "country"].iat[0]
     country_df      = df[df["country"] == focal_country]
     rest_df         = df[df["country"] != focal_country]
     benchmark_df    = pd.concat([
-        country_df.assign(_group=focal_country),
-        rest_df.assign(_group="Others")
-    ], ignore_index=True)
+                          country_df.assign(_group=focal_country),
+                          rest_df.assign(_group="Others")
+                       ], ignore_index=True)
     benchmark_label = f"{focal_country} vs Others"
 
-if peer_selection:
-    sel = set(peer_selection) | {company}
-    benchmark_df    = df.loc[df["company"].isin(sel)]
-    benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
+elif benchmark_type == "Between Industry Comparison":
+    focal_ind        = df.loc[df["company"] == company, "SASB_industry"].iat[0]
+    industry_df      = df[df["SASB_industry"] == focal_ind]
+    rest_industry_df = df[df["SASB_industry"] != focal_ind]
+    benchmark_df     = pd.concat([
+                          industry_df.assign(_group=focal_ind),
+                          rest_industry_df.assign(_group="Others")
+                       ], ignore_index=True)
+    benchmark_label  = f"{focal_ind} vs Others"
 
 # focal values
 focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
