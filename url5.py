@@ -41,6 +41,15 @@ st.markdown("""
     box-shadow: none               !important;
     background: transparent        !important;
   }
+
+  /* ——— HIER ergänzen: .block-container padding killen ——— */
+  section[data-testid="column"]:nth-of-type(2) .block-container {
+    padding-left:  0 !important;
+    padding-right: 0 !important;
+    margin-left:   0 !important;
+    margin-right:  0 !important;
+  }
+  
 </style>
 """, unsafe_allow_html=True)
 # --------------------------------------------------------------------
