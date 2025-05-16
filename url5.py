@@ -42,10 +42,7 @@ st.markdown(
         padding: 1rem;
       }
 
-      /* Im mittleren Column alle Schatten entfernen */
-      [data-testid="stColumn"]:nth-of-type(2) [style*="box-shadow"] {
-        box-shadow: none !important;
-      }
+
 
       /* Body‐Gradient (unverändert) */
       html, body, [data-testid="stAppViewContainer"] {
