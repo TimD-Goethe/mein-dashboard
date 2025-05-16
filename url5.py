@@ -133,11 +133,77 @@ with left:
 # 4b. Rechte Spalte: View & Chart Type
 with right:
     st.header("What do you want to benchmark?")
+
+    # ──────────────── 1) HIER den Separator-CSS-Block einfügen ────────────────
+    st.markdown(
+        """
+        <style>
+          /* Separator-Labels un-klickbar und grau färben */
+          [data-testid="stRadio"] > label:nth-of-type(3),
+          [data-testid="stRadio"] > label:nth-of-type(5),
+          [data-testid="stRadio"] > label:nth-of-type(9) {
+            color: #888 !important;
+            pointer-events: none;
+          }
+          /* Radiobuttons bei den Dummy-Labels verbergen */
+          [data-testid="stRadio"] > label:nth-of-type(3) input,
+          [data-testid="stRadio"] > label:nth-of-type(5) input,
+          [data-testid="stRadio"] > label:nth-of-type(9) input {
+            visibility: hidden;
+          }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    # ─────────────────────────────────────────────────────────────────────
+
+    # ──────────────── 2) Definiere Deine Optionen + Anzeige-Labels ────────────────
+    view_options = [
+        "pages",
+        "words",
+        "sep1",
+        "esrs",
+        "sep2",
+        "numbers",
+        "tables",
+        "images",
+        "sep3",
+        "lang_std",
+        "lang_cplx",
+        "tone",
+    ]
+    view_labels = {
+        "pages":    "Number of Pages",
+        "words":    "Number of Words",
+        "sep1":     "──────────────",
+        "esrs":     "Words per ESRS standard",
+        "sep2":     "••••••••••••••••••",
+        "numbers":  "Numbers",
+        "tables":   "Tables",
+        "images":   "Images",
+        "sep3":     "––––––––––––––––––––––––––",
+        "lang_std": "Standardized Language",
+        "lang_cplx":"Complex Language",
+        "tone":     "Tone",
+    }
+    # ─────────────────────────────────────────────────────────────────────
+
+    # ──────────────── 3) Single-Radio mit format_func ────────────────
     view = st.radio(
         "Select Your View:",
-        ["Number of Pages", "Number of Words", "Sentiment", "Language Complexity", "Peer Company List"],
+        view_options,
+        format_func=lambda key: view_labels[key],
         key="view_selector",
     )
+    # ─────────────────────────────────────────────────────────────────────
+
+    # ──────────────── 4) Dummy-Separator abgefangen? ────────────────
+    if view.startswith("sep"):
+        st.warning("Das ist nur eine Trennlinie – bitte eine echte Option auswählen.")
+    else:
+        # hier kommt Dein bestehendes Mapping von `view` → Logik/Charts hin
+        st.success(f"Du hast `{view_labels[view]}` ausgewählt!")
+    # ─────────────────────────────────────────────────────────────────────
 
     st.header("Chart Type")
     plot_type = st.radio(
