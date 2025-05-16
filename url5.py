@@ -16,17 +16,27 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* 1) Alle Columns anpeilen */
-      [data-testid="column"] {
-        /* Reseten, falls notwendig */
+      /* zuerst alle Columns resetten */
+      [data-testid="stColumn"] {
         background-color: transparent !important;
         box-shadow: none !important;
       }
-      /* 2) Nur 1. und 3. Column einfärben */
-      [data-testid="column"]:nth-of-type(1),
-      [data-testid="column"]:nth-of-type(3) {
+      /* 1. und 3. Column (links & rechts) hell-lila + Schatten */
+      [data-testid="stColumn"]:nth-of-type(1),
+      [data-testid="stColumn"]:nth-of-type(3) {
         background-color: #F3E8FF !important;
-        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.1) !important;
+        border-radius: 0.5rem;
+        padding: 1rem;
+      }
+      /* 2. Column (Mitte) behält den Gradient */
+      [data-testid="stColumn"]:nth-of-type(2) {
+        background: linear-gradient(
+          180deg,
+          #E3DFFF 0%,
+          #E3DFFF 60%,
+          #FFFFFF 100%
+        ) !important;
         border-radius: 0.5rem;
         padding: 1rem;
       }
