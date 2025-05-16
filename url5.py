@@ -133,64 +133,11 @@ with left:
 # 4b. Rechte Spalte: View & Chart Type
 with right:
     st.header("What do you want to benchmark?")
-
-    # ─── CSS für die Separatoren ───
-    st.markdown(
-        """
-        <style>
-          /* Separator-Labels: grau + kein Mausklick */
-          div[data-testid="stRadio"] > label:nth-of-type(3),
-          div[data-testid="stRadio"] > label:nth-of-type(5),
-          div[data-testid="stRadio"] > label:nth-of-type(9) {
-            color: #888 !important;
-            pointer-events: none !important;
-          }
-
-          /* Deren Radio-Inputs komplett ausblenden */
-          div[data-testid="stRadio"] > label:nth-of-type(3) input,
-          div[data-testid="stRadio"] > label:nth-of-type(5) input,
-          div[data-testid="stRadio"] > label:nth-of-type(9) input {
-            display: none !important;
-          }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-    # ─────────────────────────────────
-
-    # Liste aller Einträge (inkl. Trennlinien)
-    view_options = [
-        "pages","words","sep1","esrs","sep2",
-        "numbers","tables","images","sep3",
-        "lang_std","lang_cplx","tone",
-    ]
-    # Lesbare Texte
-    view_labels = {
-        "pages":"Number of Pages",
-        "words":"Number of Words",
-        "sep1":"––––––––––––––––",
-        "esrs":"Words per ESRS standard",
-        "sep2":"––––––––––––––––",
-        "numbers":"Numbers",
-        "tables":"Tables",
-        "images":"Images",
-        "sep3":"––––––––––––––––",
-        "lang_std":"Standardized Language",
-        "lang_cplx":"Complex Language",
-        "tone":"Sentiment",
-    }
-
     view = st.radio(
         "Select Your View:",
-        view_options,
-        format_func=lambda k: view_labels[k],
+        ["Number of Pages", "Number of Words", "Words per ESRS standard", "Numbers", "Tables", "Images", "Standardized Language", "Language Complexity", "Sentiment", "Peer Company List"],
         key="view_selector",
     )
-
-    # Fallback, falls doch jemand eine Sep-Zeile anklickt (eigentlich ausgeblendet)
-    if view.startswith("sep"):
-        st.warning("Bitte wähle eine echte Option, keine Trennlinie.")
-        st.stop()
 
     st.header("Chart Type")
     plot_type = st.radio(
