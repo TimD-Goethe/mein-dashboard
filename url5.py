@@ -15,40 +15,26 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 # --------------------------------------------------------------------
 st.markdown("""
 <style>
-  /* 0) Toolbar komplett weg */
-  [data-testid="stToolbar"] {
-    display: none !important;
-  }
-
-  /* 1) Linke und rechte Sidebar einfärben + Schatten */
-  [data-testid="columns"] > [data-testid="column"]:first-child,
-  [data-testid="columns"] > [data-testid="column"]:last-child {
-    background-color: #F3E8FF !important;
-    box-shadow:       2px 2px 8px rgba(0,0,0,0.1) !important;
-    border-radius:    0.5rem;
-    padding:          1rem;
-  }
-
-  /* 2) Mittlere Column transparent + alle Schatten killen */
-  [data-testid="columns"] > [data-testid="column"]:nth-child(2) {
-    background-color: transparent !important;
-    box-shadow: none !important;
-    padding:    1rem;
-  }
-  [data-testid="columns"] > [data-testid="column"]:nth-child(2) * {
-    box-shadow: none               !important;
-    background-color: transparent  !important;
-  }
-
-  /* 3) Globaler hinterer Gradient */
+  /* globaler Gradient … */
   html, body, [data-testid="stAppViewContainer"] {
-    background: linear-gradient(
-      180deg,
-      #E3DFFF 0%,
-      #E3DFFF 60%,
-      #FFFFFF 100%
-    ) !important;
+    background: linear-gradient(180deg, #E3DFFF 0%, #E3DFFF 60%, #FFFFFF 100%) !important;
   }
+  /* linke Sidebar */
+  .my-sidebar {
+    background-color: #F3E8FF;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+  /* rechte Sidebar */
+  .my-sidebar-right {
+    background-color: #F3E8FF;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+  /* Toolbar komplett verstecken */
+  [data-testid="stToolbar"] { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 # --------------------------------------------------------------------
@@ -72,6 +58,10 @@ left, main, right = st.columns([2, 5, 2])
 
 # 4a. Linke Spalte: Focal Company & Benchmark Group
 with left:
+    # öffne Deinen Wrapper
+    st.markdown('<div class="my-sidebar">', unsafe_allow_html=True)
+
+    # **Dein bestehender Code bleibt exakt so**
     default_idx = company_list.index(default_company) if default_company in company_list else 0
     company = st.selectbox(
         "Select a company:",
@@ -105,8 +95,15 @@ with left:
         default=[],
     )
 
+    # schließe den Wrapper
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
 # 4b. Rechte Spalte: „What do you want to benchmark?“ als Radio & Chart-Type
 with right:
+    # analog: öffne rechten Wrapper
+    st.markdown('<div class="my-sidebar-right">', unsafe_allow_html=True)
+
     st.header("What do you want to benchmark?")
     view = st.radio(
         "Select Your View:",
@@ -120,6 +117,9 @@ with right:
         ["Bar Chart", "Histogram"],
         key="plot_type",
     )
+
+    # schließe den Wrapper
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --------------------------------------------------------------------
 # 6. Build `benchmark_df`
