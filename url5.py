@@ -85,8 +85,9 @@ left, main, right = st.columns([2, 5, 2])
 
 # 4a. Linke Sidebar: Company + EIN Radio für alle 7 Möglichkeiten
 with left:
-    # Company dropdown (bleibt unverändert)
-    default_idx = company_list.index(default_company) if default_company in company_list else 0
+    # — Company dropdown (unverändert) —
+    default_idx = company_list.index(default_company) \
+                  if default_company in company_list else 0
     company = st.selectbox(
         "Select a company:",
         options=company_list,
@@ -94,26 +95,28 @@ with left:
         key="company_selector",
     )
 
-    # Header
+    # — Überschrift —
     st.header("Benchmark Group")
 
-    # Ein einziges Radio mit ALLEN 7 Optionen
-    all_options = [
+    # — Baue die Liste aller 7 Möglichkeiten —
+    all_benchmark_opts = [
         "Sector Peers",
         "Country Peers",
         "Market Cap Peers",
         "All CSRD First Wave",
-        "Choose individual Peer Group",     # Multiselect-Trigger
+        "Choose individual Peer Group",   # Multiselect-Trigger
         "Between Country Comparison",
         "Between Industry Comparison",
     ]
+
+    # — EIN einziges Radio mit ALLEN Optionen —
     benchmark_type = st.radio(
         "Select a peer or cross-benchmark type:",
-        all_options,
+        all_benchmark_opts,
         key="benchmark_type",
     )
 
-    # Wenn „Choose individual Peer Group“ ausgewählt ist, zeige das Multiselect
+    # — Nur wenn man „Choose individual Peer Group“ anclickt, kommt das Multiselect —
     if benchmark_type == "Choose individual Peer Group":
         peer_selection = st.multiselect(
             "Or choose specific peer companies:",
