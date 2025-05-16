@@ -1402,48 +1402,62 @@ with main:
                 st.plotly_chart(fig_fog, use_container_width=True)
         
             elif plot_type == "Bar Chart":
-                # sortieren und Legend-Hilfsspalte
+                # 1) sortieren und Highlight-Spalte
                 peers_fog = plot_df.sort_values("fog", ascending=False)
                 peers_fog["highlight_label"] = np.where(
                     peers_fog["company"] == company, company, "Peers"
                 )
-                y_order = peers_fog["company"].tolist()[::-1]
-
+            
+                # 2) Kurzspalte anlegen (max. 15 Zeichen)
                 peers_fog["company_short"] = peers_fog["company"].str.slice(0, 15)
-        
+            
+                # 3) Reihenfolge für die Kurzspalte umdrehen
+                y_order_short = peers_fog["company_short"].tolist()[::-1]
+            
+                # 4) Bar Chart gegen company_short zeichnen
                 fig_fog_bar = px.bar(
                     peers_fog,
                     x="fog",
-                    y="company",
+                    y="company_short",                   # <<< Kurzspalte verwenden
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={
-                        "fog": "Fog Index",
-                        "company": "",
+                        "fog":           "Fog Index",
+                        "company_short": "Company",
                         "highlight_label": ""
                     },
-                    category_orders={"company": y_order},
+                    category_orders={"company_short": y_order_short},
+                    hover_data=["company"]               # <<< Voller Name im Tooltip
                 )
+            
+                # 5) Peer‐Average Linie
                 fig_fog_bar.add_vline(
                     x=mean_fog,
-                    line_dash="dash", line_color="black",
+                    line_dash="dash",
+                    line_color="black",
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="top left",
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
+            
+                # 6) Layout anpassen
                 fig_fog_bar.update_layout(
                     showlegend=True,
                     legend_title_text="",
-                    yaxis={"categoryorder":"array","categoryarray":y_order},
+                    yaxis={
+                        "categoryorder": "array",
+                        "categoryarray": y_order_short
+                    },
                 )
+            
                 st.plotly_chart(fig_fog_bar, use_container_width=True)
-        
-                # Vergleichsbalken
+            
+                # --- Vergleichsbalken bleibt unverändert ---
                 comp_fog = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "Fog": [mean_fog, focal_fog],
+                    "Fog":   [mean_fog,      focal_fog],
                 })
                 fig_fog_cmp = px.bar(
                     comp_fog,
@@ -1455,13 +1469,17 @@ with main:
                     labels={"Fog": "Fog Index", "Group": ""}
                 )
                 fig_fog_cmp.update_layout(
-                    xaxis={"categoryorder":"array","categoryarray":[company,"Peer Average"]},
+                    xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
                 )
-                fig_fog_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                fig_fog_cmp.update_traces(
+                    texttemplate="%{text:.1f}",
+                    textposition="outside",
+                    width=0.5
+                )
                 st.plotly_chart(fig_fog_cmp, use_container_width=True)
-        
-            st.caption("Fog index (Gunningʼs language complexity measure).")
+            
+                st.caption("Fog index (Gunning’s language complexity measure).")
         
         
         else:
