@@ -75,6 +75,7 @@ left, main, right = st.columns([2, 5, 2])
 
 # 4a. Linke Sidebar (styled per CSS oben)
 with left:
+    # 1) Focal Company bleibt unverändert
     default_idx = company_list.index(default_company) if default_company in company_list else 0
     company = st.selectbox(
         "Select a company:",
@@ -83,40 +84,37 @@ with left:
         key="company_selector",
     )
 
-    cat     = df.loc[df["company"] == company, "Market_Cap_Cat"]
-    has_cat = not cat.isna().all()
-
+    # 2) Überschrift
     st.header("Benchmark Group")
+
+    # 3) Baue Dir eine einzige Options-Liste mit allen 6+1 Möglichkeiten
     peer_group_opts = [
         "Sector Peers",
         "Country Peers",
         "Market Cap Peers",
         "All CSRD First Wave",
+        "Choose individual Peer Group",          # neu: Multiselect-Trigger
+        "Between Country Comparison",
+        "Between Industry Comparison",
     ]
-    if not has_cat and "Size Peers" in peer_group_opts:
-        peer_group_opts.remove("Size Peers")
 
+    # 4) Ein einziges Radio-Widget mit ALLEN Optionen
     benchmark_type = st.radio(
-        "Select Your Peer Group:",
+        "Select a peer or cross-benchmark type:",
         peer_group_opts,
         key="benchmark_type",
     )
-    peer_selection = st.multiselect(
-        "Or choose specific peer companies:",
-        options=company_list,
-        default=[],
-    )
 
-    # 4a.4 Neu: Cross Country / Cross Industry Benchmarking
-    st.subheader("Cross Country / Cross Industry Benchmarking")
-    cross_benchmark = st.radio(
-        "Select a cross-benchmark type:",
-        [
-            "Between Country Comparison",
-            "Between Industry Comparison",
-        ],
-        key="cross_benchmark_type",
-    )
+    # 5) Wenn der User „Select Specific Peer Companies“ wählt, zeige das Multiselect:
+    if benchmark_type == "Choose individual Peer Group":
+        peer_selection = st.multiselect(
+            "Or choose specific peer companies:",
+            options=company_list,
+            default=[],
+            key="peer_selection",
+        )
+    else:
+        peer_selection = []
 
 # 4b. Rechte Spalte: „What do you want to benchmark?“ als Radio & Chart-Type
 with right:
