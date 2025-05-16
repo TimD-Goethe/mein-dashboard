@@ -203,7 +203,7 @@ with main:
 col_content, col_view = st.columns([5, 1])
 with col_view:
     view_selector = st.selectbox(
-        "What do you want to benchmark?", 
+        "", 
         ["Number of Pages", "Number of Words", "Sentiment", "Language Complexity", "Peer Company List"],
         key="view_selector"
     )
