@@ -1386,7 +1386,7 @@ with main:
                 )
                 y_order = peers_fog["company"].tolist()[::-1]
 
-                peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
+                peers_fog["company_short"] = peers_fog["company"].str.slice(0, 15)
         
                 fig_fog_bar = px.bar(
                     peers_fog,
