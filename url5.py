@@ -5,7 +5,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from urllib.parse import unquote, quote
 
-
 #-------------------------------------------------------------------------
 # 1. Page config
 #-------------------------------------------------------------------------
@@ -70,7 +69,6 @@ df = pd.read_csv("summary_with_meta_with_mcap_and_cat.csv")
 #--------------------------------------------------------------------------------------
 # 3. URL-Param & Default
 #--------------------------------------------------------------------------------------
-
 company_list    = df["company"].dropna().unique().tolist()
 mapping_ci      = {n.strip().casefold(): n for n in company_list}
 raw             = st.query_params.get("company", [""])[0] or ""
@@ -80,28 +78,38 @@ default_company = mapping_ci.get(raw.strip().casefold(), company_list[0])
 #-----------------------------------------------------------------------------------------
 # 4. Layout: drei Columns
 #------------------------------------------------------------------------------------------
-
 left, main, right = st.columns([2, 5, 2])
 
-# 4a. Linke Sidebar: Company + EIN Radio für alle 7 Möglichkeiten
+# 4a. Linke Sidebar: Company + Top-Level Radio + Unter-Radio
 with left:
-    # --- Company dropdown
-    idx = company_list.index(default_co) if default_co in company_list else 0
-    company = st.selectbox("Select a company:", company_list, index=idx, key="company_selector")
+    # Company dropdown
+    default_idx = company_list.index(default_company) if default_company in company_list else 0
+    company = st.selectbox(
+        "Select a company:",
+        options=company_list,
+        index=default_idx,
+        key="company_selector",
+    )
 
-    # --- Oberste Radio zum Umschalten der beiden Blöcke
+    # Top-Level Radio: steuert die beiden Hauptblöcke
     mode = st.radio(
         "Choose benchmark mode:",
         ["Benchmark Group", "Cross Country / Cross Industry"],
-        key="mode_selector"
+        key="mode_selector",
     )
 
-    # ---  Unter-Radio je nach Mode
+    # Unter-Radio je nach gewähltem mode
     if mode == "Benchmark Group":
         st.subheader("Benchmark Group")
         benchmark_type = st.radio(
             "Select a peer group:",
-            ["Sector Peers", "Country Peers", "Market Cap Peers", "All CSRD First Wave", "Choose specific peers"],
+            [
+              "Sector Peers",
+              "Country Peers",
+              "Market Cap Peers",
+              "All CSRD First Wave",
+              "Choose specific peers"
+            ],
             key="benchmark_type"
         )
         if benchmark_type == "Choose specific peers":
@@ -113,7 +121,7 @@ with left:
         else:
             peer_selection = []
 
-    else:  # Cross Country / Cross Industry
+    else:
         st.subheader("Cross Country / Cross Industry Benchmarking")
         benchmark_type = st.radio(
             "Select a cross-benchmark type:",
@@ -122,8 +130,7 @@ with left:
         )
         peer_selection = []
 
-
-# 4b. Rechte Spalte: „What do you want to benchmark?“ als Radio & Chart-Type
+# 4b. Rechte Spalte: View & Chart Type
 with right:
     st.header("What do you want to benchmark?")
     view = st.radio(
@@ -154,11 +161,13 @@ elif benchmark_type == "Country Peers":
 
 elif benchmark_type == "Market Cap Peers":
     terc            = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
-    lbl             = ("Very Small" if   terc == 1 else
-                       "Small"      if   terc == 2 else
-                       "Medium"     if   terc == 3 else
-                       "Large"      if   terc == 4 else
-                       "Huge")
+    lbl             = (
+        "Very Small" if terc == 1 else
+        "Small"      if terc == 2 else
+        "Medium"     if terc == 3 else
+        "Large"      if terc == 4 else
+        "Huge"
+    )
     benchmark_df    = df[df["Market_Cap_Cat"] == terc]
     benchmark_label = f"Market Cap Peers: {lbl}"
 
@@ -166,30 +175,29 @@ elif benchmark_type == "All CSRD First Wave":
     benchmark_df    = df.copy()
     benchmark_label = "All CSRD First Wave"
 
-elif benchmark_type == "Choose individual Peer Group":
-    # nutze peer_selection
+elif benchmark_type == "Choose specific peers":
     sel = set(peer_selection) | {company} if peer_selection else {company}
     benchmark_df    = df[df["company"].isin(sel)]
     benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
 
-elif cross_type == "Between Country Comparison":
+elif benchmark_type == "Between Country Comparison":
     focal_country   = df.loc[df["company"] == company, "country"].iat[0]
     country_df      = df[df["country"] == focal_country]
     rest_df         = df[df["country"] != focal_country]
     benchmark_df    = pd.concat([
-                          country_df.assign(_group=focal_country),
-                          rest_df.assign(_group="Others")
-                       ], ignore_index=True)
+                        country_df.assign(_group=focal_country),
+                        rest_df.assign(_group="Others")
+                     ], ignore_index=True)
     benchmark_label = f"{focal_country} vs Others"
 
-elif cross_type == "Between Industry Comparison":
+elif benchmark_type == "Between Industry Comparison":
     focal_ind        = df.loc[df["company"] == company, "SASB_industry"].iat[0]
     industry_df      = df[df["SASB_industry"] == focal_ind]
-    rest_industry_df = df[df["SASB_industry"] != focal_ind]
+    rest_ind_df      = df[df["SASB_industry"] != focal_ind]
     benchmark_df     = pd.concat([
-                          industry_df.assign(_group=focal_ind),
-                          rest_industry_df.assign(_group="Others")
-                       ], ignore_index=True)
+                        industry_df.assign(_group=focal_ind),
+                        rest_ind_df.assign(_group="Others")
+                     ], ignore_index=True)
     benchmark_label  = f"{focal_ind} vs Others"
 
 # focal values
@@ -197,10 +205,9 @@ focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[
 focal_words = df.loc[df["company"] == company, "words"].iat[0]
 
 # --------------------------------------------------------------------
-# 8. Main-Bereich: Header + Trennstrich + Content-Spalten
+# 8. Main-Bereich: Header + Trennstrich + erste Content-Spalte
 # --------------------------------------------------------------------
 with main:
-    # 5.1 Header + Subtext
     header_col, _ = st.columns([3, 1], gap="large")
     with header_col:
         st.header("CSRD Dashboard")
@@ -218,7 +225,6 @@ with main:
             """,
             unsafe_allow_html=True,
         )
-    # Roter Trennstrich
     color = "#b34747"
     st.markdown(
         f"""
