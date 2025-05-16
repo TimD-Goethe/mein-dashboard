@@ -715,42 +715,54 @@ with main:
     
             
             elif plot_type == "Bar Chart":
-                # 1) Detail-Bar-Chart aller Peer-Unternehmen als horizontale Balken (Words)
-                peers_df = plot_df.sort_values("words", ascending=False)
+                # 1) Peer-DF sortieren, Mean berechnen
+                peers_df  = plot_df.sort_values("words", ascending=False)
                 mean_words = benchmark_df["words"].mean()
             
-                # categoryarray umdrehen, damit die höchste ganz oben ist
-                y_order = peers_df["company"].tolist()[::-1]
-
+                # 2) Kurzspalte anlegen
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
             
+                # 3) categoryarray aus Kurzspalte (umgekehrt für horizontales Bar-Chart)
+                y_order_short = peers_df["company_short"].tolist()[::-1]
+            
+                # 4) Chart mit company_short
                 fig2w = px.bar(
                     peers_df,
                     x="words",
-                    y="company",
+                    y="company_short",                  # ← hier die Kurzspalte verwenden
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"words": "Words", "company": "Company", "highlight_label": ""},
-                    category_orders={"company": y_order},
+                    labels={
+                        "words":           "Words",
+                        "company_short":   "Company",   # die Achsenbeschriftung umbiegen
+                        "highlight_label": ""
+                    },
+                    category_orders={"company_short": y_order_short},
+                    hover_data=["company"]               # optional: vollständiger Name im Tooltip
                 )
-                # vertikale Peer-Average-Linie
+            
+                # 5) Peer-Average-Linie
                 fig2w.add_vline(
                     x=mean_words,
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="top left",
-                    annotation_font_color="black",
                     annotation_font_size=16,
                 )
-                # eindeutige Element-ID verhindern Kollision
+            
+                # 6) Layout anpassen
                 fig2w.update_layout(
                     showlegend=True,
                     legend_title_text="",
-                    yaxis={"categoryorder": "array", "categoryarray": y_order},
-                    xaxis_title="Words",
+                    yaxis={
+                        "categoryorder": "array",
+                        "categoryarray":  y_order_short
+                    },
+                    xaxis_title="Words"
                 )
+            
                 st.plotly_chart(fig2w, use_container_width=True, key="words_detail")
             
                 # 2) Peer Average vs. Focal Company als vertikale Balken (roter Balken links)
