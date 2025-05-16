@@ -163,7 +163,7 @@ plot_type = st.sidebar.radio(
     ["Bar Chart", "Histogram"],
     key="plot_type",
 )
-----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # 8. Header & Analysis mode
 # --------------------------------------------------------------------
 # 1. Header + Untertitel + Radio-Buttons in einem columns-Aufruf
