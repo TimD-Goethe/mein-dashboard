@@ -16,27 +16,36 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown("""
 <style>
   /* Toolbar komplett ausblenden */
-  [data-testid="stToolbar"] { display: none !important; }
+  [data-testid="stToolbar"] {
+    display: none !important;
+  }
 
   /* 1. & 3. Column: hell-lila + Schatten */
   [data-testid="stColumn"]:nth-of-type(1),
   [data-testid="stColumn"]:nth-of-type(3) {
     background-color: #F3E8FF !important;
-    box-shadow: 2px 2px 8px rgba(0,0,0,0.1) !important;
-    border-radius: 0.5rem;
-    padding: 1rem;
+    box-shadow:       2px 2px 8px rgba(0,0,0,0.1) !important;
+    border-radius:    0.5rem;
+    padding:          1rem;
   }
 
   /* 2. Column: transparent (Gradient vom Body) */
   [data-testid="stColumn"]:nth-of-type(2) {
     background-color: transparent !important;
-    padding: 1rem;
+    padding:          1rem;
   }
 
-  /* ── NEU: alle Schatten in der mittleren Column killen ── */
+  /* alle Schatten in der mittleren Column killen */
   [data-testid="stColumn"]:nth-of-type(2) *,
   [data-testid="stColumn"]:nth-of-type(2) {
     box-shadow: none !important;
+  }
+
+  /* block-containers in der mittleren Column transparent machen */
+  [data-testid="stColumn"]:nth-of-type(2) .block-container {
+    background-color: transparent !important;
+    box-shadow:       none              !important;
+    padding:          0                 !important;
   }
 
   /* globaler Body-Gradient */
