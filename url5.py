@@ -157,7 +157,13 @@ with right:
         "Number of Pages": "Die Gesamtzahl der Seiten in der Nachhaltigkeitsberichterstattung.",
         "Number of Words": "Die Gesamtzahl der Wörter im Berichtstext.",
         "Words per ESRS standard": "Wörter je ESRS-Kapitel …",
-        # usw. für alle Optionen …
+        "Numbers": "Count of Numbers per 500 words",
+        "Tables": "Count of tables per 500 words",
+        "Images": "Average image area per 500 words",
+        "Standardized Language": "Average count of frequently used tetragrams" ,
+        "Language Complexity": "Fog-Index, an aggregate measure of readability where higher values suggest more complex and technical language - which may be appropriate in professional sustainability disclosures.",
+        "Sentiment": "Average number of positive and negative words per 500 words",
+        "Peer Company List",
     }
 
     # Und zeige diese Erklärung direkt unter dem Radio:
