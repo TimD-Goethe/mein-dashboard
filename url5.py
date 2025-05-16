@@ -15,12 +15,12 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 # --------------------------------------------------------------------
 st.markdown("""
 <style>
-  /* 0) Toolbar komplett verstecken */
+  /* 0) Toolbar komplett weg */
   [data-testid="stToolbar"] {
     display: none !important;
   }
 
-  /* 1) Linke & rechte Sidebar einfärben + Schatten */
+  /* 1) Linke und rechte Sidebar einfärben + Schatten */
   [data-testid="columns"] > [data-testid="column"]:first-child,
   [data-testid="columns"] > [data-testid="column"]:last-child {
     background-color: #F3E8FF !important;
@@ -29,19 +29,18 @@ st.markdown("""
     padding:          1rem;
   }
 
-  /* 2) Mittlere Spalte transparent halten + Schatten killen */
+  /* 2) Mittlere Column transparent + alle Schatten killen */
   [data-testid="columns"] > [data-testid="column"]:nth-child(2) {
     background-color: transparent !important;
-    box-shadow:       none        !important;
-    padding:          1rem;
-  }
-  /*    – und wirklich alle inneren Schatten entfernen */
-  [data-testid="columns"] > [data-testid="column"]:nth-child(2) * {
     box-shadow: none !important;
-    background-color: transparent !important;
+    padding:    1rem;
+  }
+  [data-testid="columns"] > [data-testid="column"]:nth-child(2) * {
+    box-shadow: none               !important;
+    background-color: transparent  !important;
   }
 
-  /* 3) Globaler Hintergrund-Gradient (hinter allen Columns) */
+  /* 3) Globaler hinterer Gradient */
   html, body, [data-testid="stAppViewContainer"] {
     background: linear-gradient(
       180deg,
