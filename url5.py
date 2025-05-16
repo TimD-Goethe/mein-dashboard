@@ -356,11 +356,10 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
     
             elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
-                            
                 # 1) Bestimme das Land des gewählten Unternehmens
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
-                # 2) Berechne den Durchschnitt der Seiten pro Land
+                # 2) Berechne das Länderdurchschnitt
                 country_avg = (
                     df
                     .groupby("country")["Sustainability_Page_Count"]
@@ -368,35 +367,38 @@ with main:
                     .reset_index(name="Pages")
                 )
             
-                # 3) Sortiere so, dass das kleinste Mittel unten und das größte ganz oben erscheint
+                # 3) Sortiere von groß nach klein
                 country_avg = country_avg.sort_values("Pages", ascending=False)
-                y_order = country_avg["country"].tolist()
             
-                # 4) Markiere Dein Land
+                # 4) Kürze die Ländernamen auf max. 15 Zeichen
+                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
+            
+                # 5) Behalte die Trunkierung auch in der Sortierreihenfolge
+                y_order = country_avg["country_short"].tolist()
+            
+                # 6) Markiere Dein Land
                 country_avg["highlight"] = np.where(
                     country_avg["country"] == focal_country,
-                    focal_country,
+                    country_avg["country_short"],  # markiere die gekürzte Variante
                     "Other Countries"
                 )
-
-                peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
-                
-                # 5) Erstelle das horizontale Balkendiagramm
+            
+                # 7) Baue das horizontale Balkendiagramm
                 fig_ctry = px.bar(
                     country_avg,
                     x="Pages",
-                    y="country",
+                    y="country_short",           # ← hier die gekürzten Labels
                     orientation="h",
                     color="highlight",
                     color_discrete_map={
                         focal_country: "red",
                         "Other Countries": "#1f77b4"
                     },
-                    category_orders={"country": y_order},
-                    labels={"Pages":"Pages","country":""},
+                    category_orders={"country_short": y_order},
+                    labels={"Pages":"Pages","country_short":""},
                 )
-    
-                # 6) Peer Average über **alle** Länder
+            
+                # 8) Peer‐Average‐Linie
                 overall_avg = df["Sustainability_Page_Count"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
@@ -408,57 +410,21 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
-                
-                # 7) Werte als Beschriftung außen anzeigen
+            
+                # 9) Werte außen anzeigen
                 fig_ctry.update_traces(
                     texttemplate="%{x:.0f}",
                     textposition="outside",
                     cliponaxis=False
                 )
             
-                # 8) Legende ausblenden (nur Farb­unterscheidung über Balken)
+                # 10) Legende & Achsentitel
                 fig_ctry.update_layout(
                     showlegend=False,
                     xaxis_title="Pages",
                 )
-    
+            
                 st.plotly_chart(fig_ctry, use_container_width=True)
-    
-                # 9) Zweiter Chart: Focal vs. Durchschnitt aller anderen Länder
-                # Durchschnitt der anderen Länder (aus country_avg)
-                other_mean = (
-                    country_avg
-                    .loc[country_avg["country"] != focal_country, "Pages"]
-                    .mean()
-                )
-                focal_mean = country_avg.loc[country_avg["country"] == focal_country, "Pages"].iat[0]
-            
-                comp_df = pd.DataFrame({
-                    "Group": [focal_country, "Other Countries"],
-                    "Pages": [focal_mean, other_mean]
-                })
-            
-                fig_cmp = px.bar(
-                    comp_df,
-                    x="Group",
-                    y="Pages",
-                    text="Pages",
-                    color="Group",
-                    color_discrete_map={
-                        focal_country:   "red",
-                        "Other Countries": "#1f77b4"
-                    },
-                    labels={"Pages": "Pages", "Group": ""}
-                )
-                # Focal-Land links
-                fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
-                    showlegend=False,
-                    yaxis_title="Pages"
-                )
-                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-            
-                st.plotly_chart(fig_cmp, use_container_width=True)
                             
     
             elif plot_type == "Bar Chart":
