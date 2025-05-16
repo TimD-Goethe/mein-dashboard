@@ -405,26 +405,10 @@ with main:
                     line_dash="dash",
                     line_color="black",
                     line_width=2,
-                    opacity=0.6,
-                )
-
-                fig_ctry.update_layout(
-                    margin=dict(t=80)   # z.B. 80 Pixel oberer Abstand
-                )
-                
-                # --- 3) Annotation OBEN auf weißem Grund
-                fig_ctry.add_annotation(
-                    text="<b>Peer Average</b>",
-                    x=mean_pages,         # an derselben x-Position wie die Linie
-                    y=1.02,               # 2% oberhalb des Plot-Randes
-                    xref="x",             # x in Datenkoordinaten
-                    yref="paper",         # y in 0–1 relativ zum Canvas
-                    showarrow=False,
-                    font=dict(size=14, color="black"),
-                    bgcolor="white",      # weißer Hintergrund
-                    bordercolor="black",
-                    borderwidth=1,
-                    align="center"
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
                 )
                 
             
@@ -478,7 +462,7 @@ with main:
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom right",
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
@@ -646,9 +630,9 @@ with main:
                     line_color="black",
                     line_width=2,
                     annotation_text="<b>All Countries Avg</b>",
-                    annotation_position="top right",
+                    annotation_position="bottom right",
                     annotation_font_color="black",
-                    annotation_font_size=14,
+                    annotation_font_size=16,
                 )
                      
                 # 9) Layout-Anpassungen: Legende aus, Werte außen anzeigen
@@ -765,7 +749,8 @@ with main:
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
                     annotation_font_size=16,
                 )
             
@@ -854,8 +839,9 @@ with main:
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>All Countries Avg</b>",
-                    annotation_position="top right",
-                    annotation_font_size=14
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
                 )
                 fig_pos.update_layout(showlegend=False, xaxis_title="# Positive Words")
                 st.subheader("Positive Words by Country")
@@ -894,7 +880,8 @@ with main:
                     line_color="black",
                     annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
-                    annotation_font_size=14
+                    annotation_font_color="black",
+                    annotation_font_size=16
                 )
                 fig_neg.update_layout(showlegend=False, xaxis_title="# Negative Words")
                 st.subheader("Negative Words by Country")
@@ -1070,7 +1057,8 @@ with main:
                     line_dash="dash",
                     line_color="#333333",
                     annotation_text="<b>Peer Average</b>",
-                    annotation_position="top right",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
                     annotation_font_size=16,
                 )
             
@@ -1118,7 +1106,8 @@ with main:
                     line_dash="dash",
                     line_color="#333333",
                     annotation_text="<b>Peer Average</b>",
-                    annotation_position="top right",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
                     annotation_font_size=16,
                 )
             
@@ -1332,7 +1321,7 @@ with main:
                     line_color="black",
                     line_width=2,
                     annotation_text="<b>All Countries Avg</b>",
-                    annotation_position="top right",
+                    annotation_position="bottom right",
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
@@ -1454,7 +1443,7 @@ with main:
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
-                    annotation_position="top left",
+                    annotation_position="bottom right",
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
