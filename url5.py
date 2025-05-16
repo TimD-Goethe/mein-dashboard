@@ -200,13 +200,7 @@ with main:
 # 9. Content Rendering
 # --------------------------------------------------------------------
 
-col_content, col_view = st.columns([5, 1])
-with col_view:
-    view_selector = st.selectbox(
-        "", 
-        ["Number of Pages", "Number of Words", "Sentiment", "Language Complexity", "Peer Company List"],
-        key="view_selector"
-    )
+
 with col_content:
     plot_df = benchmark_df.copy()
     plot_df["highlight_label"] = np.where(
