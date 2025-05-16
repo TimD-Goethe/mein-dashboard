@@ -11,7 +11,7 @@ from urllib.parse import unquote, quote  # zum Percent-Decoding und URL-Encoding
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
 # --------------------------------------------------------------------
-# 1a. CSS: linke & rechte Spalte einfärben+Schatten
+# 1a. CSS: linke & rechte Spalte einfärben + Schatten
 # --------------------------------------------------------------------
 st.markdown("""
 <style>
