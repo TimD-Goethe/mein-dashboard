@@ -429,34 +429,33 @@ with main:
     
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken
-                # nach Wert absteigend sortieren
+                #    nach Wert absteigend sortieren
                 peers_df = plot_df.sort_values("Sustainability_Page_Count", ascending=False)
-    
                 
                 mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
-    
-                 # Wir drehen die Firmenliste, damit die größte ganz oben landet
-                y_order = peers_df["company"].tolist()[::-1]
-
-                # 4) Kürze die Ländernamen auf max. 15 Zeichen
-                peers_avg["country_short"] = peers_avg["country"].str.slice(0, 15)
                 
+                # 2) Wir drehen die Firmenliste, damit die größte ganz oben landet
+                #    aber diesmal mit dem gekürzten Namen
+                peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
+                y_order_short = peers_df["company_short"].tolist()[::-1]
+                
+                # 3) Erstelle das horizontale Balkendiagramm anhand der Kurz-Namen
                 fig2 = px.bar(
                     peers_df,
                     x="Sustainability_Page_Count",
-                    y="company",
+                    y="company_short",               # hier die gekürzte Spalte
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={
                         "Sustainability_Page_Count": "Pages",
-                        "company": "Company",
+                        "company_short": "Company",  # Achsenbeschriftung anpassen
                         "highlight_label": ""
                     },
-                    # hier verwenden wir die umgedrehte Liste
-                    category_orders={"company": y_order}
+                    category_orders={"company_short": y_order_short},
                 )
                 
+                # 4) V-Line für Peer Average
                 fig2.add_vline(
                     x=mean_pages,
                     line_dash="dash",
@@ -467,13 +466,13 @@ with main:
                     annotation_font_size=16,
                 )
                 
+                # 5) Layout anpassen, damit die Kurz-Namen korrekt oben stehen
                 fig2.update_layout(
                     showlegend=True,
                     legend_title_text="",
                     yaxis={
                         "categoryorder": "array",
-                        # auch hier die umgedrehte Liste, damit "Imerys" ganz oben steht
-                        "categoryarray": y_order
+                        "categoryarray": y_order_short,
                     }
                 )
                 
