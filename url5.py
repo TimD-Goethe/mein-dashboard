@@ -153,6 +153,17 @@ with right:
         key="view_selector"
     )
 
+    help_texts = {
+        "Number of Pages": "Die Gesamtzahl der Seiten in der Nachhaltigkeitsberichterstattung.",
+        "Number of Words": "Die Gesamtzahl der Wörter im Berichtstext.",
+        "Words per ESRS standard": "Wörter je ESRS-Kapitel …",
+        # usw. für alle Optionen …
+    }
+
+    # Und zeige diese Erklärung direkt unter dem Radio:
+    if view in help_texts:
+        st.info(help_texts[view])
+
     st.header("Chart Type")
     plot_type = st.radio(
         "",
