@@ -42,83 +42,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-left, main, right = st.columns([1, 4, 1])
-
-# --------------------------------------------------------------------
-# 3. Linke “Sidebar” (bisher st.sidebar.*)
-# --------------------------------------------------------------------
-with left:
-    default_idx = company_list.index(default_company) if default_company in company_list else 0
-    company = st.sidebar.selectbox(
-        "Select a company:",
-        options=company_list,
-        index=default_idx,
-        key="company",
-    )
-
-cat = df.loc[df["company"] == company, "Market_Cap_Cat"]
-has_cat = not cat.isna().all() 
-company = st.selectbox(
-    "Select a company:",
-    options=company_list,
-    index=default_idx,
-    key="company",
-)
-
-peer_group_opts = [
-    "Sector Peers",
-    "Country Peers",
-    "Market Cap Peers",
-    "Between Country Comparison",
-    "All CSRD First Wave",
-]
-
-st.header("Benchmark Group")
-benchmark_type = st.radio(
-    "Select Your Peer Group:",
-    peer_group_opts,
-    key="benchmark_type",
-)
-peer_selection = st.multiselect(
-    "Or choose specific peer companies:",
-    options=company_list,
-    default=[],
-)
-
-# --------------------------------------------------------------------
-# 4. Rechte “Pseudo-Sidebar” (statt rechts unten im Main)
-# --------------------------------------------------------------------
-with right:
-    st.header("What do you want to benchmark?")
-    view = st.selectbox(
-        "",
-        ["Number of Pages", "Number of Words", "Sentiment", "Language Complexity", "Peer Company List"],
-        key="view_selector",
-    )
-    st.header("Chart Type")
-    plot_type = st.radio(
-        "",
-        ["Bar Chart", "Histogram"],
-        key="plot_type",
-    )
-
-# --------------------------------------------------------------------
-# 5. Main-Bereich für Header + Plots
-# --------------------------------------------------------------------
-with main:
-    st.header("CSRD Dashboard")
-    st.markdown(
-        """
-        <p style="…">Please select …</p>
-        """,
-        unsafe_allow_html=True,
-    )
-    # Dein roter Strich
-    st.markdown(
-        f"""<div style="height:4px;background:{color};margin-bottom:1rem;"></div>""",
-        unsafe_allow_html=True,
-    )
-
 
 # --------------------------------------------------------------------
 # 2. Daten laden
@@ -141,6 +64,53 @@ key = raw.strip().casefold()
 
 # 3.4 Lookup oder Fallback
 default_company = mapping_ci.get(key, company_list[0])
+
+---------------------------------------------------------------------
+# 4. Sidebar: Focal Company Selection
+# --------------------------------------------------------------------
+default_idx = company_list.index(default_company) if default_company in company_list else 0
+company = st.sidebar.selectbox(
+    "Select a company:",
+    options=company_list,
+    index=default_idx,
+    key="company",
+)
+
+cat = df.loc[df["company"] == company, "Market_Cap_Cat"]
+has_cat = not cat.isna().all()            
+            
+----------------------------------------------------------------------            
+# 5. Sidebar: Benchmark Group Selection
+# --------------------------------------------------------------------
+st.sidebar.header("Benchmark Group")
+
+# 5.2 Optionen-Liste zusammenbauen
+peer_group_opts = [
+    "Sector Peers",
+    "Country Peers",
+    "Market Cap Peers",
+    "Between Country Comparison",
+    "All CSRD First Wave",
+]
+
+# Wenn für dieses Unternehmen keine Market_Cap_Cat existiert,
+# dann entferne die Size-Peers–Option:
+if not has_cat and "Size Peers" in peer_group_opts:
+    peer_group_opts.remove("Size Peers")
+
+# 5.3 Radio-Widget mit nur gültigen Optionen
+benchmark_type = st.sidebar.radio(
+    "Select Your Peer Group:",
+    peer_group_opts,
+    key="benchmark_type",
+)
+
+peer_selection = st.sidebar.multiselect(
+    "Or choose specific peer companies:",
+    options=company_list,
+    default=[],
+)
+
 
 # --------------------------------------------------------------------
 # 6. Build benchmark_df
@@ -184,6 +154,52 @@ if peer_selection:
 focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
 focal_words = df.loc[df["company"] == company, "words"].iat[0]
 
+# --------------------------------------------------------------------
+# 7. Sidebar: Chart Type
+# --------------------------------------------------------------------
+st.sidebar.header("Chart Type")
+plot_type = st.sidebar.radio(
+    "Select plot type:",
+    ["Bar Chart", "Histogram"],
+    key="plot_type",
+)
+----------------------------------------------------------------------
+# 8. Header & Analysis mode
+# --------------------------------------------------------------------
+# 1. Header + Untertitel + Radio-Buttons in einem columns-Aufruf
+header_col, nav_col = st.columns([3, 1], gap="large")
+
+with header_col:
+    st.header("CSRD Dashboard")
+    st.markdown(
+        """
+        <p style="
+            font-size: 16px;
+            color: #555;
+            margin-top: -8px;
+            margin-bottom: 1rem;
+        ">
+          Please select a peer group and variable of interest to benchmark your company’s
+          CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.
+        </p>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# 2. Voll-breiter, farbiger Strich
+color = "#b34747"
+st.markdown(
+    f"""
+    <div style="
+      width: 100%;
+      height: 4px;
+      background-color: {color};
+      margin: 0 0 1rem 0;
+      padding: 0;
+    "></div>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # --------------------------------------------------------------------
