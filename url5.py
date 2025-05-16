@@ -16,12 +16,17 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* zuerst alle Columns resetten */
+      /* Nur den Hamburger-Button (collapsedControl) verstecken, nicht die ganze Toolbar */
+      button[data-testid="collapsedControl"] {
+        display: none !important;
+      }
+
+      /* Reset aller Columns */
       [data-testid="stColumn"] {
         background-color: transparent !important;
         box-shadow: none !important;
       }
-      /* 1. und 3. Column (links & rechts) hell-lila + Schatten */
+      /* 1. und 3. Column hell-lila + Schatten */
       [data-testid="stColumn"]:nth-of-type(1),
       [data-testid="stColumn"]:nth-of-type(3) {
         background-color: #F3E8FF !important;
@@ -29,16 +34,30 @@ st.markdown(
         border-radius: 0.5rem;
         padding: 1rem;
       }
-      /* 2. Column (Mitte) behält den Gradient */
+      /* Mittlere Column transparent lassen (Gradient kommt vom Body) */
       [data-testid="stColumn"]:nth-of-type(2) {
+        background-color: transparent !important;
+        box-shadow: none !important;
+        padding: 1rem;
+      }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# --------------------------------------------------------------------
+# 1b. Body-Gradient (global, hinter den Columns)
+# --------------------------------------------------------------------
+st.markdown(
+    """
+    <style>
+      html, body, [data-testid="stAppViewContainer"], .block-container {
         background: linear-gradient(
           180deg,
           #E3DFFF 0%,
           #E3DFFF 60%,
           #FFFFFF 100%
         ) !important;
-        border-radius: 0.5rem;
-        padding: 1rem;
       }
     </style>
     """,
