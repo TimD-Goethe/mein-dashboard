@@ -16,10 +16,16 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* Toolbar komplett verstecken */
-      [data-testid="stToolbar"] {
+       /* Toolbar komplett verstecken */
+       [data-testid="stToolbar"] {
         display: none !important;
       }
+
+      /* Im mittleren Column alle Schatten entfernen */
+      [data-testid="stColumn"]:nth-of-type(2) [style*="box-shadow"] {
+        box-shadow: none !important;
+      }
+
 
       /* 1. & 3. Column: hell-lila + Schatten */
       [data-testid="stColumn"]:nth-of-type(1),
