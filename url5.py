@@ -37,7 +37,7 @@ st.markdown(
       }
 
       /* Im mittleren Column alle Schatten entfernen */
-      [data-testid="stColumn"]:nth-of-type(2) * {
+      [data-testid="stColumn"]:nth-of-type(2) [style*="box-shadow"] {
         box-shadow: none !important;
       }
 
