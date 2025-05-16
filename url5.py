@@ -134,44 +134,45 @@ with left:
 with right:
     st.header("What do you want to benchmark?")
 
-    # ──────────────── 1) HIER den Separator-CSS-Block einfügen ────────────────
+    # ──── 1) CSS für die Separator-Labels ────
     st.markdown(
         """
         <style>
-          /* Separator-Labels un-klickbar und grau färben */
-          [data-testid="stRadio"] > label:nth-of-type(3),
-          [data-testid="stRadio"] > label:nth-of-type(5),
-          [data-testid="stRadio"] > label:nth-of-type(9) {
+          /* Die Dummy-Labels grau färben und un-klickbar machen */
+          div[data-testid="stRadio"] > label:nth-of-type(3),
+          div[data-testid="stRadio"] > label:nth-of-type(5),
+          div[data-testid="stRadio"] > label:nth-of-type(9) {
             color: #888 !important;
             pointer-events: none;
           }
-          /* Radiobuttons bei den Dummy-Labels verbergen */
-          [data-testid="stRadio"] > label:nth-of-type(3) input,
-          [data-testid="stRadio"] > label:nth-of-type(5) input,
-          [data-testid="stRadio"] > label:nth-of-type(9) input {
+          /* Ihre Radiobuttons verbergen */
+          div[data-testid="stRadio"] > label:nth-of-type(3) input,
+          div[data-testid="stRadio"] > label:nth-of-type(5) input,
+          div[data-testid="stRadio"] > label:nth-of-type(9) input {
             visibility: hidden;
           }
         </style>
         """,
         unsafe_allow_html=True,
     )
-    # ─────────────────────────────────────────────────────────────────────
+    # ────────────────────────────────────────────
 
-    # ──────────────── 2) Definiere Deine Optionen + Anzeige-Labels ────────────────
+    # ──── 2) Liste aller Keys (inkl. Dummy-Separatoren) ────
     view_options = [
         "pages",
         "words",
-        "sep1",
+        "sep1",    # hier kommt die erste Trennlinie
         "esrs",
-        "sep2",
+        "sep2",    # zweite Trennlinie
         "numbers",
         "tables",
         "images",
-        "sep3",
+        "sep3",    # dritte Trennlinie
         "lang_std",
         "lang_cplx",
         "tone",
     ]
+    # Schlüssel → sichtbares Label
     view_labels = {
         "pages":    "Number of Pages",
         "words":    "Number of Words",
@@ -186,24 +187,26 @@ with right:
         "lang_cplx":"Complex Language",
         "tone":     "Tone",
     }
-    # ─────────────────────────────────────────────────────────────────────
+    # ────────────────────────────────────────────────────────
 
-    # ──────────────── 3) Single-Radio mit format_func ────────────────
+    # ──── 3) Ein Radio mit format_func für die Labels ────
     view = st.radio(
         "Select Your View:",
         view_options,
         format_func=lambda key: view_labels[key],
         key="view_selector",
     )
-    # ─────────────────────────────────────────────────────────────────────
+    # ────────────────────────────────────────────────────────
 
-    # ──────────────── 4) Dummy-Separator abgefangen? ────────────────
+    # ──── 4) Separator-Auswahl abfangen ────
     if view.startswith("sep"):
-        st.warning("Das ist nur eine Trennlinie – bitte eine echte Option auswählen.")
-    else:
-        # hier kommt Dein bestehendes Mapping von `view` → Logik/Charts hin
-        st.success(f"Du hast `{view_labels[view]}` ausgewählt!")
-    # ─────────────────────────────────────────────────────────────────────
+        st.warning("Das ist nur eine Trennlinie – bitte wähle eine der echten Optionen.")
+        st.stop()
+    # ─────────────────────────────────────
+
+    # Ab hier Deine bestehende Logik,
+    # z.B. if view == "pages": … elif view == "words": … usw.
+    # … 
 
     st.header("Chart Type")
     plot_type = st.radio(
