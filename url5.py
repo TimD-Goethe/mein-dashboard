@@ -408,15 +408,22 @@ with main:
                     opacity=0.6,
                 )
 
-                # 2) Füge die Beschriftung oberhalb des Plots ein
-                fig_ctry.add_annotation(
+                fig.update_layout(
+                    margin=dict(t=80)   # z.B. 80 Pixel oberer Abstand
+                )
+                
+                # --- 3) Annotation OBEN auf weißem Grund
+                fig.add_annotation(
                     text="<b>Peer Average</b>",
-                    x=mean_pages,           # an derselben x-Position wie die Linie
-                    y=1.02,                 # 2% oberhalb der Zeichenfläche
-                    xref="x",               # Bezug auf die x-Achse
-                    yref="paper",           # „paper“ heißt: 0–1 über/unterhalb des Plot-Rahmens
-                    showarrow=False,        # kein Pfeil
-                    font=dict(size=14),     # Schriftgröße
+                    x=mean_pages,         # an derselben x-Position wie die Linie
+                    y=1.02,               # 2% oberhalb des Plot-Randes
+                    xref="x",             # x in Datenkoordinaten
+                    yref="paper",         # y in 0–1 relativ zum Canvas
+                    showarrow=False,
+                    font=dict(size=14, color="black"),
+                    bgcolor="white",      # weißer Hintergrund
+                    bordercolor="black",
+                    borderwidth=1,
                     align="center"
                 )
                 
