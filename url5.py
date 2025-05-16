@@ -437,6 +437,9 @@ with main:
     
                  # Wir drehen die Firmenliste, damit die größte ganz oben landet
                 y_order = peers_df["company"].tolist()[::-1]
+
+                # 4) Kürze die Ländernamen auf max. 15 Zeichen
+                peers_avg["country_short"] = peers_avg["country"].str.slice(0, 15)
                 
                 fig2 = px.bar(
                     peers_df,
