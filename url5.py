@@ -20,35 +20,24 @@ st.markdown("""
     display: none !important;
   }
 
-  /* 1. & 3. Column: hell-lila + Schatten */
-  [data-testid="stColumn"] > [data-testid="stColumn"]:first-child,
-  [data-testid="stColumn"] > [data-testid="stColumn"]:last-child {
+  /* 1. & 3. Spalte: hell-lila + Schatten */
+  [data-testid="stColumns"] > [data-testid="stColumn"]:first-child,
+  [data-testid="stColumns"] > [data-testid="stColumn"]:last-child {
     background-color: #F3E8FF !important;
     box-shadow:       2px 2px 8px rgba(0,0,0,0.1) !important;
     border-radius:    0.5rem;
     padding:          1rem;
   }
 
-  /* 2. Column: transparent (Gradient vom Body) */
-  [data-testid="stColumn"]:nth-of-type(2) {
+  /* Mittlere Spalte transparent (Gradient vom Body) + alle Schatten entfernen */
+  [data-testid="stColumns"] > [data-testid="stColumn"]:nth-child(2),
+  [data-testid="stColumns"] > [data-testid="stColumn"]:nth-child(2) * {
     background-color: transparent !important;
-    padding:          1rem;
-  }
-
-  /* alle Schatten in der mittleren Column killen */
-  [data-testid="stColumn"]:nth-of-type(2) *,
-  [data-testid="stColumn"]:nth-of-type(2) {
     box-shadow: none !important;
+    padding: 1rem;
   }
 
-  /* block-containers in der mittleren Column transparent machen */
-  [data-testid="stColumn"]:nth-of-type(2) .block-container {
-    background-color: transparent !important;
-    box-shadow:       none              !important;
-    padding:          0                 !important;
-  }
-
-  /* globaler Body-Gradient */
+  /* Globaler Hintergrund-Gradient */
   html, body, [data-testid="stAppViewContainer"] {
     background: linear-gradient(
       180deg,
