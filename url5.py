@@ -3,75 +3,76 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from urllib.parse import unquote, quote  # zum Percent-Decoding und URL-Encoding
+from urllib.parse import unquote, quote
 
-# --------------------------------------------------------------------
 # 1. Page config
-# --------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
-# --------------------------------------------------------------------
-# 1a. CSS: linke & rechte Spalte einfärben + Schatten
-# --------------------------------------------------------------------
-st.markdown("""
-<style>
-  /* Toolbar komplett verstecken */
-  [data-testid="stToolbar"] { display: none !important; }
+# 1a. Globales CSS – direkt nach set_page_config, vor allen st.columns(...)
+st.markdown(
+    """
+    <style>
+      /* 1) Toolbar (Hamburger/Share/…) ausblenden */
+      [data-testid="stToolbar"] {
+        display: none !important;
+      }
 
-  /* Hintergrund-Gradient */
-  html, body, [data-testid="stAppViewContainer"] {
-    background: linear-gradient(180deg, #E3DFFF 0%, #E3DFFF 60%, #FFFFFF 100%) !important;
-  }
+      /* 2) Hintergrund-Gradient über die gesamte App */
+      html, body, [data-testid="stAppViewContainer"] {
+        background: linear-gradient(
+          180deg,
+          #E3DFFF 0%,
+          #E3DFFF 60%,
+          #FFFFFF 100%
+        ) !important;
+      }
 
-  /* linke + rechte Sidebar (erstes und letztes section[data-testid="column"]) */
-  section[data-testid="column"]:first-child,
-  section[data-testid="column"]:last-child {
-    background-color: #F3E8FF !important;
-    box-shadow:       2px 2px 8px rgba(0,0,0,0.1) !important;
-    border-radius:    0.5rem;
-    padding:          1rem;
-  }
+      /* 3) Sidebars einfärben + Schatten (erste und letzte Column) */
+      section[data-testid="column"]:first-of-type,
+      section[data-testid="column"]:last-of-type {
+        background-color: #F3E8FF !important;
+        box-shadow:       2px 2px 8px rgba(0,0,0,0.1) !important;
+        border-radius:    0.5rem;
+        padding:          1rem;
+      }
 
-  /* mittlere Column (2.) transparent + kein Schatten */
-  section[data-testid="column"]:nth-of-type(2) {
-    background-color: transparent !important;
-    box-shadow:       none        !important;
-  }
-  section[data-testid="column"]:nth-of-type(2) * {
-    box-shadow: none               !important;
-    background: transparent        !important;
-  }
+      /* 4) Mittlere Column transparent + alle Schatten killen */
+      section[data-testid="column"]:nth-of-type(2) {
+        background-color: transparent !important;
+        box-shadow:       none        !important;
+      }
+      section[data-testid="column"]:nth-of-type(2) * {
+        box-shadow: none               !important;
+        background: transparent        !important;
+      }
 
-  /* ——— HIER ergänzen: .block-container padding killen ——— */
-  section[data-testid="column"]:nth-of-type(2) .block-container {
-    padding-left:  0 !important;
-    padding-right: 0 !important;
-    margin-left:   0 !important;
-    margin-right:  0 !important;
-  }
-  
-</style>
-""", unsafe_allow_html=True)
-# --------------------------------------------------------------------
+      /* 5) In der mittleren Column: die Standard-.block-container-Abstände auf 0 */
+      [data-testid="stAppViewContainer"]
+        > div[class*="block-container"]
+        > section[data-testid="column"]:nth-of-type(2)
+        > div[class*="block-container"] {
+        padding-left:  0 !important;
+        padding-right: 0 !important;
+      }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # 2. Daten laden
-# --------------------------------------------------------------------
 df = pd.read_csv("summary_with_meta_with_mcap_and_cat.csv")
 
-# --------------------------------------------------------------------
-# 3. URL-Param lesen → Default-Firma
-# --------------------------------------------------------------------
+# 3. URL-Param & Default
 company_list    = df["company"].dropna().unique().tolist()
 mapping_ci      = {n.strip().casefold(): n for n in company_list}
 raw             = st.query_params.get("company", [""])[0] or ""
 raw             = unquote(raw)
 default_company = mapping_ci.get(raw.strip().casefold(), company_list[0])
 
-# --------------------------------------------------------------------
-# 4. Layout: drei Spalten (links│mitte│rechts)
-# --------------------------------------------------------------------
+# 4. Layout: drei Columns
 left, main, right = st.columns([2, 5, 2])
 
-# 4a. Linke Spalte: Focal Company & Benchmark Group
+# 4a. Linke Sidebar (styled per CSS oben)
 with left:
     default_idx = company_list.index(default_company) if default_company in company_list else 0
     company = st.selectbox(
@@ -168,25 +169,25 @@ focal_words = df.loc[df["company"] == company, "words"].iat[0]
 # 8. Main-Bereich: Header + Trennstrich + Content-Spalten
 # --------------------------------------------------------------------
 with main:
-    # Header und Subtitel
-    header_col, nav_col = st.columns([3, 1], gap="large")
+    ith main:
+    # 5.1 Header + Subtext
+    header_col, _ = st.columns([3, 1], gap="large")
     with header_col:
         st.header("CSRD Dashboard")
         st.markdown(
             """
             <p style="
-                font-size: 16px;
-                color: #555;
-                margin-top: -8px;
-                margin-bottom: 1rem;
+              font-size:16px;
+              color:#555;
+              margin-top:-8px;
+              margin-bottom:1rem;
             ">
-              Please select a peer group and variable of interest to benchmark your company’s
+              Please select a peer group and variable of interest to benchmark your company’s 
               CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.
             </p>
             """,
             unsafe_allow_html=True,
         )
-
     # Roter Trennstrich
     color = "#b34747"
     st.markdown(
