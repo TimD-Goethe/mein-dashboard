@@ -85,53 +85,42 @@ left, main, right = st.columns([2, 5, 2])
 
 # 4a. Linke Sidebar: Company + EIN Radio für alle 7 Möglichkeiten
 with left:
-    # 1) Company bleibt unverändert
-    default_idx = company_list.index(default_company) if default_company in company_list else 0
-    company = st.selectbox(
-        "Select a company:",
-        options=company_list,
-        index=default_idx,
-        key="company_selector",
+    # --- Company dropdown
+    idx = company_list.index(default_co) if default_co in company_list else 0
+    company = st.selectbox("Select a company:", company_list, index=idx, key="company_selector")
+
+    # --- Oberste Radio zum Umschalten der beiden Blöcke
+    mode = st.radio(
+        "Choose benchmark mode:",
+        ["Benchmark Group", "Cross Country / Cross Industry"],
+        key="mode_selector"
     )
 
-    # 2) Wir legen zwei Spalten an: eine für die Überschrift, eine für das Radio
-    hdr_col, radio_col = st.columns([4,1], gap="small")
-
-    with hdr_col:
-        st.markdown("<h2 style='margin-bottom:0;'>Benchmark Group</h2>", unsafe_allow_html=True)
-
-    with radio_col:
-        # ausblenden des Labels, damit nur der Kreis angezeigt wird
+    # ---  Unter-Radio je nach Mode
+    if mode == "Benchmark Group":
+        st.subheader("Benchmark Group")
         benchmark_type = st.radio(
-            "", 
-            ["Sector Peers", "Country Peers", "Market Cap Peers", "All CSRD First Wave", "Choose individual Peer Group"],
-            key="peer_choice",
-            label_visibility="collapsed",
+            "Select a peer group:",
+            ["Sector Peers", "Country Peers", "Market Cap Peers", "All CSRD First Wave", "Choose specific peers"],
+            key="benchmark_type"
         )
+        if benchmark_type == "Choose specific peers":
+            peer_selection = st.multiselect(
+                "Or choose specific peer companies:",
+                options=company_list,
+                default=[]
+            )
+        else:
+            peer_selection = []
 
-    # 3) Bei „Choose individual Peer Group“ noch das Multiselect darunter
-    if benchmark_type == "Choose individual Peer Group":
-        peer_selection = st.multiselect(
-            "Or choose specific peer companies:",
-            options=company_list,
-            key="peer_selection",
+    else:  # Cross Country / Cross Industry
+        st.subheader("Cross Country / Cross Industry Benchmarking")
+        benchmark_type = st.radio(
+            "Select a cross-benchmark type:",
+            ["Between Country Comparison", "Between Industry Comparison"],
+            key="cross_type"
         )
-    else:
         peer_selection = []
-
-
-    hdr2_col, radio2_col = st.columns([4,1], gap="small")
-
-with hdr2_col:
-    st.markdown("<h2 style='margin-bottom:0;'>Cross Country / Cross Industry Benchmarking</h2>", unsafe_allow_html=True)
-
-with radio2_col:
-    cross_type = st.radio(
-        "",
-        ["Between Country Comparison", "Between Industry Comparison"],
-        key="cross_choice",
-        label_visibility="collapsed",
-    )
 
 
 # 4b. Rechte Spalte: „What do you want to benchmark?“ als Radio & Chart-Type
