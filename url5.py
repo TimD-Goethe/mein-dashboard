@@ -15,29 +15,33 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 # --------------------------------------------------------------------
 st.markdown("""
 <style>
-  /* Toolbar komplett ausblenden */
+  /* 0) Toolbar komplett verstecken */
   [data-testid="stToolbar"] {
     display: none !important;
   }
 
-  /* 1. & 3. Spalte: hell-lila + Schatten */
-  [data-testid="stColumns"] > [data-testid="stColumn"]:first-child,
-  [data-testid="stColumns"] > [data-testid="stColumn"]:last-child {
+  /* 1) Linke & rechte Sidebar einfärben + Schatten */
+  [data-testid="columns"] > [data-testid="column"]:first-child,
+  [data-testid="columns"] > [data-testid="column"]:last-child {
     background-color: #F3E8FF !important;
     box-shadow:       2px 2px 8px rgba(0,0,0,0.1) !important;
     border-radius:    0.5rem;
     padding:          1rem;
   }
 
-  /* Mittlere Spalte transparent (Gradient vom Body) + alle Schatten entfernen */
-  [data-testid="stColumns"] > [data-testid="stColumn"]:nth-child(2),
-  [data-testid="stColumns"] > [data-testid="stColumn"]:nth-child(2) * {
+  /* 2) Mittlere Spalte transparent halten + Schatten killen */
+  [data-testid="columns"] > [data-testid="column"]:nth-child(2) {
     background-color: transparent !important;
+    box-shadow:       none        !important;
+    padding:          1rem;
+  }
+  /*    – und wirklich alle inneren Schatten entfernen */
+  [data-testid="columns"] > [data-testid="column"]:nth-child(2) * {
     box-shadow: none !important;
-    padding: 1rem;
+    background-color: transparent !important;
   }
 
-  /* Globaler Hintergrund-Gradient */
+  /* 3) Globaler Hintergrund-Gradient (hinter allen Columns) */
   html, body, [data-testid="stAppViewContainer"] {
     background: linear-gradient(
       180deg,
