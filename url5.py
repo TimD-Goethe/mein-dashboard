@@ -169,7 +169,7 @@ focal_words = df.loc[df["company"] == company, "words"].iat[0]
 # 8. Main-Bereich: Header + Trennstrich + Content-Spalten
 # --------------------------------------------------------------------
 with main:
-    ith main:
+    with main:
     # 5.1 Header + Subtext
     header_col, _ = st.columns([3, 1], gap="large")
     with header_col:
