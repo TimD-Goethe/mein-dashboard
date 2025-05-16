@@ -68,7 +68,7 @@ with left:
         "Select a company:",
         options=company_list,
         index=default_idx,
-        key="company",
+        key="company_seletcor",
     )
 
     # Prüfen, ob Market_Cap_Cat für diese Firma existiert
