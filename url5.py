@@ -163,7 +163,7 @@ with right:
         "Standardized Language": "Average count of frequently used tetragrams" ,
         "Language Complexity": "Fog-Index, an aggregate measure of readability where higher values suggest more complex and technical language - which may be appropriate in professional sustainability disclosures.",
         "Sentiment": "Average number of positive and negative words per 500 words",
-        "Peer Company List",
+        "Peer Company List"
     }
 
     # Und zeige diese Erklärung direkt unter dem Radio:
