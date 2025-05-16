@@ -16,40 +16,19 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* Eltern-Container der drei Spalten */
-      [data-testid="stAppViewContainer"] > div > div:nth-child(2) > div {
-        display: flex;
+      /* 1) Alle Columns anpeilen */
+      [data-testid="column"] {
+        /* Reseten, falls notwendig */
+        background-color: transparent !important;
+        box-shadow: none !important;
       }
-      /* Erste und dritte Spalte (links & rechts) einfärben */
-      [data-testid="stAppViewContainer"] > div > div:nth-child(2) > div > div:nth-child(1),
-      [data-testid="stAppViewContainer"] > div > div:nth-child(2) > div > div:nth-child(3) {
-        background-color: #E3DFFF;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+      /* 2) Nur 1. und 3. Column einfärben */
+      [data-testid="column"]:nth-of-type(1),
+      [data-testid="column"]:nth-of-type(3) {
+        background-color: #F3E8FF !important;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1) !important;
         border-radius: 0.5rem;
         padding: 1rem;
-      }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.markdown(
-    """
-    <style>
-      /* 0) Toolbar komplett ausblenden */
-      [data-testid="stToolbar"] {
-        visibility: hidden !important;
-        height: 0 !important;
-        overflow: hidden !important;
-      }
-      /* 1) Full-page Gradient auf den App-Hintergrund */
-      html, body, [data-testid="stAppViewContainer"], .block-container {
-        background: linear-gradient(
-          180deg,
-          #E3DFFF 0%,
-          #E3DFFF 60%,
-          #FFFFFF 100%
-        ) !important;
       }
     </style>
     """,
