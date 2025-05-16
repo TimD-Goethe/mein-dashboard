@@ -16,8 +16,8 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* Nur den Hamburger-Button (collapsedControl) verstecken, nicht die ganze Toolbar */
-      button[data-testid="collapsedControl"] {
+      /* Die gesamte obere Toolbar (Share, Stern, GitHub etc.) ausblenden */
+      [data-testid="stToolbar"] {
         display: none !important;
       }
 
@@ -34,7 +34,7 @@ st.markdown(
         border-radius: 0.5rem;
         padding: 1rem;
       }
-      /* Mittlere Column transparent lassen (Gradient kommt vom Body) */
+      /* Mittlere Column transparent lassen (Gradient kommt aufs body) */
       [data-testid="stColumn"]:nth-of-type(2) {
         background-color: transparent !important;
         box-shadow: none !important;
