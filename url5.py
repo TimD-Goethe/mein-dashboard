@@ -177,7 +177,7 @@ with right:
         "sep3":"––––––––––––––––",
         "lang_std":"Standardized Language",
         "lang_cplx":"Complex Language",
-        "tone":"Tone",
+        "tone":"Sentiment",
     }
 
     view = st.radio(
