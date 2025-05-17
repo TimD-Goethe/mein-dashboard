@@ -1177,7 +1177,7 @@ with main:
                 focal_neg = df.loc[df["company"] == company, "words_neg_500"].iat[0]
                                 
                 st.write("Histogram of positive words")
-                fig_h1 = px.histogram(benchmark_df, x="words_pos", nbins=20,
+                fig_h1 = px.histogram(benchmark_df, x="words_pos_500", nbins=20,
                                      )
     
                 # Peer Average als vertikale Linie mit Beschriftung
@@ -1206,7 +1206,7 @@ with main:
                 st.plotly_chart(fig_h1, use_container_width=True)
                 
                 st.write("Histogram of negative words")
-                fig_h2 = px.histogram(benchmark_df, x="words_neg", nbins=20)
+                fig_h2 = px.histogram(benchmark_df, x="words_neg_500", nbins=20)
         
                 # Peer Average als vertikale Linie mit Beschriftung
                 fig_h2.add_vline(
