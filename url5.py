@@ -1334,7 +1334,257 @@ with main:
             st.caption("Number of tables per 500 words in companies’ sustainability reports.")
 
 
-    
+        elif view == "Images":
+            st.subheader(f"Image Size per 500 Words ({benchmark_label})")
+        
+            # Peer- und Focal-Werte berechnen
+            mean_img = benchmark_df["imgsize_500"].mean()
+            focal_img = df.loc[df["company"] == company, "imgsize_500"].iat[0]
+        
+            if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+                # 1) Focal Country ermitteln
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+        
+                # 2) Länder-Durchschnitt vorbereiten
+                country_avg = (
+                    df
+                    .groupby("country")["imgsize_500"]
+                    .mean()
+                    .reset_index(name="ImgSize_per_500")
+                )
+        
+                overall_avg = country_avg["ImgSize_per_500"].mean()
+                focal_avg   = country_avg.loc[country_avg["country"] == focal_country, "ImgSize_per_500"].iat[0]
+        
+                # 3) Histogramm aller Länder-Durchschnitte
+                fig = px.histogram(
+                    country_avg,
+                    x="ImgSize_per_500",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"ImgSize_per_500": "Image Size per 500 Words"},
+                )
+                fig.update_traces(marker_color="#1f77b4")
+        
+                # 4) V-Line Overall Avg
+                fig.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>All Countries Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_size=14,
+                )
+                # 5) V-Line Focal Country
+                fig.add_vline(
+                    x=focal_avg,
+                    line_dash="dash",
+                    line_color="red",
+                    line_width=2,
+                    annotation_text=f"<b>{focal_country} Avg</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=14,
+                )
+        
+                # 6) Layout
+                fig.update_layout(
+                    showlegend=False,
+                    xaxis_title="Image Size per 500 Words",
+                    yaxis_title="Number of Countries",
+                    bargap=0.1,
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+            elif plot_type == "Histogram":
+                # Benchmark_df verwenden, um sicher imgsize_500 zu haben
+                fig = px.histogram(
+                    benchmark_df,
+                    x="imgsize_500",
+                    nbins=20,
+                    labels={"imgsize_500": "Image Size per 500 Words"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+        
+                # Peer Average
+                fig.add_vline(
+                    x=mean_img,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=1,
+                    opacity=0.6,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                # Focal Company
+                fig.add_vline(
+                    x=focal_img,
+                    line_dash="dash",
+                    line_color="red",
+                    opacity=0.8,
+                    annotation_text=f"<b>{company}</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16
+                )
+        
+                fig.update_layout(
+                    xaxis_title="Image Size per 500 Words",
+                    yaxis_title="Number of Companies"
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
+                # 1) Focal Country
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+        
+                # 2) Länder-Durchschnitt (ImgSize_per_500)
+                country_avg = (
+                    df
+                    .groupby("country")["imgsize_500"]
+                    .mean()
+                    .reset_index(name="ImgSize_per_500")
+                    .sort_values("ImgSize_per_500", ascending=False)
+                )
+        
+                # 3) Kürze Ländernamen für Y-Achse
+                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
+                y_order = country_avg["country_short"].tolist()
+        
+                # 4) Highlight-Spalte
+                country_avg["highlight"] = np.where(
+                    country_avg["country"] == focal_country,
+                    country_avg["country_short"],
+                    "Other Countries"
+                )
+        
+                # 5) Erstes horizontales Balkendiagramm: alle Länder
+                fig_ctry = px.bar(
+                    country_avg,
+                    x="ImgSize_per_500",
+                    y="country_short",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
+                    category_orders={"country_short": y_order},
+                    labels={"ImgSize_per_500": "Image Size per 500 Words", "country_short": ""}
+                )
+                # Peer-Average als Linie
+                overall_avg = country_avg["ImgSize_per_500"].mean()
+                fig_ctry.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                # Werte außen anzeigen
+                fig_ctry.update_traces(texttemplate="%{x:.2f}", textposition="outside", cliponaxis=False)
+                fig_ctry.update_layout(showlegend=False, xaxis_title="Image Size per 500 Words")
+        
+                st.plotly_chart(fig_ctry, use_container_width=True)
+        
+                # -------------------------------------------------------
+                # 6) Kompaktvergleich: Focal Country vs. Other Countries
+                # -------------------------------------------------------
+                focal_avg = (
+                    country_avg
+                    .loc[country_avg["country"] == focal_country, "ImgSize_per_500"]
+                    .iat[0]
+                )
+                other_avg = (
+                    country_avg
+                    .loc[country_avg["country"] != focal_country, "ImgSize_per_500"]
+                    .mean()
+                )
+        
+                comp_df = pd.DataFrame({
+                    "Group":            [focal_country, "Other Countries"],
+                    "ImgSize_per_500":  [focal_avg,      other_avg]
+                })
+        
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="ImgSize_per_500",
+                    text="ImgSize_per_500",
+                    color="Group",
+                    color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
+                    labels={"ImgSize_per_500": "Image Size per 500 Words", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
+        
+                st.subheader(f"{focal_country} vs. Other Countries")
+                st.plotly_chart(fig_cmp, use_container_width=True)
+        
+            elif plot_type == "Bar Chart":
+                # 1) Peer-Detail-Chart
+                peers_df = plot_df.sort_values("imgsize_500", ascending=False)
+                peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
+                y_order_short = peers_df["company_short"].tolist()[::-1]
+        
+                fig2 = px.bar(
+                    peers_df,
+                    x="imgsize_500",
+                    y="company_short",
+                    orientation="h",
+                    color="highlight_label",
+                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
+                    labels={"imgsize_500": "Image Size per 500 Words", "company_short": "Company", "highlight_label": ""},
+                    category_orders={"company_short": y_order_short}
+                )
+                fig2.add_vline(
+                    x=mean_img,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig2.update_layout(
+                    showlegend=True,
+                    legend_title_text="",
+                    yaxis={"categoryorder": "array", "categoryarray": y_order_short}
+                )
+                st.plotly_chart(fig2, use_container_width=True)
+        
+                comp_df = pd.DataFrame({
+                    "Group":            [company, "Peer Average"],
+                    "ImgSize_per_500":  [focal_img, mean_img]
+                })
+        
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="ImgSize_per_500",
+                    text="ImgSize_per_500",
+                    color="Group",
+                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
+                    labels={"ImgSize_per_500": "Image Size per 500 Words", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
+        
+                st.subheader("Peer vs. Company Image Size per 500 Words")
+                st.plotly_chart(fig_cmp, use_container_width=True)
+        
+            # Fußnote
+            st.caption("Total image file size (in KB) per 500 words of companies’ sustainability reports.")
+        
     
         elif view == "Sentiment":
             
