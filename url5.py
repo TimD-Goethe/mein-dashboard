@@ -978,31 +978,37 @@ with main:
                 fig_ctry.update_layout(showlegend=False, xaxis_title="Tables per 500 Words")
                 st.plotly_chart(fig_ctry, use_container_width=True)
 
+                # 7) Kompaktvergleich: Focal Country vs. Other Countries
+                #    berechne das Mittel aller anderen Länder
+                other_avg = (
+                    country_avg
+                    .loc[country_avg["country"] != focal_country, "Tables_per_500"]
+                    .mean()
+                )
+            
                 comp_df = pd.DataFrame({
-                    "Group": [company, "Peer Average"],
-                    "Tables_per_500": [focal_tables, mean_tables]
+                    "Group":       [focal_country, "Other Countries"],
+                    "Tables_per_500": [focal_avg,     other_avg]
                 })
-                
+            
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
                     y="Tables_per_500",
                     text="Tables_per_500",
                     color="Group",
-                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
+                    color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
                     labels={"Tables_per_500": "Tables per 500 Words", "Group": ""}
                 )
-                
-                # Sorge dafür, dass Dein Unternehmen links steht:
+                # Sorge dafür, dass das Focal Country links steht
                 fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
                     showlegend=False
                 )
-                
                 # Werte außen anzeigen
                 fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
-                
-                st.subheader("Peer vs. Company Tables per 500 Words")
+            
+                st.subheader(f"{focal_country} vs. Other Countries")
                 st.plotly_chart(fig_cmp, use_container_width=True)
         
             elif plot_type == "Bar Chart":
