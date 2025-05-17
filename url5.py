@@ -887,15 +887,16 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
         
             elif plot_type == "Histogram":
-                # Einfaches Histogramm aller Unternehmen
+                # nimm benchmark_df statt plot_df, da es dort sicher nums_500 gibt
                 fig = px.histogram(
-                    plot_df,
+                    benchmark_df,
                     x="nums_500",
                     nbins=20,
-                    labels={"nums_500": "Numbers per 500 Words", "_group": "Group"}
+                    labels={"nums_500": "Numbers per 500 Words"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
-                # Peer-Average
+            
+                # Peer Average
                 fig.add_vline(
                     x=mean_nums,
                     line_dash="dash",
@@ -916,8 +917,9 @@ with main:
                     annotation_text=f"<b>{company}</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=16,
+                    annotation_font_size=16
                 )
+            
                 fig.update_layout(
                     xaxis_title="Numbers per 500 Words",
                     yaxis_title="Number of Companies"
