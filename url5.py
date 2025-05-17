@@ -832,13 +832,13 @@ with main:
                 # 1) Länder-Durchschnitte berechnen
                 country_avg = (
                     df
-                    .groupby("country")[["words_pos", "words_neg"]]
+                    .groupby("country")[["words_pos_500", "words_neg_500"]]
                     .mean()
                     .reset_index()
                 )
             
                 # 2) Für positive Wörter: sortieren & highlight-Spalte
-                pos_ctry = country_avg.sort_values("words_pos", ascending=False)
+                pos_ctry = country_avg.sort_values("words_pos_500", ascending=False)
                 pos_ctry["highlight"] = np.where(
                     pos_ctry["country"] == focal_country,
                     focal_country,
@@ -852,7 +852,7 @@ with main:
                 # 3) Bar Chart positive Wörter pro Land
                 fig_pos = px.bar(
                     pos_ctry,
-                    x="words_pos",
+                    x="words_pos_500",
                     y="country",
                     orientation="h",
                     color="highlight",
@@ -861,10 +861,10 @@ with main:
                         "Other Countries": "#1f77b4"
                     },
                     category_orders={"country": y_order_pos},
-                    labels={"words_pos": "# Positive Words", "country": ""}
+                    labels={"words_pos_500": "# Positive Words", "country": ""}
                 )
                 # Peer-Average (aller Länder) als schwarze Linie
-                overall_pos = country_avg["words_pos"].mean()
+                overall_pos = country_avg["words_pos_500"].mean()
                 fig_pos.add_vline(
                     x=overall_pos,
                     line_dash="dash",
@@ -880,7 +880,7 @@ with main:
             
             
                 # 4) Dasselbe für negative Wörter
-                neg_ctry = country_avg.sort_values("words_neg", ascending=False)
+                neg_ctry = country_avg.sort_values("words_neg_500", ascending=False)
                 neg_ctry["highlight"] = np.where(
                     neg_ctry["country"] == focal_country,
                     focal_country,
@@ -893,7 +893,7 @@ with main:
             
                 fig_neg = px.bar(
                     neg_ctry,
-                    x="words_neg",
+                    x="words_neg_500",
                     y="country",
                     orientation="h",
                     color="highlight",
@@ -902,9 +902,9 @@ with main:
                         "Other Countries": "#1f77b4"
                     },
                     category_orders={"country": y_order_neg},
-                    labels={"words_neg": "# Negative Words", "country": ""}
+                    labels={"words_neg_500": "# Negative Words", "country": ""}
                 )
-                overall_neg = country_avg["words_neg"].mean()
+                overall_neg = country_avg["words_neg_500"].mean()
                 fig_neg.add_vline(
                     x=overall_neg,
                     line_dash="dash",
@@ -920,10 +920,10 @@ with main:
             
             
                 # 5) Kompaktvergleich: focal country vs alle anderen
-                focal_pos = country_avg.loc[country_avg["country"] == focal_country, "words_pos"].iat[0]
-                focal_neg = country_avg.loc[country_avg["country"] == focal_country, "words_neg"].iat[0]
-                other_pos = country_avg.loc[country_avg["country"] != focal_country, "words_pos"].mean()
-                other_neg = country_avg.loc[country_avg["country"] != focal_country, "words_neg"].mean()
+                focal_pos = country_avg.loc[country_avg["country"] == focal_country, "words_pos_500"].iat[0]
+                focal_neg = country_avg.loc[country_avg["country"] == focal_country, "words_neg_500"].iat[0]
+                other_pos = country_avg.loc[country_avg["country"] != focal_country, "words_pos_500"].mean()
+                other_neg = country_avg.loc[country_avg["country"] != focal_country, "words_neg_500"].mean()
             
                 comp_df = pd.DataFrame({
                     "Group": [focal_country, "Other Countries"],
@@ -957,24 +957,24 @@ with main:
                 # 2) Länder-Durchschnitte vorbereiten
                 country_avg = (
                     df
-                    .groupby("country")[["words_pos", "words_neg"]]
+                    .groupby("country")[["words_pos_500", "words_neg_500"]]
                     .mean()
                     .reset_index()
                 )
                 # Gesamt-Mittelwerte
-                overall_pos = country_avg["words_pos"].mean()
-                overall_neg = country_avg["words_neg"].mean()
+                overall_pos = country_avg["words_pos_500"].mean()
+                overall_neg = country_avg["words_neg_500"].mean()
                 # Fokus-Land-Mittelwerte
-                focal_pos   = country_avg.loc[country_avg["country"] == focal_country, "words_pos"].iat[0]
-                focal_neg   = country_avg.loc[country_avg["country"] == focal_country, "words_neg"].iat[0]
+                focal_pos   = country_avg.loc[country_avg["country"] == focal_country, "words_pos_500"].iat[0]
+                focal_neg   = country_avg.loc[country_avg["country"] == focal_country, "words_neg_500"].iat[0]
             
                 # 3) Histogramm für alle Länder-Durchschnitte (überlagert, dunkelblau)
                 fig_hist = px.histogram(
                     country_avg,
-                    x="words_pos",
+                    x="words_pos_500",
                     nbins=20,
                     opacity=0.8,
-                    labels={"words_pos": "# Positive Words"},
+                    labels={"words_pos_500": "# Positive Words"},
                 )
                 fig_hist.update_traces(marker_color="#1f77b4")
                 # Fokus-Land als rote Linie
@@ -1011,10 +1011,10 @@ with main:
                 # 4) Dasselbe noch für negative Wörter
                 fig_hist2 = px.histogram(
                     country_avg,
-                    x="words_neg",
+                    x="words_neg_500",
                     nbins=20,
                     opacity=0.8,
-                    labels={"words_neg": "# Negative Words"},
+                    labels={"words_neg_500": "# Negative Words"},
                 )
                 fig_hist2.update_traces(marker_color="#1f77b4")
                 fig_hist2.add_vline(
@@ -1024,7 +1024,7 @@ with main:
                     line_width=2,
                     annotation_text=f"<b>{focal_country} Avg Neg</b>",
                     annotation_position="bottom left",
-                    annotation_font_size=14,
+                    annotation_font_size=16,
                 )
                 fig_hist2.add_vline(
                     x=overall_neg,
@@ -1033,7 +1033,7 @@ with main:
                     line_width=2,
                     annotation_text="<b>All Countries Avg Neg</b>",
                     annotation_position="top right",
-                    annotation_font_size=14,
+                    annotation_font_size=16,
                 )
                 fig_hist2.update_layout(
                     showlegend=False,
@@ -1049,7 +1049,7 @@ with main:
                 # --- Positive Words -----------------------
                 st.subheader("Positive Words")
             
-                pos_df = benchmark_df.sort_values("words_pos", ascending=False)
+                pos_df = benchmark_df.sort_values("words_pos_500", ascending=False)
             
                 # Highlight-Spalte
                 pos_df["highlight_label"] = np.where(
@@ -1064,7 +1064,7 @@ with main:
                 # 2) Plot bauen gegen company_short
                 fig_pos = px.bar(
                     pos_df,
-                    x="words_pos",
+                    x="words_pos_500",
                     y="company_short",                        # <<< hier die Kurzspalte
                     orientation="h",
                     color="highlight_label",
@@ -1082,7 +1082,7 @@ with main:
                 )
             
                 # Peer-Average‐Linie
-                mean_pos = pos_df["words_pos"].mean()
+                mean_pos = pos_df["words_pos_500"].mean()
                 fig_pos.add_vline(
                     x=mean_pos,
                     line_dash="dash",
@@ -1098,7 +1098,7 @@ with main:
                 # --- Negative Words -----------------------
                 st.subheader("Negative Words")
             
-                neg_df = benchmark_df.sort_values("words_neg", ascending=False)
+                neg_df = benchmark_df.sort_values("words_neg_500", ascending=False)
             
                 # Highlight-Spalte
                 neg_df["highlight_label"] = np.where(
@@ -1113,7 +1113,7 @@ with main:
                 # 2) Plot bauen gegen company_short
                 fig_neg = px.bar(
                     neg_df,
-                    x="words_neg",
+                    x="words_neg_500",
                     y="company_short",                        # <<< hier die Kurzspalte
                     orientation="h",
                     color="highlight_label",
@@ -1122,7 +1122,7 @@ with main:
                         company: "#E10600",
                     },
                     labels={
-                        "words_neg":    "# Negative Words",
+                        "words_neg_500":    "# Negative Words",
                         "company_short":"Company",
                         "highlight_label":""
                     },
@@ -1131,7 +1131,7 @@ with main:
                 )
             
                 # Peer-Average‐Linie
-                mean_neg = neg_df["words_neg"].mean()
+                mean_neg = neg_df["words_neg_500"].mean()
                 fig_neg.add_vline(
                     x=mean_neg,
                     line_dash="dash",
@@ -1144,10 +1144,10 @@ with main:
             
                 st.plotly_chart(fig_neg, use_container_width=True)
             
-                mean_pos  = benchmark_df["words_pos"].mean()
-                focal_pos = df.loc[df["company"] == company, "words_pos"].iat[0]
-                mean_neg  = benchmark_df["words_neg"].mean()
-                focal_neg = df.loc[df["company"] == company, "words_neg"].iat[0]
+                mean_pos  = benchmark_df["words_pos_500"].mean()
+                focal_pos = df.loc[df["company"] == company, "words_pos_500"].iat[0]
+                mean_neg  = benchmark_df["words_neg_500"].mean()
+                focal_neg = df.loc[df["company"] == company, "words_neg_500"].iat[0]
     
                 
                 st.subheader("Peer vs. Company Sentiment")
@@ -1171,10 +1171,10 @@ with main:
     
             elif plot_type == "Histogram":
                 
-                mean_pos  = benchmark_df["words_pos"].mean()
-                focal_pos = df.loc[df["company"] == company, "words_pos"].iat[0]
-                mean_neg  = benchmark_df["words_neg"].mean()
-                focal_neg = df.loc[df["company"] == company, "words_neg"].iat[0]
+                mean_pos  = benchmark_df["words_pos_500"].mean()
+                focal_pos = df.loc[df["company"] == company, "words_pos_500"].iat[0]
+                mean_neg  = benchmark_df["words_neg_500"].mean()
+                focal_neg = df.loc[df["company"] == company, "words_neg_500"].iat[0]
                                 
                 st.write("Histogram of positive words")
                 fig_h1 = px.histogram(benchmark_df, x="words_pos", nbins=20,
