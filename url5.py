@@ -927,9 +927,10 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
         
             elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
-                # 1) Focal Country
+                # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
-                # 2) Länderdurchschnitt
+        
+                # 2) Länder-Durchschnitt (Tables_per_500)
                 country_avg = (
                     df
                     .groupby("country")["tables_500"]
@@ -937,16 +938,19 @@ with main:
                     .reset_index(name="Tables_per_500")
                     .sort_values("Tables_per_500", ascending=False)
                 )
-                # 3) Kurzlabel
+        
+                # 3) Kürze Ländernamen für die Y-Achse
                 country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
                 y_order = country_avg["country_short"].tolist()
-                # 4) Highlight
+        
+                # 4) Highlight-Spalte für Focal Country
                 country_avg["highlight"] = np.where(
                     country_avg["country"] == focal_country,
                     country_avg["country_short"],
                     "Other Countries"
                 )
-                # 5) Bar Chart
+        
+                # 5) Erstes horizontales Balkendiagramm: alle Länder
                 fig_ctry = px.bar(
                     country_avg,
                     x="Tables_per_500",
@@ -957,8 +961,8 @@ with main:
                     category_orders={"country_short": y_order},
                     labels={"Tables_per_500": "Tables per 500 Words", "country_short": ""}
                 )
-                # Peer-Average-Linie
-                overall_avg = df["tables_500"].mean()
+                # Peer-Average als Linie
+                overall_avg = country_avg["Tables_per_500"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -970,27 +974,34 @@ with main:
                     annotation_font_size=16
                 )
                 # Werte außen anzeigen
-                fig_ctry.update_traces(
-                    texttemplate="%{x:.1f}",
-                    textposition="outside",
-                    cliponaxis=False
-                )
+                fig_ctry.update_traces(texttemplate="%{x:.1f}", textposition="outside", cliponaxis=False)
                 fig_ctry.update_layout(showlegend=False, xaxis_title="Tables per 500 Words")
+        
                 st.plotly_chart(fig_ctry, use_container_width=True)
-
-                # 7) Kompaktvergleich: Focal Country vs. Other Countries
-                #    berechne das Mittel aller anderen Länder
+        
+                # -------------------------------------------------------
+                # 6) Kompaktvergleich: Focal Country vs. Other Countries
+                #    (zwei Balken nebeneinander)
+                # -------------------------------------------------------
+        
+                # focal_avg aus country_avg holen
+                focal_avg = (
+                    country_avg
+                    .loc[country_avg["country"] == focal_country, "Tables_per_500"]
+                    .iat[0]
+                )
+                # other_avg über alle Länder außer Focal Country
                 other_avg = (
                     country_avg
                     .loc[country_avg["country"] != focal_country, "Tables_per_500"]
                     .mean()
                 )
-            
+        
                 comp_df = pd.DataFrame({
-                    "Group":       [focal_country, "Other Countries"],
-                    "Tables_per_500": [focal_avg,     other_avg]
+                    "Group":           [focal_country, "Other Countries"],
+                    "Tables_per_500":  [focal_avg,      other_avg]
                 })
-            
+        
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
@@ -1000,14 +1011,13 @@ with main:
                     color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
                     labels={"Tables_per_500": "Tables per 500 Words", "Group": ""}
                 )
-                # Sorge dafür, dass das Focal Country links steht
+                # Focal Country links, Other Countries rechts
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
                     showlegend=False
                 )
-                # Werte außen anzeigen
                 fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
-            
+        
                 st.subheader(f"{focal_country} vs. Other Countries")
                 st.plotly_chart(fig_cmp, use_container_width=True)
         
