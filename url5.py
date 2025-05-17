@@ -828,7 +828,7 @@ with main:
         elif view == "Words per ESRS standard":
             st.subheader(f"Words per ESRS standard ({benchmark_label})")
         
-            # 1) Topics-Mapping für Legende
+            # 1) Topics-Mapping für die Legende
             topic_map = {
                 'affected':       'S3: Affected communities',
                 'biodiversity':   'E4: Biodiversity',
@@ -842,50 +842,50 @@ with main:
                 'water':          'E3: Water',
                 'workersvalchain':'S2: Value chain workers'
             }
-        
-            # 2) Wähle nur die Spalten mit weighted_pct (sie wurden vorher berechnet)
+            
+            # 2) pct-Spalten ermitteln (die Du zuvor erzeugt hast)
             pct_cols = [c for c in benchmark_df.columns if c.endswith('_pct')]
             
-            # 3) Baue DataFrame fürs Plotten: ISIN, highlight_label, und only die pct-Spalten
-            plot_pct = benchmark_df[['company', 'highlight_label'] + pct_cols].copy()
-        
-            # 4) Melt in long-Form für Plotly
+            # 3) DataFrame fürs Plotten aufbauen: company + pct-Spalten
+            plot_pct = benchmark_df[['company'] + pct_cols].copy()
+            
+            # 4) in Long-Format bringen
             plot_long = plot_pct.melt(
-                id_vars=['company','highlight_label'],
+                id_vars=['company'],
                 value_vars=pct_cols,
                 var_name='topic_internal',
                 value_name='pct'
             )
-            # clean topic name
             plot_long['topic'] = plot_long['topic_internal'].str.replace('_pct','')
             plot_long['topic_label'] = plot_long['topic'].map(topic_map)
-        
-            # 5) Gruppiere nach Highlight (Peers vs. Company) und Topic, berechne den Mittelwert
+            
+            # 5) Durchschnittlichen pct-Wert pro (Company, Topic) berechnen
+            #    (sollte schon summiert auf 1 sein, aber wir nehmen hier zur Sicherheit mean())
             avg_df = (
                 plot_long
-                .groupby(['highlight_label','topic_label'])['pct']
-                .mean()
+                .groupby(['company','topic_label'])['pct']
+                .mean()  
                 .reset_index()
             )
-        
-            # 6) Plotly stacked bar
+            
+            # 6) Plotly 100 % Stacked Bars: eine Zeile pro company
             fig = px.bar(
                 avg_df,
                 x='pct',
-                y='highlight_label',
+                y='company',
                 color='topic_label',
                 orientation='h',
                 text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%"),
-                category_orders={'highlight_label': ['Peers', company]},
-                labels={'pct':'%', 'highlight_label':''},
-                color_discrete_sequence=px.colors.qualitative.Safe  # oder Deine Wunsch-Palette
+                labels={'pct':'Share','company':''},
+                color_discrete_sequence=px.colors.qualitative.Safe
             )
+            
             fig.update_layout(
-                barmode='stack',
-                xaxis_tickformat=',.0%',
-                legend_title_text='ESRS Topic',
-                yaxis={'categoryorder':'array','categoryarray':['Peers',company]}
+                barmode='stack',                          # gestapelte Balken
+                xaxis_tickformat=',.0%',                  # Format in Prozent
+                yaxis={'categoryorder':'total descending'}  # sortiere nach Gesamtsumme
             )
+            
             st.plotly_chart(fig, use_container_width=True)
 
         elif view == "Numbers":
