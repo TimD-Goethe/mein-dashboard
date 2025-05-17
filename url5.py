@@ -977,6 +977,33 @@ with main:
                 )
                 fig_ctry.update_layout(showlegend=False, xaxis_title="Tables per 500 Words")
                 st.plotly_chart(fig_ctry, use_container_width=True)
+
+                comp_df = pd.DataFrame({
+                    "Group": [company, "Peer Average"],
+                    "Tables_per_500": [focal_tables, mean_tables]
+                })
+                
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="Tables_per_500",
+                    text="Tables_per_500",
+                    color="Group",
+                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
+                    labels={"Tables_per_500": "Tables per 500 Words", "Group": ""}
+                )
+                
+                # Sorge dafür, dass Dein Unternehmen links steht:
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                    showlegend=False
+                )
+                
+                # Werte außen anzeigen
+                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                
+                st.subheader("Peer vs. Company Tables per 500 Words")
+                st.plotly_chart(fig_cmp, use_container_width=True)
         
             elif plot_type == "Bar Chart":
                 # 1) Peer-Detail-Chart
