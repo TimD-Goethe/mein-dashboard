@@ -1841,10 +1841,16 @@ with main:
         
                 fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
                               annotation_text="<b>All Sectors Avg</b>",
-                              annotation_position="top right")
+                              annotation_position="top right",
+                              annotation_font_color="black",
+                              annotation_font_size=16
+                             )
                 fig.add_vline(x=focal_avg,   line_dash="dash", line_color="red",
                               annotation_text=f"<b>{focal_super} Avg</b>",
-                              annotation_position="bottom left")
+                              annotation_position="bottom left",
+                              annotation_font_color="red",
+                              annotation_font_size=16
+                             )
         
                 fig.update_layout(showlegend=False,
                                   xaxis_title="Count of Tables per 500 words",
@@ -1886,7 +1892,10 @@ with main:
                 fig_s.add_vline(x=sector_avg["Tables per 500"].mean(),
                                 line_dash="dash", line_color="black",
                                 annotation_text="<b>All Sectors Avg</b>",
-                                annotation_position="bottom right")
+                                annotation_position="bottom right",
+                                annotation_font_color="black",
+                                annotation_font_size=16
+                               )
                 fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
                 fig_s.update_layout(showlegend=False, xaxis_title="Count of Tables per 500 words")
                 st.plotly_chart(fig_s, use_container_width=True)
@@ -2081,46 +2090,7 @@ with main:
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
-            elif plot_type == "Histogram":
-                # Benchmark_df verwenden, um sicher imgsize_500 zu haben
-                fig = px.histogram(
-                    benchmark_df,
-                    x="imgsize_500",
-                    nbins=20,
-                    labels={"imgsize_500": "Image Size per 500 Words"}
-                )
-                fig.update_traces(marker_color="#1f77b4")
-        
-                # Peer Average
-                fig.add_vline(
-                    x=mean_img,
-                    line_dash="dash",
-                    line_color="black",
-                    line_width=1,
-                    opacity=0.6,
-                    annotation_text="<b>Peer Average</b>",
-                    annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16
-                )
-                # Focal Company
-                fig.add_vline(
-                    x=focal_img,
-                    line_dash="dash",
-                    line_color="red",
-                    opacity=0.8,
-                    annotation_text=f"<b>{company}</b>",
-                    annotation_position="bottom left",
-                    annotation_font_color="red",
-                    annotation_font_size=16
-                )
-        
-                fig.update_layout(
-                    xaxis_title="Image Size per 500 Words",
-                    yaxis_title="Number of Companies"
-                )
-                st.plotly_chart(fig, use_container_width=True)
-        
+                    
             elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
                 # 1) Focal Country
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
@@ -2210,6 +2180,155 @@ with main:
         
                 st.subheader(f"{focal_country} vs. Other Countries")
                 st.plotly_chart(fig_cmp, use_container_width=True)
+
+
+            # 1) Histogramm aller Supersector-Durchschnitte
+            if benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+                sector_avg = (
+                    df
+                    .groupby("supersector")["imgsize_500"]
+                    .mean()
+                    .reset_index(name="ImgArea per 500")
+                )
+                fig = px.histogram(
+                    sector_avg,
+                    x="ImgArea per 500",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"ImgArea per 500": "Average image area per 500 words"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+        
+                # Linien für All vs. Focal Supersector
+                overall_avg = sector_avg["ImgArea per 500"].mean()
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "ImgArea per 500"].iat[0]
+        
+                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
+                              annotation_text="<b>All Sectors Avg</b>", 
+                              annotation_position="top right",
+                              annotation_font_color="black",
+                              annotation_font_size=16
+                             )
+                fig.add_vline(x=focal_avg,   line_dash="dash", line_color="red",
+                              annotation_text=f"<b>{focal_super} Avg</b>", 
+                              annotation_position="bottom left",
+                              annotation_font_color="black",
+                              annotation_font_size=16
+                             )
+        
+                fig.update_layout(showlegend=False,
+                                  xaxis_title="Average image area per 500 words",
+                                  yaxis_title="Number of Sectors",
+                                  bargap=0.1)
+                st.plotly_chart(fig, use_container_width=True)
+        
+        
+            # 2) Bar-Chart aller Supersektoren
+            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+                sector_avg = (
+                    df
+                    .groupby("supersector")["imgsize_500"]
+                    .mean()
+                    .reset_index(name="ImgArea per 500")
+                ).sort_values("ImgArea per 500", ascending=False)
+        
+                # auf 15 Zeichen kürzen
+                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
+                y_order = sector_avg["sector_short"].tolist()
+        
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                sector_avg["highlight"] = np.where(
+                    sector_avg["supersector"] == focal_super,
+                    sector_avg["sector_short"],
+                    "Other sectors"
+                )
+        
+                fig_s = px.bar(
+                    sector_avg,
+                    x="ImgArea per 500",
+                    y="sector_short",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
+                    category_orders={"sector_short": y_order},
+                    labels={"sector_short": "", "ImgArea per 500": "Average image area per 500 words"}
+                )
+                fig_s.add_vline(x=sector_avg["ImgArea per 500"].mean(),
+                                line_dash="dash", line_color="black",
+                                annotation_text="<b>All Sectors Avg</b>",
+                                annotation_position="bottom right",
+                                annotation_font_color="black",
+                                annotation_font_size=16
+                               )
+                fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
+                fig_s.update_layout(showlegend=False, xaxis_title="Average image area per 500 words")
+                st.plotly_chart(fig_s, use_container_width=True)
+        
+                # 3) Kompakter Vergleich: focal vs. avg of others
+                focal_avg  = sector_avg.loc[sector_avg["supersector"] == focal_super, "ImgArea per 500"].iat[0]
+                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "ImgArea per 500"].mean()
+        
+                comp_df = pd.DataFrame({
+                    "Group": [focal_super, "Other sectors avg"],
+                    "ImgArea": [focal_avg, others_avg]
+                })
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="ImgArea",
+                    text="ImgArea",
+                    color="Group",
+                    color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
+                    labels={"ImgArea": "Average image area per 500 words", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_cmp, use_container_width=True)
+
+
+            elif plot_type == "Histogram":
+                # Benchmark_df verwenden, um sicher imgsize_500 zu haben
+                fig = px.histogram(
+                    benchmark_df,
+                    x="imgsize_500",
+                    nbins=20,
+                    labels={"imgsize_500": "Image Size per 500 Words"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+        
+                # Peer Average
+                fig.add_vline(
+                    x=mean_img,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=1,
+                    opacity=0.6,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                # Focal Company
+                fig.add_vline(
+                    x=focal_img,
+                    line_dash="dash",
+                    line_color="red",
+                    opacity=0.8,
+                    annotation_text=f"<b>{company}</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16
+                )
+        
+                fig.update_layout(
+                    xaxis_title="Image Size per 500 Words",
+                    yaxis_title="Number of Companies"
+                )
+                st.plotly_chart(fig, use_container_width=True)
         
             elif plot_type == "Bar Chart":
                 # 1) Peer-Detail-Chart
@@ -2854,115 +2973,202 @@ with main:
                 fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
             
                 st.plotly_chart(fig_cmp, use_container_width=True)
+
             
-            elif plot_type == "Histogram":
-                fig_fog = px.histogram(
-                    plot_df, x="fog", nbins=20,
-                    labels={"fog": "Fog Index"}
-                )
-                # Peer Average
-                fig_fog.add_vline(
-                    x=mean_fog,
-                    line_dash="dash", line_color="black", line_width=1, opacity=0.6,
-                    annotation_text="<b>Peer Average</b>",
-                    annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16,
-                )
-                # Focal Company
-                fig_fog.add_vline(
-                    x=focal_fog,
-                    line_dash="dash", line_color="red", opacity=0.8,
-                    annotation_text=f"<b>{company}</b>",
-                    annotation_position="bottom left",
-                    annotation_font_color="red",
-                    annotation_font_size=16,
-                )
-                fig_fog.update_layout(
-                    xaxis_title="Fog Index",
-                    yaxis_title="Number of Companies",
-                )
-                st.plotly_chart(fig_fog, use_container_width=True)
+
+            # —————————————————————————————————————————————————————————————————————————————————
+            # Between Sector Comparison für Fog-Index
+            # —————————————————————————————————————————————————————————————————————————————————
         
-            elif plot_type == "Bar Chart":
-                # 1) sortieren und Highlight-Spalte
-                peers_fog = plot_df.sort_values("fog", ascending=False)
-                peers_fog["highlight_label"] = np.where(
-                    peers_fog["company"] == company, company, "Peers"
+            if benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+                sector_avg = (
+                    df
+                    .groupby("supersector")["fog"]
+                    .mean()
+                    .reset_index(name="Fog-Index")
                 )
-            
-                # 2) Kurzspalte anlegen (max. 15 Zeichen)
-                peers_fog["company_short"] = peers_fog["company"].str.slice(0, 15)
-            
-                # 3) Reihenfolge für die Kurzspalte umdrehen
-                y_order_short = peers_fog["company_short"].tolist()[::-1]
-            
-                # 4) Bar Chart gegen company_short zeichnen
-                fig_fog_bar = px.bar(
-                    peers_fog,
-                    x="fog",
-                    y="company_short",                   # <<< Kurzspalte verwenden
+                fig = px.histogram(
+                    sector_avg,
+                    x="Fog-Index",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"Fog-Index": "Fog-Index"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+                overall_avg = sector_avg["Fog-Index"].mean()
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                focal_avg_sec = sector_avg.loc[sector_avg["supersector"] == focal_super, "Fog-Index"].iat[0]
+                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
+                              annotation_text="<b>All Sectors Avg</b>", annotation_position="top right")
+                fig.add_vline(x=focal_avg_sec, line_dash="dash", line_color="red",
+                              annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left")
+                fig.update_layout(showlegend=False, xaxis_title="Fog-Index", yaxis_title="Number of Sectors")
+                st.plotly_chart(fig, use_container_width=True)
+        
+            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+                sector_avg = (
+                    df
+                    .groupby("supersector")["fog"]
+                    .mean()
+                    .reset_index(name="Fog-Index")
+                ).sort_values("Fog-Index", ascending=False)
+                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
+                y_order = sector_avg["sector_short"].tolist()
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                sector_avg["highlight"] = np.where(
+                    sector_avg["supersector"] == focal_super,
+                    sector_avg["sector_short"],
+                    "Other sectors"
+                )
+                fig_s = px.bar(
+                    sector_avg,
+                    x="Fog-Index",
+                    y="sector_short",
                     orientation="h",
-                    color="highlight_label",
-                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={
-                        "fog":           "Fog Index",
-                        "company_short": "Company",
-                        "highlight_label": ""
-                    },
-                    category_orders={"company_short": y_order_short},
-                    hover_data=["company"]               # <<< Voller Name im Tooltip
+                    color="highlight",
+                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
+                    category_orders={"sector_short": y_order},
+                    labels={"sector_short": "", "Fog-Index": "Fog-Index"}
                 )
-            
-                # 5) Peer‐Average Linie
-                fig_fog_bar.add_vline(
-                    x=mean_fog,
-                    line_dash="dash",
-                    line_color="black",
-                    annotation_text="<b>Peer Average</b>",
-                    annotation_position="bottom right",
-                    annotation_font_color="black",
-                    annotation_font_size=16,
-                )
-            
-                # 6) Layout anpassen
-                fig_fog_bar.update_layout(
-                    showlegend=True,
-                    legend_title_text="",
-                    yaxis={
-                        "categoryorder": "array",
-                        "categoryarray": y_order_short
-                    },
-                )
-            
-                st.plotly_chart(fig_fog_bar, use_container_width=True)
-            
-                # --- Vergleichsbalken bleibt unverändert ---
-                comp_fog = pd.DataFrame({
-                    "Group": ["Peer Average", company],
-                    "Fog":   [mean_fog,      focal_fog],
+                fig_s.add_vline(x=sector_avg["Fog-Index"].mean(), line_dash="dash",
+                                line_color="black", annotation_text="<b>All Sectors Avg</b>",
+                                annotation_position="bottom right")
+                fig_s.update_traces(texttemplate="%{x:.1f}", textposition="outside", cliponaxis=False)
+                fig_s.update_layout(showlegend=False, xaxis_title="Fog-Index")
+                st.plotly_chart(fig_s, use_container_width=True)
+        
+                # Kompakter Vergleich: Focal Supersector vs. andere Sektoren avg
+                focal_avg_sec = sector_avg.loc[sector_avg["supersector"] == focal_super, "Fog-Index"].iat[0]
+                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "Fog-Index"].mean()
+                comp_df = pd.DataFrame({
+                    "Group": [focal_super, "Other sectors avg"],
+                    "Fog-Index": [focal_avg_sec, others_avg]
                 })
-                fig_fog_cmp = px.bar(
-                    comp_fog,
+                fig_cmp = px.bar(
+                    comp_df,
                     x="Group",
-                    y="Fog",
-                    text="Fog",
+                    y="Fog-Index",
+                    text="Fog-Index",
                     color="Group",
-                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"Fog": "Fog Index", "Group": ""}
+                    color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
+                    labels={"Fog-Index": "Fog-Index", "Group": ""}
                 )
-                fig_fog_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
                     showlegend=False
                 )
-                fig_fog_cmp.update_traces(
-                    texttemplate="%{text:.1f}",
-                    textposition="outside",
-                    width=0.5
-                )
-                st.plotly_chart(fig_fog_cmp, use_container_width=True)
-            
-                st.caption("Fog index (Gunning’s language complexity measure).")
+                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_cmp, use_container_width=True)
+                    
+                    
+                    elif plot_type == "Histogram":
+                        fig_fog = px.histogram(
+                            plot_df, x="fog", nbins=20,
+                            labels={"fog": "Fog Index"}
+                        )
+                        # Peer Average
+                        fig_fog.add_vline(
+                            x=mean_fog,
+                            line_dash="dash", line_color="black", line_width=1, opacity=0.6,
+                            annotation_text="<b>Peer Average</b>",
+                            annotation_position="top right",
+                            annotation_font_color="black",
+                            annotation_font_size=16,
+                        )
+                        # Focal Company
+                        fig_fog.add_vline(
+                            x=focal_fog,
+                            line_dash="dash", line_color="red", opacity=0.8,
+                            annotation_text=f"<b>{company}</b>",
+                            annotation_position="bottom left",
+                            annotation_font_color="red",
+                            annotation_font_size=16,
+                        )
+                        fig_fog.update_layout(
+                            xaxis_title="Fog Index",
+                            yaxis_title="Number of Companies",
+                        )
+                        st.plotly_chart(fig_fog, use_container_width=True)
+                
+                    elif plot_type == "Bar Chart":
+                        # 1) sortieren und Highlight-Spalte
+                        peers_fog = plot_df.sort_values("fog", ascending=False)
+                        peers_fog["highlight_label"] = np.where(
+                            peers_fog["company"] == company, company, "Peers"
+                        )
+                    
+                        # 2) Kurzspalte anlegen (max. 15 Zeichen)
+                        peers_fog["company_short"] = peers_fog["company"].str.slice(0, 15)
+                    
+                        # 3) Reihenfolge für die Kurzspalte umdrehen
+                        y_order_short = peers_fog["company_short"].tolist()[::-1]
+                    
+                        # 4) Bar Chart gegen company_short zeichnen
+                        fig_fog_bar = px.bar(
+                            peers_fog,
+                            x="fog",
+                            y="company_short",                   # <<< Kurzspalte verwenden
+                            orientation="h",
+                            color="highlight_label",
+                            color_discrete_map={company: "red", "Peers": "#1f77b4"},
+                            labels={
+                                "fog":           "Fog Index",
+                                "company_short": "Company",
+                                "highlight_label": ""
+                            },
+                            category_orders={"company_short": y_order_short},
+                            hover_data=["company"]               # <<< Voller Name im Tooltip
+                        )
+                    
+                        # 5) Peer‐Average Linie
+                        fig_fog_bar.add_vline(
+                            x=mean_fog,
+                            line_dash="dash",
+                            line_color="black",
+                            annotation_text="<b>Peer Average</b>",
+                            annotation_position="bottom right",
+                            annotation_font_color="black",
+                            annotation_font_size=16,
+                        )
+                    
+                        # 6) Layout anpassen
+                        fig_fog_bar.update_layout(
+                            showlegend=True,
+                            legend_title_text="",
+                            yaxis={
+                                "categoryorder": "array",
+                                "categoryarray": y_order_short
+                            },
+                        )
+                    
+                        st.plotly_chart(fig_fog_bar, use_container_width=True)
+                    
+                        # --- Vergleichsbalken bleibt unverändert ---
+                        comp_fog = pd.DataFrame({
+                            "Group": ["Peer Average", company],
+                            "Fog":   [mean_fog,      focal_fog],
+                        })
+                        fig_fog_cmp = px.bar(
+                            comp_fog,
+                            x="Group",
+                            y="Fog",
+                            text="Fog",
+                            color="Group",
+                            color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
+                            labels={"Fog": "Fog Index", "Group": ""}
+                        )
+                        fig_fog_cmp.update_layout(
+                            xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                            showlegend=False
+                        )
+                        fig_fog_cmp.update_traces(
+                            texttemplate="%{text:.1f}",
+                            textposition="outside",
+                            width=0.5
+                        )
+                        st.plotly_chart(fig_fog_cmp, use_container_width=True)
+                    
+                        st.caption("Fog index (Gunning’s language complexity measure).")
         
         
         else:
