@@ -843,32 +843,44 @@ with main:
                 'workersvalchain':'S2: Value chain workers'
             }
             
-            # 2) pct-Spalten ermitteln (die Du zuvor erzeugt hast)
+            # --- 3. Spalten umbenennen (rel_<topic> → <topic>_pct) ---
+            # Falls Deine CSV immer noch rel_<topic> heißt:
+            for topic in topic_map:
+                rel_col = f'rel_{topic}'
+                pct_col = f'{topic}_pct'
+                if rel_col in benchmark_df.columns:
+                    benchmark_df[pct_col] = benchmark_df[rel_col]
+                    
+            # --- 4. pct-Spalten ermitteln ---
             pct_cols = [c for c in benchmark_df.columns if c.endswith('_pct')]
             
-            # 3) DataFrame fürs Plotten aufbauen: company + pct-Spalten
+            # --- 5. DataFrame fürs Plotten ---
             plot_pct = benchmark_df[['company'] + pct_cols].copy()
             
-            # 4) in Long-Format bringen
+            # --- 6. In Long-Format ---
             plot_long = plot_pct.melt(
                 id_vars=['company'],
                 value_vars=pct_cols,
                 var_name='topic_internal',
                 value_name='pct'
             )
-            plot_long['topic'] = plot_long['topic_internal'].str.replace('_pct','')
+            plot_long['topic'] = plot_long['topic_internal'].str.replace('_pct','', regex=False)
             plot_long['topic_label'] = plot_long['topic'].map(topic_map)
             
-            # 5) Durchschnittlichen pct-Wert pro (Company, Topic) berechnen
-            #    (sollte schon summiert auf 1 sein, aber wir nehmen hier zur Sicherheit mean())
+            # --- 7. Fehlende Labels (falls ein Topic in Mapping fehlt) ---
+            missing = plot_long['topic'].loc[plot_long['topic_label'].isna()].unique()
+            if len(missing):
+                st.warning(f"Kein Mapping für diese Topics gefunden: {missing}")
+            
+            # --- 8. Durchschnitt je (Company, Topic) ---
             avg_df = (
                 plot_long
                 .groupby(['company','topic_label'])['pct']
-                .mean()  
+                .mean()
                 .reset_index()
             )
             
-            # 6) Plotly 100 % Stacked Bars: eine Zeile pro company
+            # --- 9. 100 %-Stacked Bar Chart ---
             fig = px.bar(
                 avg_df,
                 x='pct',
@@ -879,11 +891,10 @@ with main:
                 labels={'pct':'Share','company':''},
                 color_discrete_sequence=px.colors.qualitative.Safe
             )
-            
             fig.update_layout(
-                barmode='stack',                          # gestapelte Balken
-                xaxis_tickformat=',.0%',                  # Format in Prozent
-                yaxis={'categoryorder':'total descending'}  # sortiere nach Gesamtsumme
+                barmode='stack',
+                xaxis_tickformat=',.0%',
+                yaxis={'categoryorder':'total descending'}
             )
             
             st.plotly_chart(fig, use_container_width=True)
