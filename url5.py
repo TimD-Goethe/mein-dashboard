@@ -1222,12 +1222,12 @@ with main:
             # 4) Aggregation auf Firmen-Level
             avg_df = (
                 plot_long
-                .groupby(['company','topic_label'])['pct']
+                .groupby(['company', 'topic_label'])['pct']
                 .mean()
                 .reset_index()
             )
         
-            # 5) Legend­order für Topics
+            # 5) Reihenfolge der ESRS Topics und Farb-Map
             legend_order = [
                 'E1: Climate change','E2: Pollution','E3: Water','E4: Biodiversity',
                 'E5: Circular economy','ESRS 2: Governance','G1: Business conduct',
@@ -1235,20 +1235,20 @@ with main:
                 'S4: Consumers'
             ]
             my_colors = {
-                'E1: Climate change':      '#1b5e20',
-                'E2: Pollution':           '#338a3e',
-                'E3: Water':               '#66bb6a',
-                'E4: Biodiversity':        '#a5d6a7',
+                'E1: Climate change':      '#145214',
+                'E2: Pollution':           '#2e7d32',
+                'E3: Water':               '#388e3c',
+                'E4: Biodiversity':        '#81c784',
                 'E5: Circular economy':    '#c8e6c9',
-                'ESRS 2: Governance':      '#ffab00',
-                'G1: Business conduct':    '#ff6f00',
+                'ESRS 2: Governance':      '#ff9800',
+                'G1: Business conduct':    '#fb8c00',
                 'S1: Own workforce':       '#f57c00',
-                'S2: Value chain workers': '#ffcc80',
-                'S3: Affected communities':'#d84315',
+                'S2: Value chain workers': '#ffb74d',
+                'S3: Affected communities':'#e65100',
                 'S4: Consumers':           '#bf360c'
             }
-            
-            # 6A.1) Peer-Average berechnen
+        
+            # === Chart A: Peer group average vs. selected company ===
             peer_avg = (
                 avg_df[avg_df['company'] != selected]
                 .groupby('topic_label')['pct']
@@ -1256,98 +1256,72 @@ with main:
                 .reset_index()
             )
             peer_avg['company'] = 'Peer group average'
-            
-            # 6A.2) Selected-Daten extrahieren
             sel_df = avg_df[avg_df['company'] == selected].copy()
-            
-            # 6A.3) Kombinieren & Kurz-Label
+        
             combo = pd.concat([sel_df, peer_avg], ignore_index=True)
-            combo['company_short'] = combo['company'].str.slice(0,15)
-            
-            # 6A.4) Reihenfolge definieren (Selected ganz oben)
-            selected_short = selected[:15]
+            combo['company_short'] = combo['company'].str.slice(0, 15)
+        
+            # Reihenfolge definieren (selected ganz oben)
+            sel_short = selected[:15]
             combo['company_short'] = pd.Categorical(
                 combo['company_short'],
-                categories=[selected_short, 'Peer group average'[:15]],
+                categories=[sel_short, 'Peer group average'[:15]],
                 ordered=True
             )
-            
-            # 6A.5) Gemeinsame category_orders für y und Legende
-            cat_orders = {
-                'company_short': [selected_short, 'Peer group average'[:15]],
+        
+            cat_orders_A = {
+                'company_short': [sel_short, 'Peer group average'[:15]],
                 'topic_label': legend_order
             }
-            
-            # 6A.6) Plot erzeugen
+        
             fig_benchmark = px.bar(
                 combo,
-                x='pct',
-                y='company_short',
-                color='topic_label',
+                x='pct', y='company_short', color='topic_label',
                 orientation='h',
                 text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v >= 0.05 else ""),
                 labels={'pct':'Share','company_short':''},
                 color_discrete_map=my_colors,
-                category_orders=cat_orders
+                category_orders=cat_orders_A
             )
-            
+            fig_benchmark.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
             fig_benchmark.update_layout(
                 barmode='stack',
                 xaxis_tickformat=',.0%',
-                yaxis={
-                    'categoryorder':'array',
-                    'categoryarray': cat_orders['company_short']
-                },
-                legend_title_text="ESRS Topic"
+                legend=dict(title='ESRS Topic', itemsizing='constant')
             )
-            
             st.plotly_chart(fig_benchmark, use_container_width=True)
         
+            # === Chart B: alle Firmen (selected ganz oben) ===
+            # 1) company_short anlegen und als ordered Categorical sortieren
+            avg_df['company_short'] = avg_df['company'].str.slice(0, 15)
+            sel_short = selected[:15]
+            others = sorted(c for c in avg_df['company_short'].unique() if c != sel_short)
+            order_short = [sel_short] + others
+            avg_df['company_short'] = pd.Categorical(
+                avg_df['company_short'],
+                categories=order_short,
+                ordered=True
+            )
         
-            # 6B: Reihenfolge festlegen
-            others = sorted(c for c in avg_df['company'].unique() if c != selected)
-            order = [selected] + others
-            order_short = [c[:15] for c in order]
-            
-            # Kategorien & Farben
-            category_orders = {
+            cat_orders_B = {
                 'company_short': order_short,
                 'topic_label': legend_order
             }
-            my_colors = {
-                'E1: Climate change':      '#1b5e20',
-                'E2: Pollution':           '#338a3e',
-                'E3: Water':               '#66bb6a',
-                'E4: Biodiversity':        '#a5d6a7',
-                'E5: Circular economy':    '#c8e6c9',
-                'ESRS 2: Governance':      '#ffab00',
-                'G1: Business conduct':    '#ff6f00',
-                'S1: Own workforce':       '#f57c00',
-                'S2: Value chain workers': '#ffcc80',
-                'S3: Affected communities':'#d84315',
-                'S4: Consumers':           '#bf360c'
-            }
-            
-            # company_short-Spalte
-            avg_df['company_short'] = avg_df['company'].str.slice(0,15)
-            
-            # Zeichnen
+        
             fig_firmen = px.bar(
                 avg_df,
-                x='pct',
-                y='company_short',
-                color='topic_label',
+                x='pct', y='company_short', color='topic_label',
                 orientation='h',
                 text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%" if v >= 0.05 else ""),
                 labels={'pct':'Share','company_short':''},
                 color_discrete_map=my_colors,
-                category_orders=category_orders
+                category_orders=cat_orders_B
             )
+            fig_firmen.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
             fig_firmen.update_layout(
                 barmode='stack',
                 xaxis_tickformat=',.0%',
-                yaxis={'categoryorder':'array','categoryarray':order_short},
-                legend_title_text="ESRS Topic"
+                legend=dict(title='ESRS Topic', itemsizing='constant')
             )
             st.plotly_chart(fig_firmen, use_container_width=True)
 
