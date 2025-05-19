@@ -575,9 +575,17 @@ with main:
                 focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Pages"].iat[0]
         
                 fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
-                             annotation_text="<b>All Sectors Avg</b>", annotation_position="top right")
+                              annotation_text="<b>All Sectors Avg</b>",
+                              annotation_position="top right",
+                              annotation_font_color="black",
+                              annotation_font_size=16
+                             )
                 fig.add_vline(x=focal_avg, line_dash="dash", line_color="red",
-                             annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left")
+                              annotation_text=f"<b>{focal_super} Avg</b>",
+                              annotation_position="bottom left",
+                              annotation_font_color="red",
+                              annotation_font_size=16
+                             )
                 fig.update_layout(showlegend=False, xaxis_title="Pages", yaxis_title="Number of Sectors")
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -614,12 +622,55 @@ with main:
                 fig_s.add_vline(x=sector_avg["Pages"].mean(), line_dash="dash",
                                 line_color="black", 
                                 annotation_text="<b>All Sectors Avg</b>",
+                                annotation_position="bottom right",
                                 annotation_font_color="black",
                                 annotation_font_size=16,
                                )
                 fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
                 fig_s.update_layout(showlegend=False, xaxis_title="Pages")
                 st.plotly_chart(fig_s, use_container_width=True)
+
+                # Zweites Bar Chart, durchschnittliche Werte
+                # 1) Durchschnitt pro Supersector berechnen
+                sector_avg = (
+                    df
+                    .groupby("supersector")["Sustainability_Page_Count"]
+                    .mean()
+                    .reset_index(name="Pages")
+                )
+    
+                # 2) Focal-Supersector
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Pages"].iat[0]
+                
+                # 3) Durchschnitt der anderen Super-Sectors
+                others_avg  = sector_avg.loc[sector_avg["supersector"] != focal_super, "Pages"].mean()
+    
+                # 4) Vergleichs-DataFrame bauen
+                comp_df = pd.DataFrame({
+                    "Group": [focal_super, "Other sectors average"],
+                    "Pages": [focal_avg, others_avg]
+                })
+    
+                # 5) Plotten
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="Pages",
+                    text="Pages",
+                    color="Group",
+                    color_discrete_map={focal_super: "red", "Other sectors average": "#1f77b4"},
+                    labels={"Pages": "Pages", "Group": ""}
+                )
+    
+                # 6) Focal Supersector links
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors average"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+    
+                st.plotly_chart(fig_cmp, use_container_width=True)
 
             elif plot_type == "Histogram":
                 fig = px.histogram(
