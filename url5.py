@@ -591,7 +591,7 @@ with main:
                     .reset_index(name="Pages")
                 )
                 sector_avg = sector_avg.sort_values("Pages", ascending=False)
-               sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
+                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
                 y_order = sector_avg["sector_short"].tolist()
         
                 # 2) Highlight
