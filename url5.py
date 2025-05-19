@@ -1187,7 +1187,7 @@ with main:
         elif view == "Words per ESRS standard":
             st.subheader(f"Words per ESRS standard ({benchmark_label})")
         
-            # — Topics-Mapping & pct-Spalten (wie gehabt) —
+            # — 1) Topics-Mapping & pct-Spalten —
             topic_map = {
                 'affected':       'S3: Affected communities',
                 'biodiversity':   'E4: Biodiversity',
@@ -1201,218 +1201,211 @@ with main:
                 'water':          'E3: Water',
                 'workersvalchain':'S2: Value chain workers'
             }
-            for topic in topic_map:
-                rc, pc = f'rel_{topic}', f'{topic}_pct'
-                if rc in benchmark_df: benchmark_df[pc] = benchmark_df[rc]
-            pct_cols = [c for c in benchmark_df if c.endswith('_pct')]
-            plot_long = ( benchmark_df[['company']+pct_cols]
-                          .melt(['company'], pct_cols, 'topic_internal','pct') )
+            for t, lbl in topic_map.items():
+                rc, pc = f'rel_{t}', f'{t}_pct'
+                if rc in benchmark_df.columns:
+                    benchmark_df[pc] = benchmark_df[rc]
+            pct_cols = [c for c in benchmark_df.columns if c.endswith('_pct')]
+        
+            # — 2) Wide → Long & Mapping —
+            plot_long = (
+                benchmark_df[['company'] + pct_cols]
+                .melt(id_vars=['company'], value_vars=pct_cols,
+                      var_name='topic_internal', value_name='pct')
+            )
             plot_long['topic'] = plot_long['topic_internal'].str.replace('_pct','',regex=False)
             plot_long['topic_label'] = plot_long['topic'].map(topic_map)
-            avg_df = ( plot_long
-                       .groupby(['company','topic_label'])['pct']
-                       .mean().reset_index() )
         
-            # — Legenden-Reihenfolge & Farben —
-            legend_order = [
-              'E1: Climate change','E2: Pollution','E3: Water','E4: Biodiversity',
-              'E5: Circular economy','S1: Own workforce','S2: Value chain workers',
-              'S3: Affected communities','S4: Consumers','ESRS 2: Governance',
-              'G1: Business conduct'
-            ]
-            my_colors = {
-              'E1: Climate change':'#145214','E2: Pollution':'#2e7d32','E3: Water':'#388e3c',
-              'E4: Biodiversity':'#81c784','E5: Circular economy':'#c8e6c9',
-              'S1: Own workforce':'#f57c00','S2: Value chain workers':'#ffb74d',
-              'S3: Affected communities':'#e65100','S4: Consumers':'#bf360c',
-              'ESRS 2: Governance':'#5A9BD5','G1: Business conduct':'#1F4E79'
-            }
-        
-            # — kein Histogramm mehr, nur Bar Chart —
-            #   Für alle Modi gleich
-            # ==========================================================================
-            if benchmark_type == "Between Country Comparison":
-                # 1) Länderdurchschnitt pro Topic
-                country_topic = (
-                  plot_long
-                  .groupby(['country','topic_label'])['pct']
-                  .mean().reset_index()
-                )
-                # 2) Peer average: Durchschnitt aller Länder
-                total = country_topic.groupby('topic_label')['pct'].mean().reset_index()
-                total['country'] = 'All countries'
-                # 3) Focal country
-                focal = df.loc[df['company']==company,'country'].iat[0]
-                foc = country_topic[country_topic['country']==focal].copy()
-        
-                # === Chart A: All countries vs Focal Country ===
-                combo = pd.concat([foc, total], ignore_index=True)
-                combo['country_short'] = combo['country'].str.slice(0,15)
-                # Reihenfolge: zuerst Focal, dann All countries
-                catA = [focal[:15],'All countries']
-                combo['country_short'] = pd.Categorical(combo['country_short'],
-                                     categories=catA, ordered=True)
-                figA = px.bar(
-                  combo, x='pct', y='country_short', color='topic_label',
-                  orientation='h',
-                  text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                  labels={'country_short':'','pct':'Share'},
-                  color_discrete_map=my_colors,
-                  category_orders={'country_short':catA,'topic_label':legend_order}
-                )
-                figA.update_traces(marker_line_color='black',marker_line_width=0.5,opacity=1)
-                figA.update_layout(barmode='stack',xaxis_tickformat=',.0%',
-                                   legend=dict(title='ESRS Topic',itemsizing='constant'))
-                st.plotly_chart(figA, use_container_width=True)
-        
-                # === Chart B: alle Länder einzeln (Focal oben) ===
-                country_topic['country_short'] = country_topic['country'].str.slice(0,15)
-                orderB = [focal[:15]] + sorted(set(country_topic['country_short'])-{focal[:15]})
-                country_topic['country_short'] = pd.Categorical(
-                    country_topic['country_short'],categories=orderB,ordered=True
-                )
-                figB = px.bar(
-                  country_topic, x='pct', y='country_short', color='topic_label',
-                  orientation='h',
-                  text=country_topic['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                  labels={'country_short':'','pct':'Share'},
-                  color_discrete_map=my_colors,
-                  category_orders={'country_short':orderB,'topic_label':legend_order}
-                )
-                figB.update_traces(marker_line_color='black',marker_line_width=0.5,opacity=1)
-                figB.update_layout(barmode='stack',xaxis_tickformat=',.0%',
-                                   legend=dict(title='ESRS Topic',itemsizing='constant'))
-                st.plotly_chart(figB, use_container_width=True)
-        
-            elif benchmark_type == "Between Sector Comparison":
-                # 1) Supersector-Durchschnitt pro Topic
-                sector_topic = (
-                  plot_long
-                  .merge(df[['company','supersector']],on='company')
-                  .groupby(['supersector','topic_label'])['pct']
-                  .mean().reset_index()
-                )
-                total = sector_topic.groupby('topic_label')['pct'].mean().reset_index()
-                total['supersector'] = 'All sectors'
-                focal_s = df.loc[df['company']==company,'supersector'].iat[0]
-                foc = sector_topic[sector_topic['supersector']==focal_s].copy()
-        
-                # === Chart A: All sectors vs Focal Supersector ===
-                combo = pd.concat([foc, total], ignore_index=True)
-                combo['sector_short'] = combo['supersector'].str.slice(0,15)
-                catA = [focal_s[:15],'All sectors']
-                combo['sector_short'] = pd.Categorical(combo['sector_short'],
-                                      categories=catA, ordered=True)
-                figA = px.bar(
-                  combo, x='pct', y='sector_short', color='topic_label',
-                  orientation='h',
-                  text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                  labels={'sector_short':'','pct':'Share'},
-                  color_discrete_map=my_colors,
-                  category_orders={'sector_short':catA,'topic_label':legend_order}
-                )
-                figA.update_traces(marker_line_color='black',marker_line_width=0.5,opacity=1)
-                figA.update_layout(barmode='stack',xaxis_tickformat=',.0%',
-                                   legend=dict(title='ESRS Topic',itemsizing='constant'))
-                st.plotly_chart(figA, use_container_width=True)
-        
-                # === Chart B: alle Supersektoren einzeln (Focal oben) ===
-                sector_topic['sector_short'] = sector_topic['supersector'].str.slice(0,15)
-                orderB = [focal_s[:15]] + sorted(set(sector_topic['sector_short'])-{focal_s[:15]})
-                sector_topic['sector_short'] = pd.Categorical(
-                    sector_topic['sector_short'],categories=orderB,ordered=True
-                )
-                figB = px.bar(
-                  sector_topic, x='pct', y='sector_short', color='topic_label',
-                  orientation='h',
-                  text=sector_topic['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                  labels={'sector_short':'','pct':'Share'},
-                  color_discrete_map=my_colors,
-                  category_orders={'sector_short':orderB,'topic_label':legend_order}
-                )
-                figB.update_traces(marker_line_color='black',marker_line_width=0.5,opacity=1)
-                figB.update_layout(barmode='stack',xaxis_tickformat=',.0%',
-                                   legend=dict(title='ESRS Topic',itemsizing='constant'))
-                st.plotly_chart(figB, use_container_width=True)
-        
-            else:
-        
-            # === Chart A: Peer group average vs. selected company ===
-            peer_avg = (
-                avg_df[avg_df['company'] != selected]
-                .groupby('topic_label')['pct']
+            # — 3) Aggregation auf Firmen-Level —
+            avg_df = (
+                plot_long
+                .groupby(['company','topic_label'])['pct']
                 .mean()
                 .reset_index()
             )
-            peer_avg['company'] = 'Peer group average'
-            sel_df = avg_df[avg_df['company'] == selected].copy()
         
-            combo = pd.concat([sel_df, peer_avg], ignore_index=True)
-            combo['company_short'] = combo['company'].str.slice(0, 15)
-        
-            # Reihenfolge definieren (selected ganz oben)
-            sel_short = selected[:15]
-            combo['company_short'] = pd.Categorical(
-                combo['company_short'],
-                categories=[sel_short, 'Peer group average'[:15]],
-                ordered=True
-            )
-        
-            cat_orders_A = {
-                'company_short': [sel_short, 'Peer group average'[:15]],
-                'topic_label': legend_order
+            # — 4) Legenden-Reihenfolge & Farben —
+            legend_order = [
+                'E1: Climate change','E2: Pollution','E3: Water','E4: Biodiversity',
+                'E5: Circular economy','S1: Own workforce','S2: Value chain workers',
+                'S3: Affected communities','S4: Consumers','ESRS 2: Governance',
+                'G1: Business conduct'
+            ]
+            my_colors = {
+                'E1: Climate change':'#145214','E2: Pollution':'#2e7d32','E3: Water':'#388e3c',
+                'E4: Biodiversity':'#81c784','E5: Circular economy':'#c8e6c9',
+                'S1: Own workforce':'#f57c00','S2: Value chain workers':'#ffb74d',
+                'S3: Affected communities':'#e65100','S4: Consumers':'#bf360c',
+                'ESRS 2: Governance':'#5A9BD5','G1: Business conduct':'#1F4E79'
             }
         
-            fig_benchmark = px.bar(
-                combo,
-                x='pct', y='company_short', color='topic_label',
-                orientation='h',
-                text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v >= 0.05 else ""),
-                labels={'pct':'Share','company_short':''},
-                color_discrete_map=my_colors,
-                category_orders=cat_orders_A
-            )
-            fig_benchmark.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
-            fig_benchmark.update_layout(
-                barmode='stack',
-                xaxis_tickformat=',.0%',
-                legend=dict(title='ESRS Topic', itemsizing='constant')
-            )
-            st.plotly_chart(fig_benchmark, use_container_width=True)
+            # — 5) Kein Histogramm, nur Bar Chart für alle Modi —
+            if benchmark_type == "Between Country Comparison":
+                # — Country-Topic Durchschnitt pro Land —
+                country_topic = (
+                    plot_long
+                    .groupby(['country','topic_label'])['pct']
+                    .mean()
+                    .reset_index()
+                )
         
-            # === Chart B: alle Firmen (selected ganz oben) ===
-            # 1) company_short anlegen und als ordered Categorical sortieren
-            avg_df['company_short'] = avg_df['company'].str.slice(0, 15)
-            sel_short = selected[:15]
-            others = sorted(c for c in avg_df['company_short'].unique() if c != sel_short)
-            order_short = [sel_short] + others
-            avg_df['company_short'] = pd.Categorical(
-                avg_df['company_short'],
-                categories=order_short,
-                ordered=True
-            )
+                # — Gesamt-Durchschnitt aller Länder —
+                total = country_topic.groupby('topic_label')['pct'].mean().reset_index()
+                total['country'] = 'All countries'
         
-            cat_orders_B = {
-                'company_short': order_short,
-                'topic_label': legend_order
-            }
+                # — Focal Country —
+                focal = df.loc[df['company']==company,'country'].iat[0]
+                focal_df = country_topic[country_topic['country']==focal].copy()
         
-            fig_firmen = px.bar(
-                avg_df,
-                x='pct', y='company_short', color='topic_label',
-                orientation='h',
-                text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%" if v >= 0.05 else ""),
-                labels={'pct':'Share','company_short':''},
-                color_discrete_map=my_colors,
-                category_orders=cat_orders_B
-            )
-            fig_firmen.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
-            fig_firmen.update_layout(
-                barmode='stack',
-                xaxis_tickformat=',.0%',
-                legend=dict(title='ESRS Topic', itemsizing='constant')
-            )
-            st.plotly_chart(fig_firmen, use_container_width=True)
+                # --- Chart A: Focal vs. All countries ---
+                combo = pd.concat([focal_df, total], ignore_index=True)
+                combo['country_short'] = combo['country'].str.slice(0,15)
+                catA = [focal[:15], 'All countries']
+                combo['country_short'] = pd.Categorical(combo['country_short'], categories=catA, ordered=True)
+        
+                figA = px.bar(
+                    combo, x='pct', y='country_short', color='topic_label',
+                    orientation='h',
+                    text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                    labels={'country_short':'','pct':'Share'},
+                    color_discrete_map=my_colors,
+                    category_orders={'country_short':catA,'topic_label':legend_order}
+                )
+                figA.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
+                figA.update_layout(barmode='stack', xaxis_tickformat=',.0%',
+                                   legend=dict(title='ESRS Topic', itemsizing='constant'))
+                st.plotly_chart(figA, use_container_width=True)
+        
+                # --- Chart B: Einzel-Länder, focal oben ---
+                country_topic['country_short'] = country_topic['country'].str.slice(0,15)
+                orderB = [focal[:15]] + sorted(set(country_topic['country_short']) - {focal[:15]})
+                country_topic['country_short'] = pd.Categorical(
+                    country_topic['country_short'], categories=orderB, ordered=True
+                )
+        
+                figB = px.bar(
+                    country_topic, x='pct', y='country_short', color='topic_label',
+                    orientation='h',
+                    text=country_topic['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                    labels={'country_short':'','pct':'Share'},
+                    color_discrete_map=my_colors,
+                    category_orders={'country_short':orderB,'topic_label':legend_order}
+                )
+                figB.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
+                figB.update_layout(barmode='stack', xaxis_tickformat=',.0%',
+                                   legend=dict(title='ESRS Topic', itemsizing='constant'))
+                st.plotly_chart(figB, use_container_width=True)
+        
+            elif benchmark_type == "Between Sector Comparison":
+                # — Sector-Topic Durchschnitt pro Supersector —
+                sector_topic = (
+                    plot_long
+                    .merge(df[['company','supersector']], on='company')
+                    .groupby(['supersector','topic_label'])['pct']
+                    .mean()
+                    .reset_index()
+                )
+        
+                total = sector_topic.groupby('topic_label')['pct'].mean().reset_index()
+                total['supersector'] = 'All sectors'
+                focal_s = df.loc[df['company']==company,'supersector'].iat[0]
+                focal_df = sector_topic[sector_topic['supersector']==focal_s].copy()
+        
+                # --- Chart A: Focal vs. All sectors ---
+                combo = pd.concat([focal_df, total], ignore_index=True)
+                combo['sector_short'] = combo['supersector'].str.slice(0,15)
+                catA = [focal_s[:15], 'All sectors']
+                combo['sector_short'] = pd.Categorical(combo['sector_short'], categories=catA, ordered=True)
+        
+                figA = px.bar(
+                    combo, x='pct', y='sector_short', color='topic_label',
+                    orientation='h',
+                    text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                    labels={'sector_short':'','pct':'Share'},
+                    color_discrete_map=my_colors,
+                    category_orders={'sector_short':catA,'topic_label':legend_order}
+                )
+                figA.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
+                figA.update_layout(barmode='stack', xaxis_tickformat=',.0%',
+                                   legend=dict(title='ESRS Topic', itemsizing='constant'))
+                st.plotly_chart(figA, use_container_width=True)
+        
+                # --- Chart B: Einzel-Supersektoren, focal oben ---
+                sector_topic['sector_short'] = sector_topic['supersector'].str.slice(0,15)
+                orderB = [focal_s[:15]] + sorted(set(sector_topic['sector_short']) - {focal_s[:15]})
+                sector_topic['sector_short'] = pd.Categorical(
+                    sector_topic['sector_short'], categories=orderB, ordered=True
+                )
+        
+                figB = px.bar(
+                    sector_topic, x='pct', y='sector_short', color='topic_label',
+                    orientation='h',
+                    text=sector_topic['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                    labels={'sector_short':'','pct':'Share'},
+                    color_discrete_map=my_colors,
+                    category_orders={'sector_short':orderB,'topic_label':legend_order}
+                )
+                figB.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
+                figB.update_layout(barmode='stack', xaxis_tickformat=',.0%',
+                                   legend=dict(title='ESRS Topic', itemsizing='constant'))
+                st.plotly_chart(figB, use_container_width=True)
+        
+            else:
+                # --- Chart A: Peer group average vs. selected company ---
+                peer_avg = (
+                    avg_df[avg_df['company'] != selected]
+                    .groupby('topic_label')['pct']
+                    .mean()
+                    .reset_index()
+                )
+                peer_avg['company'] = 'Peer group average'
+                sel_df = avg_df[avg_df['company'] == selected].copy()
+        
+                combo = pd.concat([sel_df, peer_avg], ignore_index=True)
+                combo['company_short'] = combo['company'].str.slice(0,15)
+                sel_short = selected[:15]
+                combo['company_short'] = pd.Categorical(
+                    combo['company_short'],
+                    categories=[sel_short,'Peer group average'[:15]],
+                    ordered=True
+                )
+                catA = {'company_short':[sel_short,'Peer group average'[:15]], 'topic_label':legend_order}
+        
+                fig_benchmark = px.bar(
+                    combo, x='pct', y='company_short', color='topic_label',
+                    orientation='h',
+                    text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                    labels={'company_short':'','pct':'Share'},
+                    color_discrete_map=my_colors,
+                    category_orders=catA
+                )
+                fig_benchmark.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
+                fig_benchmark.update_layout(barmode='stack', xaxis_tickformat=',.0%',
+                                            legend=dict(title='ESRS Topic', itemsizing='constant'))
+                st.plotly_chart(fig_benchmark, use_container_width=True)
+        
+                # --- Chart B: alle Firmen (selected ganz oben) ---
+                avg_df['company_short'] = avg_df['company'].str.slice(0,15)
+                sel_short = selected[:15]
+                others = sorted(set(avg_df['company_short']) - {sel_short})
+                order_short = [sel_short] + others
+                avg_df['company_short'] = pd.Categorical(
+                    avg_df['company_short'], categories=order_short, ordered=True
+                )
+                catB = {'company_short':order_short, 'topic_label':legend_order}
+        
+                fig_firmen = px.bar(
+                    avg_df, x='pct', y='company_short', color='topic_label',
+                    orientation='h',
+                    text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                    labels={'company_short':'','pct':'Share'},
+                    color_discrete_map=my_colors,
+                    category_orders=catB
+                )
+                fig_firmen.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
+                fig_firmen.update_layout(barmode='stack', xaxis_tickformat=',.0%',
+                                         legend=dict(title='ESRS Topic', itemsizing='constant'))
+                st.plotly_chart(fig_firmen, use_container_width=True)
 
         elif view == "Numbers":
             st.subheader(f"Numbers per 500 Words ({benchmark_label})")
