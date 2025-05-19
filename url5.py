@@ -2620,7 +2620,9 @@ with main:
                     .mean()
                     .reset_index()
                 )
-            
+
+                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0, 15)
+                
                 # 2) Positive Wörter: sortieren & highlight-Spalte
                 pos_sec = sector_avg.sort_values("words_pos_500", ascending=False)
                 pos_sec["highlight"] = np.where(
@@ -2728,7 +2730,9 @@ with main:
                     .mean()
                     .reset_index()
                 )
-            
+
+                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0, 15)
+                
                 # Positive Words Distribution
                 fig_h1 = px.histogram(
                     sector_avg,
