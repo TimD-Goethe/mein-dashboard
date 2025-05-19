@@ -1411,8 +1411,8 @@ with main:
             st.subheader(f"Numbers per 500 Words ({benchmark_label})")
         
             # Peer- und Focal-Werte berechnen
-            mean_nums   = benchmark_df["nums_500"].mean()
-            focal_nums  = df.loc[df["company"] == company, "nums_500"].iat[0]
+            mean_nums   = benchmark_df["num_o_seit_500"].mean()
+            focal_nums  = df.loc[df["company"] == company, "num_o_seit_500"].iat[0]
         
             if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
@@ -1421,7 +1421,7 @@ with main:
                 # 2) Länder-Durchschnitt vorbereiten
                 country_avg = (
                     df
-                    .groupby("country")["nums_500"]
+                    .groupby("country")["num_o_seit_500"]
                     .mean()
                     .reset_index(name="Nums_per_500")
                 )
@@ -1477,7 +1477,7 @@ with main:
                 # 2) Länder-Durchschnitt (Nums_per_500)
                 country_avg = (
                     df
-                    .groupby("country")["nums_500"]
+                    .groupby("country")["num_o_seit_500"]
                     .mean()
                     .reset_index(name="Nums_per_500")
                     .sort_values("Nums_per_500", ascending=False)
@@ -1563,7 +1563,7 @@ with main:
             elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
                 sector_avg = (
                     df
-                    .groupby("supersector")["nums_500"]
+                    .groupby("supersector")["num_o_seit_500"]
                     .mean()
                     .reset_index(name="Nums per 500")
                 )
@@ -1603,7 +1603,7 @@ with main:
             elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
                 sector_avg = (
                     df
-                    .groupby("supersector")["nums_500"]
+                    .groupby("supersector")["num_o_seit_500"]
                     .mean()
                     .reset_index(name="Nums per 500")
                 ).sort_values("Nums per 500", ascending=False)
@@ -1669,9 +1669,9 @@ with main:
                 # nimm benchmark_df statt plot_df, da es dort sicher nums_500 gibt
                 fig = px.histogram(
                     benchmark_df,
-                    x="nums_500",
+                    x="num_o_seit_500",
                     nbins=20,
-                    labels={"nums_500": "Numbers per 500 Words"}
+                    labels={"num_o_seit_500": "Numbers per 500 Words"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
             
@@ -1708,18 +1708,18 @@ with main:
             
             elif plot_type == "Bar Chart":
                 # 1) Peer-Detail-Chart
-                peers_df = plot_df.sort_values("nums_500", ascending=False)
+                peers_df = plot_df.sort_values("num_o_seit_500", ascending=False)
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
                 y_order_short = peers_df["company_short"].tolist()[::-1]
         
                 fig2 = px.bar(
                     peers_df,
-                    x="nums_500",
+                    x="num_o_seit_500",
                     y="company_short",
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"nums_500": "Numbers per 500 Words", "company_short": "Company", "highlight_label": ""},
+                    labels={"num_o_seit_500": "Numbers per 500 Words", "company_short": "Company", "highlight_label": ""},
                     category_orders={"company_short": y_order_short}
                 )
                 fig2.add_vline(
