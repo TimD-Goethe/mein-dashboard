@@ -300,9 +300,12 @@ with right:
 # 6. Build `benchmark_df`
 # --------------------------------------------------------------------
 if benchmark_type == "Sector Peers":
-    sector          = df.loc[df["company"] == company, "supersector"].iat[0]
-    benchmark_df    = df[df["supersector"] == sector]
-    benchmark_label = f"Sector Peers: {sector}"
+    # 1) ermittele den Super-Sector des gewählten Unternehmens
+    supersec        = df.loc[df["company"] == company, "supersector"].iat[0]
+    # 2) filtere alle Firmen auf genau diesen Super-Sector
+    benchmark_df    = df[df["supersector"] == supersec]
+    # 3) passe das Label an
+    benchmark_label = f"Sector Peers: {supersec}"
 
 elif benchmark_type == "Country Peers":
     country         = df.loc[df["company"] == company, "country"].iat[0]
