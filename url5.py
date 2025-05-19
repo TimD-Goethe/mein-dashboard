@@ -986,12 +986,13 @@ with main:
                 fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
                               annotation_text="<b>All Sectors Avg</b>",
                               annotation_position="top right",
-                              annotation_font_size=14)
+                              annotation_font_color: "black",
+                              annotation_font_size=16)
                 fig.add_vline(x=focal_avg, line_dash="dash", line_color="red",
                               annotation_text=f"<b>{focal_super} Avg</b>",
                               annotation_position="bottom left",
                               annotation_font_color="red",
-                              annotation_font_size=14)
+                              annotation_font_size=16)
         
                 fig.update_layout(showlegend=False,
                                   xaxis_title="Words",
@@ -1036,7 +1037,10 @@ with main:
                 fig_s.add_vline(x=sector_avg["Words"].mean(), line_dash="dash",
                                 line_color="black",
                                 annotation_text="<b>All Sectors Avg</b>",
-                                annotation_position="bottom right")
+                                annotation_position="bottom right",
+                                annotation_font_color="black",
+                                annotation_font_size=16
+                               )
                 fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
                 fig_s.update_layout(showlegend=False, xaxis_title="Words")
                 st.plotly_chart(fig_s, use_container_width=True)
