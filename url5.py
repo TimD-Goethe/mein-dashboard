@@ -960,7 +960,7 @@ with main:
 
 
              # Histogramm aller Supersector‐Durchschnitte
-            if benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
                 # 1) Durchschnittliche Wortzahl pro Supersector
                 sector_avg = (
                     df
@@ -1818,7 +1818,7 @@ with main:
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
 
-            if benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
                 sector_avg = (
                     df
                     .groupby("supersector")["tables_500"]
@@ -2183,7 +2183,7 @@ with main:
 
 
             # 1) Histogramm aller Supersector-Durchschnitte
-            if benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
                 sector_avg = (
                     df
                     .groupby("supersector")["imgsize_500"]
