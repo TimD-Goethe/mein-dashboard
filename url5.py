@@ -844,40 +844,43 @@ with main:
             }
             
                     
-            # --- 4. rel-Spalten ermitteln ---
+            # --- 2) rel-Spalten ermitteln ---
             rel_cols = [c for c in benchmark_df.columns if c.startswith('rel_')]
-            
-           # 3) DataFrame fürs Plotten aufbauen
+        
+            # --- 3) DataFrame fürs Plotten aufbauen ---
             rel_pct = benchmark_df[['company'] + rel_cols].copy()
         
-            # 4) In Long-Format
+            # --- 4) In Long-Format ---
             plot_long = rel_pct.melt(
                 id_vars=['company'],
                 value_vars=rel_cols,
                 var_name='topic_internal',
-                value_name='pct'
+                value_name='pct'          # hier heißt der Anteil genau 'pct'
             )
-            plot_long['topic'] = plot_long['topic_internal'].str.replace('_pct','', regex=False)
+            # Topic-Key extrahieren: alles nach 'rel_'
+            plot_long['topic'] = plot_long['topic_internal'].str.replace('rel_', '', regex=False)
             plot_long['topic_label'] = plot_long['topic'].map(topic_map)
         
-            # 5) Durchschnittlichen pct-Wert pro (Company, Topic)
+            # --- 5) Durchschnittlichen pct-Wert pro (Company, Topic) ---
             avg_df = (
                 plot_long
-                .groupby(['company','topic_label'])['rel']
+                .groupby(['company','topic_label'])['pct']   # hier 'pct' statt 'rel'
                 .mean()
                 .reset_index()
             )
         
             # ———————————————————————————————————————————————————————
             # A) Erster Chart: alle Peers, mit selected first + alphabetisch
-            selected = st.session_state.company  # oder wie Du das ausgewählte Unternehmen speicherst
+            selected = st.session_state.company  # oder wie Du es nennst
         
             # 1. Reihenfolge festlegen
-            other_companies = sorted([c for c in avg_df['company'].unique() if c != selected])
-            company_order = [selected] + other_companies
+            others = sorted([c for c in avg_df['company'].unique() if c != selected])
+            company_order = [selected] + others
         
-            # 2. Kategorie-Reihenfolge in avg_df setzen
-            avg_df['company'] = pd.Categorical(avg_df['company'], categories=company_order, ordered=True)
+            # 2. Categorical setzen
+            avg_df['company'] = pd.Categorical(avg_df['company'],
+                                               categories=company_order,
+                                               ordered=True)
         
             # 3. Chart bauen
             fig1 = px.bar(
@@ -897,11 +900,10 @@ with main:
             )
             st.plotly_chart(fig1, use_container_width=True)
         
-        
             # ———————————————————————————————————————————————————————
             # B) Zweiter Chart: nur Selected vs. Peer-Group Average
         
-            # 1. Peer-Group Average berechnen (ohne das selektierte Unternehmen)
+            # 1. Peer-Group Durchschnitt (ohne selected)
             peer_avg = (
                 avg_df[avg_df['company'] != selected]
                 .groupby('topic_label')['pct']
@@ -911,13 +913,13 @@ with main:
             peer_avg['company'] = 'Peer group average'
         
             # 2. Selected Data isolieren
-            selected_df = avg_df[avg_df['company'] == selected].copy()
+            sel_df = avg_df[avg_df['company'] == selected].copy()
         
-            # 3. Beide zusammenführen (erst selected, dann peer_avg)
-            combo = pd.concat([selected_df, peer_avg], axis=0)
+            # 3. Beide zusammenführen
+            combo = pd.concat([sel_df, peer_avg], axis=0)
             combo['company'] = pd.Categorical(
-                combo['company'], 
-                categories=[selected, 'Peer group average'], 
+                combo['company'],
+                categories=[selected, 'Peer group average'],
                 ordered=True
             )
         
@@ -935,10 +937,10 @@ with main:
             fig2.update_layout(
                 barmode='stack',
                 xaxis_tickformat=',.0%',
-                yaxis={'categoryorder':'array', 'categoryarray':[selected, 'Peer group average']}
+                yaxis={'categoryorder':'array',
+                       'categoryarray':[selected, 'Peer group average']}
             )
             st.plotly_chart(fig2, use_container_width=True)
-
 
         elif view == "Numbers":
             st.subheader(f"Numbers per 500 Words ({benchmark_label})")
