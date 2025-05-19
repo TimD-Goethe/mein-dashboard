@@ -848,12 +848,12 @@ with main:
             rel_cols = [c for c in benchmark_df.columns if c.startswith('rel_')]
             
            # 3) DataFrame fürs Plotten aufbauen
-            plot_pct = benchmark_df[['company'] + pct_cols].copy()
+            rel_pct = benchmark_df[['company'] + rel_cols].copy()
         
             # 4) In Long-Format
-            plot_long = plot_pct.melt(
+            plot_long = rel_pct.melt(
                 id_vars=['company'],
-                value_vars=pct_cols,
+                value_vars=rel_cols,
                 var_name='topic_internal',
                 value_name='pct'
             )
@@ -863,7 +863,7 @@ with main:
             # 5) Durchschnittlichen pct-Wert pro (Company, Topic)
             avg_df = (
                 plot_long
-                .groupby(['company','topic_label'])['pct']
+                .groupby(['company','topic_label'])['rel']
                 .mean()
                 .reset_index()
             )
