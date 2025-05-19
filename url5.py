@@ -1275,26 +1275,44 @@ with main:
                 st.plotly_chart(fig_benchmark, use_container_width=True)
         
         
-                # --- Chart B: alle Firmen, selected ganz oben ---
-                others = sorted([c for c in avg_df['company'].unique() if c != selected])
+                # 6B: Reihenfolge festlegen
+                others = sorted(c for c in avg_df['company'].unique() if c != selected)
                 order = [selected] + others
                 order_short = [c[:15] for c in order]
-        
+                
+                # Kategorien & Farben
+                category_orders = {
+                    'company_short': order_short,
+                    'topic_label': legend_order
+                }
+                my_colors = {
+                    'E1: Climate change':      '#1b5e20',
+                    'E2: Pollution':           '#338a3e',
+                    'E3: Water':               '#66bb6a',
+                    'E4: Biodiversity':        '#a5d6a7',
+                    'E5: Circular economy':    '#c8e6c9',
+                    'ESRS 2: Governance':      '#ffab00',
+                    'G1: Business conduct':    '#ff6f00',
+                    'S1: Own workforce':       '#f57c00',
+                    'S2: Value chain workers': '#ffcc80',
+                    'S3: Affected communities':'#d84315',
+                    'S4: Consumers':           '#bf360c'
+                }
+                
+                # company_short-Spalte
                 avg_df['company_short'] = avg_df['company'].str.slice(0,15)
-                avg_df['company_short'] = pd.Categorical(
-                    avg_df['company_short'],
-                    categories=order_short,
-                    ordered=True
-                )
-        
+                
+                # Zeichnen
                 fig_firmen = px.bar(
                     avg_df,
-                    x='pct', y='company_short', color='topic_label',
+                    x='pct',
+                    y='company_short',
+                    color='topic_label',
                     orientation='h',
                     text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%" if v >= 0.05 else ""),
                     labels={'pct':'Share','company_short':''},
-                    color_discrete_sequence=px.colors.qualitative.Safe,
-                    category_orders={'topic_label': legend_order}
+                    color_discrete_map=my_colors,
+                    category_orders=category_orders
                 )
                 fig_firmen.update_layout(
                     barmode='stack',
