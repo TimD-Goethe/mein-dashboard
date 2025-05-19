@@ -3440,7 +3440,7 @@ with main:
                 fig_fog_cmp = px.bar(
                     comp_fog,
                     x="Group",
-                    y="fog_avg",
+                    y="Fog",
                     text="Fog",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
