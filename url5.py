@@ -872,7 +872,7 @@ with main:
                 y_order = country_avg_words["country"].tolist()
 
                  # 4) Kürze die Ländernamen auf max. 15 Zeichen
-                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
+                country_avg_words["country_short"] = country_avg_words["country"].str.slice(0, 15)
             
                 # 4) Füge eine Markierungsspalte hinzu (Focal Country vs. Others)
                 country_avg_words["highlight"] = np.where(
