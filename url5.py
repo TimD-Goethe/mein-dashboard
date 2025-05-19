@@ -986,7 +986,7 @@ with main:
                 fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
                               annotation_text="<b>All Sectors Avg</b>",
                               annotation_position="top right",
-                              annotation_font_color: "black",
+                              annotation_font_color= "black",
                               annotation_font_size=16)
                 fig.add_vline(x=focal_avg, line_dash="dash", line_color="red",
                               annotation_text=f"<b>{focal_super} Avg</b>",
