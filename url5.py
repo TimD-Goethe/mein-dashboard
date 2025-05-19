@@ -1201,8 +1201,8 @@ with main:
                 'water':          'E3: Water',
                 'workersvalchain':'S2: Value chain workers'
             }
-            
-            # — 2) rel-Columns finden & in pct umbenennen —
+        
+            # 2) rel_ → pct-Spalten anlegen
             for topic in topic_map:
                 rc = f'rel_{topic}'
                 pc = f'{topic}_pct'
@@ -1211,7 +1211,7 @@ with main:
         
             pct_cols = [c for c in benchmark_df.columns if c.endswith('_pct')]
         
-            # — 3) Wide → Long & Topic-Keys extrahieren —
+            # 3) Wide → Long
             plot_long = (
                 benchmark_df[['company'] + pct_cols]
                 .melt(id_vars=['company'], value_vars=pct_cols,
@@ -1220,7 +1220,7 @@ with main:
             plot_long['topic'] = plot_long['topic_internal'].str.replace('_pct','',regex=False)
             plot_long['topic_label'] = plot_long['topic'].map(topic_map)
         
-            # — 4) Aggregation —
+            # 4) Aggregation: Firmen-Level (Mittelwert über Berichtsjahre etc.)
             avg_df = (
                 plot_long
                 .groupby(['company','topic_label'])['pct']
@@ -1228,41 +1228,26 @@ with main:
                 .reset_index()
             )
         
-            # — 5) Reihenfolge festlegen: selected first, dann alphabetisch —
-            others = sorted([c for c in avg_df['company'].unique() if c != selected])
-            order = [selected] + others
+            # 5) Reihenfolge der Topics in der Legende festlegen
+            legend_order = [
+                'E1: Climate change',
+                'E2: Pollution',
+                'E3: Water',
+                'E4: Biodiversity',
+                'E5: Circular economy',
+                'ESRS 2: Governance',
+                'G1: Business conduct',
+                'S1: Own workforce',
+                'S2: Value chain workers',
+                'S3: Affected communities',
+                'S4: Consumers'
+            ]
         
-            # Für die Anzeige: auf 15 Zeichen kürzen
-            def short(x): return x[:15]
-            order_short = [short(c) for c in order]
+            # 6) Sidebar: nur Bar Chart zulassen
+            chart_type = st.selectbox("Chart type", ["Bar chart"])
         
-            # Spalte company_short erzeugen und als ordered Categorical setzen
-            avg_df['company_short'] = avg_df['company'].map(short)
-            avg_df['company_short'] = pd.Categorical(
-                avg_df['company_short'],
-                categories=order_short,
-                ordered=True
-            )
-        
-            # — 6A) Erster Chart —
-            fig1 = px.bar(
-                avg_df,
-                x='pct',
-                y='company_short',
-                color='topic_label',
-                orientation='h',
-                text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%"),
-                labels={'pct':'Share','company_short':''},
-                color_discrete_sequence=px.colors.qualitative.Safe
-            )
-            fig1.update_layout(
-                barmode='stack',
-                xaxis_tickformat=',.0%',
-                yaxis={'categoryorder':'array','categoryarray':order_short}
-            )
-            st.plotly_chart(fig1, use_container_width=True)
-        
-            # — 6B) Zweiter Chart: selected vs. Peer-Average —
+            # === Chart A: Benchmark vs. Selected ===
+            # 6A.1) Peer-Average berechnen
             peer_avg = (
                 avg_df[avg_df['company'] != selected]
                 .groupby('topic_label')['pct']
@@ -1271,35 +1256,73 @@ with main:
             )
             peer_avg['company'] = 'Peer group average'
         
+            # 6A.2) Selected-Daten extrahieren
             sel_df = avg_df[avg_df['company'] == selected].copy()
-            sel_df = sel_df.rename(columns={'company_short':'company_short'})  # already short
         
+            # 6A.3) Kombinieren und Short-Label
             combo = pd.concat([sel_df, peer_avg], ignore_index=True)
-            combo['company_short'] = combo['company'].apply(short)
-        
-            # feste Reihenfolge Selected kurz, dann Peer group average kurz
+            combo['company_short'] = combo['company'].str.slice(0,15)
             combo['company_short'] = pd.Categorical(
                 combo['company_short'],
-                categories=[short(selected), short('Peer group average')],
+                categories=[selected[:15], 'Peer group average'[:15]],
                 ordered=True
             )
         
-            fig2 = px.bar(
+            # 6A.4) Plot erstellen
+            fig_benchmark = px.bar(
                 combo,
                 x='pct',
                 y='company_short',
                 color='topic_label',
                 orientation='h',
-                text=combo['pct'].apply(lambda v: f"{v*100:.0f}%"),
+                text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v >= 0.05 else ""),
                 labels={'pct':'Share','company_short':''},
-                color_discrete_sequence=px.colors.qualitative.Safe
+                color_discrete_sequence=px.colors.qualitative.Safe,
+                category_orders={'topic_label': legend_order}
             )
-            fig2.update_layout(
+            fig_benchmark.update_layout(
                 barmode='stack',
                 xaxis_tickformat=',.0%',
-                yaxis={'categoryorder':'array','categoryarray':[short(selected), short('Peer group average')]}
+                yaxis={'categoryorder':'array',
+                       'categoryarray':[selected[:15], 'Peer group average'[:15]]},
+                legend_title_text="ESRS Topic"
             )
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig_benchmark, use_container_width=True)
+        
+        
+            # === Chart B: Alle Firmen (Selected ganz oben) ===
+            # 6B.1) Reihenfolge der Firmen definieren
+            others = sorted([c for c in avg_df['company'].unique() if c != selected])
+            order = [selected] + others
+            order_short = [c[:15] for c in order]
+        
+            # 6B.2) company_short setzen
+            avg_df['company_short'] = avg_df['company'].str.slice(0,15)
+            avg_df['company_short'] = pd.Categorical(
+                avg_df['company_short'],
+                categories=order_short,
+                ordered=True
+            )
+        
+            # 6B.3) Plot erstellen
+            fig_firmen = px.bar(
+                avg_df,
+                x='pct',
+                y='company_short',
+                color='topic_label',
+                orientation='h',
+                text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%" if v >= 0.05 else ""),
+                labels={'pct':'Share','company_short':''},
+                color_discrete_sequence=px.colors.qualitative.Safe,
+                category_orders={'topic_label': legend_order}
+            )
+            fig_firmen.update_layout(
+                barmode='stack',
+                xaxis_tickformat=',.0%',
+                yaxis={'categoryorder':'array','categoryarray':order_short},
+                legend_title_text="ESRS Topic"
+            )
+            st.plotly_chart(fig_firmen, use_container_width=True)
 
         elif view == "Numbers":
             st.subheader(f"Numbers per 500 Words ({benchmark_label})")
