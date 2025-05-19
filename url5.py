@@ -479,40 +479,6 @@ with main:
                 
                 st.plotly_chart(fig, use_container_width=True)
     
-            
-            elif plot_type == "Histogram":
-                fig = px.histogram(
-                    plot_df, x="Sustainability_Page_Count", nbins=20,
-                    labels={"Sustainability_Page_Count": "Pages", "_group" : "Group"}
-                )
-    
-                # 4) Alle Balken in Dunkelblau (#1f77b4)
-                fig.update_traces(marker_color="#1f77b4")
-    
-                # Linien bleiben hier als VLines
-                fig.add_vline(
-                    x=mean_pages,
-                    line_dash="dash",
-                    line_color="black",
-                    line_width=1,
-                    opacity=0.6,
-                    annotation_text="<b>Peer Average</b>",
-                    annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16
-                )
-                fig.add_vline(
-                    x=focal_pages,
-                    line_dash="dash",
-                    line_color="red",
-                    opacity=0.8,
-                    annotation_text=f"<b>{company}</b>",
-                    annotation_position="bottom left",
-                    annotation_font_color="red",
-                    annotation_font_size=16,
-                )
-                fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
-                st.plotly_chart(fig, use_container_width=True)
     
             elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
                 # 1) Bestimme das Land des gewählten Unternehmens
@@ -585,6 +551,105 @@ with main:
                 )
             
                 st.plotly_chart(fig_ctry, use_container_width=True)
+
+
+            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+                # Histogramm aller Supersector‐Durchschnitte
+                sector_avg = (
+                    df
+                    .groupby("supersector")["Sustainability_Page_Count"]
+                    .mean()
+                    .reset_index(name="Pages")
+                )
+                # Normales Histogramm
+                fig = px.histogram(
+                    sector_avg,
+                    x="Pages",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"Pages": "Pages"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+                # Linien
+                overall_avg = sector_avg["Pages"].mean()
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Pages"].iat[0]
+        
+                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
+                             annotation_text="<b>All Sectors Avg</b>", annotation_position="top right")
+                fig.add_vline(x=focal_avg, line_dash="dash", line_color="red",
+                             annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left")
+                fig.update_layout(showlegend=False, xaxis_title="Pages", yaxis_title="Number of Sectors")
+                st.plotly_chart(fig, use_container_width=True)
+
+
+            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+                # 1) Durchschnitt pro Supersector
+                sector_avg = (
+                    df
+                    .groupby("supersector")["Sustainability_Page_Count"]
+                    .mean()
+                    .reset_index(name="Pages")
+                )
+                sector_avg = sector_avg.sort_values("Pages", ascending=False)
+               sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
+                y_order = sector_avg["sector_short"].tolist()
+        
+                # 2) Highlight
+                sector_avg["highlight"] = np.where(
+                    sector_avg["supersector"] == focal_super,
+                    sector_avg["sector_short"],
+                    "Other sectors"
+                )
+        
+                # 3) Bar-Chart
+                fig_s = px.bar(
+                    sector_avg,
+                    x="Pages", y="sector_short",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
+                    category_orders={"sector_short": y_order},
+                    labels={"sector_short": "", "Pages": "Pages"}
+                )
+                fig_s.add_vline(x=sector_avg["Pages"].mean(), line_dash="dash",
+                                line_color="black", annotation_text="<b>All Sectors Avg</b>")
+                fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
+                fig_s.update_layout(showlegend=False, xaxis_title="Pages")
+                st.plotly_chart(fig_s, use_container_width=True)
+
+            elif plot_type == "Histogram":
+                fig = px.histogram(
+                    plot_df, x="Sustainability_Page_Count", nbins=20,
+                    labels={"Sustainability_Page_Count": "Pages", "_group" : "Group"}
+                )
+    
+                # 4) Alle Balken in Dunkelblau (#1f77b4)
+                fig.update_traces(marker_color="#1f77b4")
+    
+                # Linien bleiben hier als VLines
+                fig.add_vline(
+                    x=mean_pages,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=1,
+                    opacity=0.6,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_pages,
+                    line_dash="dash",
+                    line_color="red",
+                    opacity=0.8,
+                    annotation_text=f"<b>{company}</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16,
+                )
+                fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
+                st.plotly_chart(fig, use_container_width=True)
                             
     
             elif plot_type == "Bar Chart":
