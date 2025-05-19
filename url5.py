@@ -2608,6 +2608,85 @@ with main:
                 )
                 st.subheader("Negative Words Distribution by Country")
                 st.plotly_chart(fig_hist2, use_container_width=True)
+
+
+            # 3a) Industry‐Histogramm
+            elif benchmark_type == "Between Industry Comparison" and plot_type == "Histogram":
+                # 1) Focal‐Industry
+                focal_ind = df.loc[df["company"] == company, "SASB_industry"].iat[0]
+        
+                # 2) Durchschnitt pro Industry
+                ind_avg = (
+                    df
+                    .groupby("SASB_industry")[["words_pos_500","words_neg_500"]]
+                    .mean()
+                    .reset_index()
+                )
+                # 3) Überlagerte Histos: nur positive hier als Beispiel
+                fig_i_pos = px.histogram(
+                    ind_avg,
+                    x="words_pos_500",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"words_pos_500":"# Positive Words"}
+                )
+                fig_i_pos.update_traces(marker_color="#1f77b4")
+                # Linien für All vs Focal Industry
+                overall_pos_i = ind_avg["words_pos_500"].mean()
+                focal_pos_i   = ind_avg.loc[ind_avg["SASB_industry"]==focal_ind, "words_pos_500"].iat[0]
+                fig_i_pos.add_vline(x=overall_pos_i, line_dash="dash", line_color="black",
+                                    annotation_text="<b>All Industries Avg</b>",
+                                    annotation_position="top right")
+                fig_i_pos.add_vline(x=focal_pos_i, line_dash="dash", line_color="red",
+                                    annotation_text=f"<b>{focal_ind} Avg</b>",
+                                    annotation_position="bottom left")
+                st.subheader("Positive Words by Industry")
+                st.plotly_chart(fig_i_pos, use_container_width=True)
+        
+                # 4) Dasselbe für negative Wörter
+                fig_i_neg = px.histogram(
+                    ind_avg,
+                    x="words_neg_500",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"words_neg_500":"# Negative Words"}
+                )
+                fig_i_neg.update_traces(marker_color="#1f77b4")
+                overall_neg_i = ind_avg["words_neg_500"].mean()
+                focal_neg_i   = ind_avg.loc[ind_avg["SASB_industry"]==focal_ind, "words_neg_500"].iat[0]
+                fig_i_neg.add_vline(x=overall_neg_i, line_dash="dash", line_color="black",
+                                    annotation_text="<b>All Industries Avg</b>",
+                                    annotation_position="top right")
+                fig_i_neg.add_vline(x=focal_neg_i, line_dash="dash", line_color="red",
+                                    annotation_text=f"<b>{focal_ind} Avg</b>",
+                                    annotation_position="bottom left")
+                st.subheader("Negative Words by Industry")
+                st.plotly_chart(fig_i_neg, use_container_width=True)
+        
+                # 5) Kompaktvergleich Industry
+                other_pos_i = ind_avg.loc[ind_avg["SASB_industry"]!=focal_ind, "words_pos_500"].mean()
+                other_neg_i = ind_avg.loc[ind_avg["SASB_industry"]!=focal_ind, "words_neg_500"].mean()
+                comp_i = pd.DataFrame({
+                    "Group": [focal_ind, "Other Industries"],
+                    "Positive": [focal_pos_i, other_pos_i],
+                    "Negative": [focal_neg_i, other_neg_i]
+                })
+                fig_cmp_i = px.bar(
+                    comp_i,
+                    x="Group",
+                    y=["Positive","Negative"],
+                    barmode="group",
+                    color_discrete_sequence=["#E10600","#1f77b4"],
+                    labels={"value":"Count","variable":"Sentiment","Group":""}
+                )
+                fig_cmp_i.update_layout(
+                    xaxis={"categoryorder":"array","categoryarray":[focal_ind,"Other Industries"]},
+                    showlegend=True, legend_title_text=""
+                )
+                fig_cmp_i.update_traces(texttemplate="%{y:.0f}", textposition="outside")
+                st.subheader("Peer vs. Industry Sentiment")
+                st.plotly_chart(fig_cmp_i, use_container_width=True)
+
             
             
             elif plot_type == "Bar Chart":
@@ -2999,9 +3078,17 @@ with main:
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
                 focal_avg_sec = sector_avg.loc[sector_avg["supersector"] == focal_super, "Fog-Index"].iat[0]
                 fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
-                              annotation_text="<b>All Sectors Avg</b>", annotation_position="top right")
+                              annotation_text="<b>All Sectors Avg</b>", 
+                              annotation_position="top right",
+                              annotation_font_color="black",
+                              annotation_font_size=16
+                             )
                 fig.add_vline(x=focal_avg_sec, line_dash="dash", line_color="red",
-                              annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left")
+                              annotation_text=f"<b>{focal_super} Avg</b>",
+                              annotation_position="bottom left",
+                              annotation_font_color="red",
+                              annotation_font_size=16
+                             )
                 fig.update_layout(showlegend=False, xaxis_title="Fog-Index", yaxis_title="Number of Sectors")
                 st.plotly_chart(fig, use_container_width=True)
         
@@ -3032,7 +3119,10 @@ with main:
                 )
                 fig_s.add_vline(x=sector_avg["Fog-Index"].mean(), line_dash="dash",
                                 line_color="black", annotation_text="<b>All Sectors Avg</b>",
-                                annotation_position="bottom right")
+                                annotation_position="bottom right",
+                                annotation_font_color="black",
+                                anotation_font_size=16
+                               )
                 fig_s.update_traces(texttemplate="%{x:.1f}", textposition="outside", cliponaxis=False)
                 fig_s.update_layout(showlegend=False, xaxis_title="Fog-Index")
                 st.plotly_chart(fig_s, use_container_width=True)
