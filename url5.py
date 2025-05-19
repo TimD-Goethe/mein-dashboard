@@ -612,7 +612,11 @@ with main:
                     labels={"sector_short": "", "Pages": "Pages"}
                 )
                 fig_s.add_vline(x=sector_avg["Pages"].mean(), line_dash="dash",
-                                line_color="black", annotation_text="<b>All Sectors Avg</b>")
+                                line_color="black", 
+                                annotation_text="<b>All Sectors Avg</b>",
+                                annotation_font_color="black",
+                                annotation_font_size=16,
+                               )
                 fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
                 fig_s.update_layout(showlegend=False, xaxis_title="Pages")
                 st.plotly_chart(fig_s, use_container_width=True)
