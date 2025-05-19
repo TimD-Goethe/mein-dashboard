@@ -2620,30 +2620,35 @@ with main:
                     .mean()
                     .reset_index()
                 )
-
+            
+                # gekürzte Sektor-Namen
                 sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0, 15)
-                
-                # 2) Positive Wörter: sortieren & highlight-Spalte
+            
+                # 2a) Reihenfolge für positive Wörter
                 pos_sec = sector_avg.sort_values("words_pos_500", ascending=False)
                 pos_sec["highlight"] = np.where(
                     pos_sec["supersector"] == focal_super,
                     focal_super,
                     "Other Sectors"
                 )
-                y_order_pos = pos_sec["sector_short"].tolist()
+                # korrekte Kurz-Orderliste
+                y_order_pos_short = pos_sec["sector_short"].tolist()
             
-                # 3) Bar Chart positive Wörter pro Supersector
+                # 3a) Bar Chart positive Wörter
                 fig_pos = px.bar(
                     pos_sec,
                     x="words_pos_500",
-                    y="sector_short",
+                    y="sector_short",                        # Kurzspalte verwenden
                     orientation="h",
                     color="highlight",
                     color_discrete_map={focal_super: "red", "Other Sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order_pos_short},
-                    labels={"words_pos_500": "# Positive Words", "supersector": ""}
+                    labels={
+                        "words_pos_500": "# Positive Words",
+                        "sector_short": ""
+                    }
                 )
-                # Peer-Average (aller Sektoren) als schwarze Linie
+                # Linie Peer-Average
                 overall_pos = sector_avg["words_pos_500"].mean()
                 fig_pos.add_vline(
                     x=overall_pos,
@@ -2658,15 +2663,17 @@ with main:
                 st.plotly_chart(fig_pos, use_container_width=True)
             
             
-                # Negative Wörter: sortieren & highlight-Spalte
+                # 2b) Reihenfolge für negative Wörter
                 neg_sec = sector_avg.sort_values("words_neg_500", ascending=False)
                 neg_sec["highlight"] = np.where(
                     neg_sec["supersector"] == focal_super,
                     focal_super,
                     "Other Sectors"
                 )
-                y_order_neg = neg_sec["sector_short"].tolist()
+                # korrekte Kurz-Orderliste
+                y_order_neg_short = neg_sec["sector_short"].tolist()
             
+                # 3b) Bar Chart negative Wörter
                 fig_neg = px.bar(
                     neg_sec,
                     x="words_neg_500",
@@ -2674,8 +2681,11 @@ with main:
                     orientation="h",
                     color="highlight",
                     color_discrete_map={focal_super: "red", "Other Sectors": "#1f77b4"},
-                    category_orders={"sector_short": y_order_neg},
-                    labels={"words_neg_500": "# Negative Words", "supersector": ""}
+                    category_orders={"sector_short": y_order_neg_short},
+                    labels={
+                        "words_neg_500": "# Negative Words",
+                        "sector_short": ""
+                    }
                 )
                 overall_neg = sector_avg["words_neg_500"].mean()
                 fig_neg.add_vline(
@@ -2691,7 +2701,7 @@ with main:
                 st.plotly_chart(fig_neg, use_container_width=True)
             
             
-                # 5) Kompaktvergleich: focal_super vs alle anderen
+                # 4) Kompaktvergleich: focal_super vs. alle anderen
                 focal_pos = sector_avg.loc[sector_avg["supersector"] == focal_super, "words_pos_500"].iat[0]
                 focal_neg = sector_avg.loc[sector_avg["supersector"] == focal_super, "words_neg_500"].iat[0]
                 other_pos = sector_avg.loc[sector_avg["supersector"] != focal_super, "words_pos_500"].mean()
