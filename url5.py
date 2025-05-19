@@ -1526,7 +1526,7 @@ with main:
                                 line_dash="dash", line_color="black",
                                 annotation_text="<b>All Sectors Avg</b>",
                                 annotation_position="bottom right",
-                                annotation_font_color=black,
+                                annotation_font_color="black",
                                 annotation_font_size=16
                                )
                 fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
