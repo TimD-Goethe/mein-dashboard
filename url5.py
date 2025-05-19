@@ -1721,44 +1721,7 @@ with main:
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
-            elif plot_type == "Histogram":
-                # Einfaches Histogramm aller Unternehmen
-                fig = px.histogram(
-                    plot_df,
-                    x="tables_500",
-                    nbins=20,
-                    labels={"tables_500": "Tables per 500 Words", "_group": "Group"}
-                )
-                fig.update_traces(marker_color="#1f77b4")
-                # Peer-Average
-                fig.add_vline(
-                    x=mean_tables,
-                    line_dash="dash",
-                    line_color="black",
-                    line_width=1,
-                    opacity=0.6,
-                    annotation_text="<b>Peer Average</b>",
-                    annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16
-                )
-                # Focal Company
-                fig.add_vline(
-                    x=focal_tables,
-                    line_dash="dash",
-                    line_color="red",
-                    opacity=0.8,
-                    annotation_text=f"<b>{company}</b>",
-                    annotation_position="bottom left",
-                    annotation_font_color="red",
-                    annotation_font_size=16,
-                )
-                fig.update_layout(
-                    xaxis_title="Tables per 500 Words",
-                    yaxis_title="Number of Companies"
-                )
-                st.plotly_chart(fig, use_container_width=True)
-        
+                    
             elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
@@ -1853,6 +1816,143 @@ with main:
         
                 st.subheader(f"{focal_country} vs. Other Countries")
                 st.plotly_chart(fig_cmp, use_container_width=True)
+
+
+            if benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+                sector_avg = (
+                    df
+                    .groupby("supersector")["tables_500"]
+                    .mean()
+                    .reset_index(name="Tables per 500")
+                )
+                fig = px.histogram(
+                    sector_avg,
+                    x="Tables per 500",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"Tables per 500": "Count of Tables per 500 words"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+        
+                # Linien für All vs. Focal Supersector
+                overall_avg = sector_avg["Tables per 500"].mean()
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Tables per 500"].iat[0]
+        
+                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
+                              annotation_text="<b>All Sectors Avg</b>",
+                              annotation_position="top right")
+                fig.add_vline(x=focal_avg,   line_dash="dash", line_color="red",
+                              annotation_text=f"<b>{focal_super} Avg</b>",
+                              annotation_position="bottom left")
+        
+                fig.update_layout(showlegend=False,
+                                  xaxis_title="Count of Tables per 500 words",
+                                  yaxis_title="Number of Sectors",
+                                  bargap=0.1)
+                st.plotly_chart(fig, use_container_width=True)
+        
+        
+            # 2) Bar-Chart aller Supersektoren
+            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+                sector_avg = (
+                    df
+                    .groupby("supersector")["tables_500"]
+                    .mean()
+                    .reset_index(name="Tables per 500")
+                ).sort_values("Tables per 500", ascending=False)
+        
+                # auf 15 Zeichen kürzen
+                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
+                y_order = sector_avg["sector_short"].tolist()
+        
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                sector_avg["highlight"] = np.where(
+                    sector_avg["supersector"] == focal_super,
+                    sector_avg["sector_short"],
+                    "Other sectors"
+                )
+        
+                fig_s = px.bar(
+                    sector_avg,
+                    x="Tables per 500",
+                    y="sector_short",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
+                    category_orders={"sector_short": y_order},
+                    labels={"sector_short": "", "Tables per 500": "Count of Tables per 500 words"}
+                )
+                fig_s.add_vline(x=sector_avg["Tables per 500"].mean(),
+                                line_dash="dash", line_color="black",
+                                annotation_text="<b>All Sectors Avg</b>",
+                                annotation_position="bottom right")
+                fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
+                fig_s.update_layout(showlegend=False, xaxis_title="Count of Tables per 500 words")
+                st.plotly_chart(fig_s, use_container_width=True)
+        
+                # 3) Kompakter Vergleich: focal vs. avg of others
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Tables per 500"].iat[0]
+                others_avg  = sector_avg.loc[sector_avg["supersector"] != focal_super, "Tables per 500"].mean()
+        
+                comp_df = pd.DataFrame({
+                    "Group": [focal_super, "Other sectors avg"],
+                    "Tables": [focal_avg, others_avg]
+                })
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="Tables",
+                    text="Tables",
+                    color="Group",
+                    color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
+                    labels={"Tables": "Count of Tables per 500 words", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_cmp, use_container_width=True)
+
+
+            elif plot_type == "Histogram":
+                # Einfaches Histogramm aller Unternehmen
+                fig = px.histogram(
+                    plot_df,
+                    x="tables_500",
+                    nbins=20,
+                    labels={"tables_500": "Tables per 500 Words", "_group": "Group"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+                # Peer-Average
+                fig.add_vline(
+                    x=mean_tables,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=1,
+                    opacity=0.6,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                # Focal Company
+                fig.add_vline(
+                    x=focal_tables,
+                    line_dash="dash",
+                    line_color="red",
+                    opacity=0.8,
+                    annotation_text=f"<b>{company}</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16,
+                )
+                fig.update_layout(
+                    xaxis_title="Tables per 500 Words",
+                    yaxis_title="Number of Companies"
+                )
+                st.plotly_chart(fig, use_container_width=True)
         
             elif plot_type == "Bar Chart":
                 # 1) Peer-Detail-Chart
