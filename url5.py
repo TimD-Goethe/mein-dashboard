@@ -878,7 +878,7 @@ with main:
         
             # ———————————————————————————————————————————————————————
             # A) Erster Chart: alle Peers, mit selected first + alphabetisch
-            selected = st.session_state.company  # oder wie Du das ausgewählte Unternehmen speicherst
+            selected = company  # oder wie Du das ausgewählte Unternehmen speicherst
         
             # 1. Reihenfolge festlegen
             other_companies = sorted([c for c in avg_df['company'].unique() if c != selected])
