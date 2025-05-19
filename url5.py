@@ -1243,8 +1243,8 @@ with main:
                 'S2: Value chain workers': '#ffb74d',
                 'S3: Affected communities':'#e65100',
                 'S4: Consumers':           '#bf360c',
-                'ESRS 2: Governance':      '#1f4477',  # dunkles Blau
-                'G1: Business conduct':    '#284e8c'   # etwas anders dunkles Blau
+                'ESRS 2: Governance':      '#5A9BD5',  # dunkles Blau
+                'G1: Business conduct':    '#1F4E79'   # etwas anders dunkles Blau
             }
         
             # === Chart A: Peer group average vs. selected company ===
