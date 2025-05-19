@@ -244,7 +244,7 @@ with left:
         st.subheader("Cross Country / Cross Industry Benchmarking")
         benchmark_type = st.radio(
             "Select a cross-benchmark type:",
-            ["Between Country Comparison", "Between Industry Comparison"],
+            ["Between Country Comparison", "Between Sector Comparison"],
             key="cross_type"
         )
         peer_selection = []
@@ -343,15 +343,21 @@ elif benchmark_type == "Between Country Comparison":
                      ], ignore_index=True)
     benchmark_label = f"{focal_country} vs Others"
 
-elif benchmark_type == "Between Industry Comparison":
-    focal_ind        = df.loc[df["company"] == company, "SASB_industry"].iat[0]
-    industry_df      = df[df["SASB_industry"] == focal_ind]
-    rest_ind_df      = df[df["SASB_industry"] != focal_ind]
-    benchmark_df     = pd.concat([
-                        industry_df.assign(_group=focal_ind),
-                        rest_ind_df.assign(_group="Others")
-                     ], ignore_index=True)
-    benchmark_label  = f"{focal_ind} vs Others"
+elif benchmark_type == "Between Sector Comparison":
+    # 1) Finde den Supersector des gewählten Unternehmens
+    focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+
+    # 2) Alle Firmen im gleichen Supersector
+    super_df     = df[df["supersector"] == focal_super]
+    others_df    = df[df["supersector"] != focal_super]
+
+    # 3) Kennzeichne für die Plots
+    benchmark_df = pd.concat([
+        super_df.assign(_group=focal_super),
+        others_df.assign(_group="Other sectors")
+    ], ignore_index=True)
+
+    benchmark_label = f"{focal_super} vs Other sectors"
 
 # focal values
 focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
