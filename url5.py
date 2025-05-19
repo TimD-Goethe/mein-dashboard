@@ -2980,7 +2980,7 @@ with main:
             # Between Sector Comparison für Fog-Index
             # —————————————————————————————————————————————————————————————————————————————————
         
-            if benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
                 sector_avg = (
                     df
                     .groupby("supersector")["fog"]
