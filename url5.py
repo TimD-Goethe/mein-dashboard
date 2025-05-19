@@ -3081,8 +3081,8 @@ with main:
             st.subheader(f"Language Complexity ({benchmark_label})")
         
             # 1) Peer-Average und Focal-Wert holen
-            mean_fog  = benchmark_df["fog"].mean()
-            focal_fog = df.loc[df["company"] == company, "fog"].iat[0]
+            mean_fog  = benchmark_df["fog_avg"].mean()
+            focal_fog = df.loc[df["company"] == company, "fog_avg"].iat[0]
     
     
             if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
@@ -3092,7 +3092,7 @@ with main:
                 # 2) Länder-Durchschnitt für fog berechnen
                 country_avg = (
                     df
-                    .groupby("country")["fog"]           # statt Sustainability_Page_Count jetzt fog
+                    .groupby("country")["fog_avg"]           # statt Sustainability_Page_Count jetzt fog
                     .mean()
                     .reset_index(name="FogScore")
                 )
@@ -3153,7 +3153,7 @@ with main:
                 # 2) Berechne den Durchschnitt des Fog-Scores pro Land
                 country_avg = (
                     df
-                    .groupby("country")["fog"]
+                    .groupby("country")["fog_avg"]
                     .mean()
                     .reset_index(name="FogScore")
                 )
@@ -3261,7 +3261,7 @@ with main:
             elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
                 sector_avg = (
                     df
-                    .groupby("supersector")["fog"]
+                    .groupby("supersector")["fog_avg"]
                     .mean()
                     .reset_index(name="Fog-Index")
                 )
@@ -3294,7 +3294,7 @@ with main:
             elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
                 sector_avg = (
                     df
-                    .groupby("supersector")["fog"]
+                    .groupby("supersector")["fog_avg"]
                     .mean()
                     .reset_index(name="Fog-Index")
                 ).sort_values("Fog-Index", ascending=False)
@@ -3352,7 +3352,7 @@ with main:
                     
             elif plot_type == "Histogram":
                 fig_fog = px.histogram(
-                    plot_df, x="fog", nbins=20,
+                    plot_df, x="fog_avg", nbins=20,
                     labels={"fog": "Fog Index"}
                 )
                 # Peer Average
@@ -3381,7 +3381,7 @@ with main:
         
             elif plot_type == "Bar Chart":
                 # 1) sortieren und Highlight-Spalte
-                peers_fog = plot_df.sort_values("fog", ascending=False)
+                peers_fog = plot_df.sort_values("fog_avg", ascending=False)
                 peers_fog["highlight_label"] = np.where(
                     peers_fog["company"] == company, company, "Peers"
                 )
@@ -3395,7 +3395,7 @@ with main:
                 # 4) Bar Chart gegen company_short zeichnen
                 fig_fog_bar = px.bar(
                     peers_fog,
-                    x="fog",
+                    x="fog_avg",
                     y="company_short",                   # <<< Kurzspalte verwenden
                     orientation="h",
                     color="highlight_label",
@@ -3440,7 +3440,7 @@ with main:
                 fig_fog_cmp = px.bar(
                     comp_fog,
                     x="Group",
-                    y="Fog",
+                    y="fog_avg",
                     text="Fog",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
