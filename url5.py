@@ -64,7 +64,7 @@ st.markdown(
 #-------------------------------------------------------------------------------------
 # 2. Daten laden
 #--------------------------------------------------------------------------------------
-df = pd.read_csv("Summary_with_topics.csv")
+df = pd.read_csv("summary_with_topics_full.csv")
 
 # Zusammenfassen der SASB_industry Variable in die SASB Sectors
 
