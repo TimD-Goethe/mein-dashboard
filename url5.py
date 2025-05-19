@@ -2609,7 +2609,7 @@ with main:
                 st.subheader("Negative Words Distribution by Country")
                 st.plotly_chart(fig_hist2, use_container_width=True)
 
-            if benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
                 # Focal-Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
