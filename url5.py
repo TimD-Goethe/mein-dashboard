@@ -90,6 +90,7 @@ with left:
         index=default_idx,
         key="company_selector",
     )
+    selected = company
 
     # Top-Level Radio: steuert die beiden Hauptblöcke
     mode = st.radio(
