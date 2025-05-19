@@ -1230,9 +1230,8 @@ with main:
             # 5) Reihenfolge der ESRS Topics und Farb-Map
             legend_order = [
                 'E1: Climate change','E2: Pollution','E3: Water','E4: Biodiversity',
-                'E5: Circular economy','ESRS 2: Governance','G1: Business conduct',
-                'S1: Own workforce','S2: Value chain workers','S3: Affected communities',
-                'S4: Consumers'
+                'E5: Circular economy', 'S1: Own workforce','S2: Value chain workers','S3: Affected communities',
+                'S4: Consumers','ESRS 2: Governance','G1: Business conduct'
             ]
             my_colors = {
                 'E1: Climate change':      '#145214',
@@ -1240,12 +1239,12 @@ with main:
                 'E3: Water':               '#388e3c',
                 'E4: Biodiversity':        '#81c784',
                 'E5: Circular economy':    '#c8e6c9',
-                'ESRS 2: Governance':      '#ff9800',
-                'G1: Business conduct':    '#fb8c00',
                 'S1: Own workforce':       '#f57c00',
                 'S2: Value chain workers': '#ffb74d',
                 'S3: Affected communities':'#e65100',
-                'S4: Consumers':           '#bf360c'
+                'S4: Consumers':           '#bf360c',
+                'ESRS 2: Governance':      '#1f4477',  # dunkles Blau
+                'G1: Business conduct':    '#284e8c'   # etwas anders dunkles Blau
             }
         
             # === Chart A: Peer group average vs. selected company ===
