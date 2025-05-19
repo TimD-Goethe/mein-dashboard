@@ -843,21 +843,14 @@ with main:
                 'workersvalchain':'S2: Value chain workers'
             }
             
-            # --- 3. Spalten umbenennen (rel_<topic> → <topic>_pct) ---
-            # Falls Deine CSV immer noch rel_<topic> heißt:
-            for topic in topic_map:
-                rel_col = f'rel_{topic}'
-                pct_col = f'{topic}_pct'
-                if rel_col in benchmark_df.columns:
-                    benchmark_df[pct_col] = benchmark_df[rel_col]
                     
-            # --- 4. pct-Spalten ermitteln ---
-            pct_cols = [c for c in benchmark_df.columns if c.endswith('_pct')]
+            # --- 4. rel-Spalten ermitteln ---
+            rel_cols = [c for c in benchmark_df.columns if c.startswith('rel_')]
             
-            # --- 5. DataFrame fürs Plotten ---
+           # 3) DataFrame fürs Plotten aufbauen
             plot_pct = benchmark_df[['company'] + pct_cols].copy()
-            
-            # --- 6. In Long-Format ---
+        
+            # 4) In Long-Format
             plot_long = plot_pct.melt(
                 id_vars=['company'],
                 value_vars=pct_cols,
@@ -866,22 +859,28 @@ with main:
             )
             plot_long['topic'] = plot_long['topic_internal'].str.replace('_pct','', regex=False)
             plot_long['topic_label'] = plot_long['topic'].map(topic_map)
-            
-            # --- 7. Fehlende Labels (falls ein Topic in Mapping fehlt) ---
-            missing = plot_long['topic'].loc[plot_long['topic_label'].isna()].unique()
-            if len(missing):
-                st.warning(f"Kein Mapping für diese Topics gefunden: {missing}")
-            
-            # --- 8. Durchschnitt je (Company, Topic) ---
+        
+            # 5) Durchschnittlichen pct-Wert pro (Company, Topic)
             avg_df = (
                 plot_long
                 .groupby(['company','topic_label'])['pct']
                 .mean()
                 .reset_index()
             )
-            
-            # --- 9. 100 %-Stacked Bar Chart ---
-            fig = px.bar(
+        
+            # ———————————————————————————————————————————————————————
+            # A) Erster Chart: alle Peers, mit selected first + alphabetisch
+            selected = st.session_state.company  # oder wie Du das ausgewählte Unternehmen speicherst
+        
+            # 1. Reihenfolge festlegen
+            other_companies = sorted([c for c in avg_df['company'].unique() if c != selected])
+            company_order = [selected] + other_companies
+        
+            # 2. Kategorie-Reihenfolge in avg_df setzen
+            avg_df['company'] = pd.Categorical(avg_df['company'], categories=company_order, ordered=True)
+        
+            # 3. Chart bauen
+            fig1 = px.bar(
                 avg_df,
                 x='pct',
                 y='company',
@@ -891,13 +890,55 @@ with main:
                 labels={'pct':'Share','company':''},
                 color_discrete_sequence=px.colors.qualitative.Safe
             )
-            fig.update_layout(
+            fig1.update_layout(
                 barmode='stack',
                 xaxis_tickformat=',.0%',
-                yaxis={'categoryorder':'total descending'}
+                yaxis={'categoryorder':'array', 'categoryarray':company_order}
             )
-            
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig1, use_container_width=True)
+        
+        
+            # ———————————————————————————————————————————————————————
+            # B) Zweiter Chart: nur Selected vs. Peer-Group Average
+        
+            # 1. Peer-Group Average berechnen (ohne das selektierte Unternehmen)
+            peer_avg = (
+                avg_df[avg_df['company'] != selected]
+                .groupby('topic_label')['pct']
+                .mean()
+                .reset_index()
+            )
+            peer_avg['company'] = 'Peer group average'
+        
+            # 2. Selected Data isolieren
+            selected_df = avg_df[avg_df['company'] == selected].copy()
+        
+            # 3. Beide zusammenführen (erst selected, dann peer_avg)
+            combo = pd.concat([selected_df, peer_avg], axis=0)
+            combo['company'] = pd.Categorical(
+                combo['company'], 
+                categories=[selected, 'Peer group average'], 
+                ordered=True
+            )
+        
+            # 4. Chart bauen
+            fig2 = px.bar(
+                combo,
+                x='pct',
+                y='company',
+                color='topic_label',
+                orientation='h',
+                text=combo['pct'].apply(lambda v: f"{v*100:.0f}%"),
+                labels={'pct':'Share','company':''},
+                color_discrete_sequence=px.colors.qualitative.Safe
+            )
+            fig2.update_layout(
+                barmode='stack',
+                xaxis_tickformat=',.0%',
+                yaxis={'categoryorder':'array', 'categoryarray':[selected, 'Peer group average']}
+            )
+            st.plotly_chart(fig2, use_container_width=True)
+
 
         elif view == "Numbers":
             st.subheader(f"Numbers per 500 Words ({benchmark_label})")
