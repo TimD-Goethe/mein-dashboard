@@ -66,6 +66,124 @@ st.markdown(
 #--------------------------------------------------------------------------------------
 df = pd.read_csv("Summary_with_topics.csv")
 
+# Zusammenfassen der SASB_industry Variable in die SASB Sectors
+
+supersector_map = {
+    # Consumer Goods
+    **dict.fromkeys([
+        'Apparel, Accessories & Footwear',
+        'Appliance Manufacturing',
+        'Building Products & Furnishings',
+        'E-Commerce',
+        'Household & Personal Products',
+        'Multiline and Specialty Retailers & Distributors',
+        'Toys & Sporting Goods'
+    ], 'Consumer Goods'),
+    # Extractives & Minerals Processing
+    **dict.fromkeys([
+        'Coal Operations',
+        'Construction Materials',
+        'Iron & Steel Producers',
+        'Metals & Mining',
+        'Oil & Gas – Exploration & Production',
+        'Oil & Gas – Midstream',
+        'Oil & Gas – Refining & Marketing',
+        'Oil & Gas – Services'
+    ], 'Extractives & Minerals Processing'),
+    # Financials
+    **dict.fromkeys([
+        'Asset Management & Custody Activities',
+        'Commercial Banks',
+        'Consumer Finance',
+        'Insurance',
+        'Investment Banking & Brokerage',
+        'Mortgage Finance',
+        'Security & Commodity Exchanges'
+    ], 'Financials'),
+    # Food & Beverage
+    **dict.fromkeys([
+        'Agricultural Products',
+        'Alcoholic Beverages',
+        'Food Retailers & Distributors',
+        'Meat, Poultry & Dairy',
+        'Non-Alcoholic Beverages',
+        'Processed Foods',
+        'Restaurants',
+        'Tobacco'
+    ], 'Food & Beverage'),
+    # Health Care
+    **dict.fromkeys([
+        'Biotechnology & Pharmaceuticals',
+        'Drug Retailers',
+        'Health Care Delivery',
+        'Health Care Distributors',
+        'Managed Care',
+        'Medical Equipment & Supplies'
+    ], 'Health Care'),
+    # Infrastructure
+    **dict.fromkeys([
+        'Electric Utilities & Power Generators',
+        'Engineering & Construction Services',
+        'Gas Utilities & Distributors',
+        'Home Builders',
+        'Real Estate',
+        'Real Estate Services',
+        'Waste Management',
+        'Water Utilities & Services'
+    ], 'Infrastructure'),
+    # Renewable Resources & Alternative Energy
+    **dict.fromkeys([
+        'Biofuels',
+        'Forestry Management',
+        'Fuel Cells & Industrial Batteries',
+        'Pulp & Paper Products',
+        'Solar Technology & Project Developers',
+        'Wind Technology & Project Developers'
+    ], 'Renewable Resources & Alternative Energy'),
+    # Resource Transformation
+    **dict.fromkeys([
+        'Aerospace & Defence',
+        'Chemicals',
+        'Containers & Packaging',
+        'Electrical & Electronic Equipment',
+        'Industrial Machinery & Goods'
+    ], 'Resource Transformation'),
+    # Services
+    **dict.fromkeys([
+        'Advertising & Marketing',
+        'Casinos & Gaming',
+        'Education',
+        'Hotels & Lodging',
+        'Leisure Facilities',
+        'Media & Entertainment',
+        'Professional & Commercial Services'
+    ], 'Services'),
+    # Technology & Communications
+    **dict.fromkeys([
+        'Electronic Manufacturing Services & Original Design Manufacturing',
+        'Hardware',
+        'Internet Media & Services',
+        'Semiconductors',
+        'Software & IT Services',
+        'Telecommunication Services'
+    ], 'Technology & Communications'),
+    # Transportation
+    **dict.fromkeys([
+        'Air Freight & Logistics',
+        'Airlines',
+        'Auto Parts',
+        'Automobiles',
+        'Car Rental & Leasing',
+        'Cruise Lines',
+        'Marine Transportation',
+        'Rail Transportation',
+        'Road Transportation'
+    ], 'Transportation'),
+}
+
+# neue Spalte anlegen
+df['supersector'] = df['SASB_industry'].map(supersector_map).fillna('Other')
+
 #--------------------------------------------------------------------------------------
 # 3. URL-Param & Default
 #--------------------------------------------------------------------------------------
@@ -182,8 +300,8 @@ with right:
 # 6. Build `benchmark_df`
 # --------------------------------------------------------------------
 if benchmark_type == "Sector Peers":
-    sector          = df.loc[df["company"] == company, "SASB_industry"].iat[0]
-    benchmark_df    = df[df["SASB_industry"] == sector]
+    sector          = df.loc[df["company"] == company, "supersector"].iat[0]
+    benchmark_df    = df[df["supersector"] == sector]
     benchmark_label = f"Sector Peers: {sector}"
 
 elif benchmark_type == "Country Peers":
