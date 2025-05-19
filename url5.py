@@ -2630,17 +2630,17 @@ with main:
                     focal_super,
                     "Other Sectors"
                 )
-                y_order_pos = pos_sec["supersector"].tolist()
+                y_order_pos = pos_sec["sector_short"].tolist()
             
                 # 3) Bar Chart positive Wörter pro Supersector
                 fig_pos = px.bar(
                     pos_sec,
                     x="words_pos_500",
-                    y="supersector",
+                    y="sector_short",
                     orientation="h",
                     color="highlight",
                     color_discrete_map={focal_super: "red", "Other Sectors": "#1f77b4"},
-                    category_orders={"supersector": y_order_pos},
+                    category_orders={"sector_short": y_order_pos_short},
                     labels={"words_pos_500": "# Positive Words", "supersector": ""}
                 )
                 # Peer-Average (aller Sektoren) als schwarze Linie
@@ -2665,16 +2665,16 @@ with main:
                     focal_super,
                     "Other Sectors"
                 )
-                y_order_neg = neg_sec["supersector"].tolist()
+                y_order_neg = neg_sec["sector_short"].tolist()
             
                 fig_neg = px.bar(
                     neg_sec,
                     x="words_neg_500",
-                    y="supersector",
+                    y="sector_short",
                     orientation="h",
                     color="highlight",
                     color_discrete_map={focal_super: "red", "Other Sectors": "#1f77b4"},
-                    category_orders={"supersector": y_order_neg},
+                    category_orders={"sector_short": y_order_neg},
                     labels={"words_neg_500": "# Negative Words", "supersector": ""}
                 )
                 overall_neg = sector_avg["words_neg_500"].mean()
