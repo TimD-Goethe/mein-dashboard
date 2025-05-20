@@ -64,14 +64,14 @@ st.markdown(
 #-------------------------------------------------------------------------------------
 # 2. Daten laden
 #--------------------------------------------------------------------------------------
-df = pd.read_csv("summary_with_topics_full.csv")
+df = pd.read_csv("summary_final_version.csv")
 
 # Zusammenfassen der SASB_industry Variable in die SASB Sectors
 
 supersector_map = {
     # Consumer Goods
     **dict.fromkeys([
-        'Apparel, Accessories & Footwear',
+        'Apparel Accessories & Footwear',
         'Appliance Manufacturing',
         'Building Products & Furnishings',
         'E-Commerce',
@@ -105,7 +105,7 @@ supersector_map = {
         'Agricultural Products',
         'Alcoholic Beverages',
         'Food Retailers & Distributors',
-        'Meat, Poultry & Dairy',
+        'Meat Poultry & Dairy',
         'Non-Alcoholic Beverages',
         'Processed Foods',
         'Restaurants',
