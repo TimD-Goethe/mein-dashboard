@@ -200,6 +200,7 @@ left, main, right = st.columns([2, 5, 2])
 
 # 4a. Linke Sidebar: Company + Top-Level Radio + Unter-Radio
 with left:
+    # 1) Company dropdown bleibt unverändert
     default_idx = company_list.index(default_company) if default_company in company_list else 0
     company = st.selectbox(
         "Select a company:",
@@ -207,22 +208,27 @@ with left:
         index=default_idx,
         key="company_selector",
     )
+    selected = company
 
-    # 2) Neue Hauptüberschrift statt zweier Radios
+    # 2) Neue Überschrift
     st.subheader("Company vs. Peer Group")
 
-    # 3) Peer-Group-Radio (wie bisher unter Benchmark Group)
+    # 3) Ein einziges Radio für alle Gruppen und Vergleiche
     benchmark_type = st.radio(
-        "Select a peer group:",
+        "",  # kein Label, weil es als Überschrift schon steht
         [
             "Sector Peers",
             "Country Peers",
             "Market Cap Peers",
             "All CSRD First Wave",
-            "Choose specific peers"
+            "Choose specific peers",
+            "Company Sector vs Other Sectors",
+            "Company Country vs Other Countries"
         ],
         key="benchmark_type"
     )
+
+    # 4) Wenn „Choose specific peers“ gewählt, Multiselect zeigen
     if benchmark_type == "Choose specific peers":
         peer_selection = st.multiselect(
             "Or choose specific peer companies:",
@@ -231,17 +237,6 @@ with left:
         )
     else:
         peer_selection = []
-
-    # 4) kursiver Hinweis und neues Cross-Comparison-Radio
-    st.markdown("_Choose a cross-comparison:_")
-    cross_type = st.radio(
-        "", 
-        [
-            "Company Sector vs Other Sectors",
-            "Company Country vs Other Countries"
-        ],
-        key="cross_type"
-    )
 
 # 4b. Rechte Spalte: View & Chart Type
 with right:
