@@ -1287,7 +1287,7 @@ with main:
             }
         
             # — 5) Darstellung je nach Benchmark-Typ —
-            if benchmark_type == "Between Country Comparison":
+            if benchmark_type == "Company Country vs Other Countries":
                 # a) country ins Long-DF einfügen
                 plot_long = plot_long.merge(
                     benchmark_df[['company','country']],
@@ -1355,7 +1355,7 @@ with main:
                                    legend=dict(title='ESRS Topic', itemsizing='constant'))
                 st.plotly_chart(figB, use_container_width=True)
         
-            elif benchmark_type == "Between Sector Comparison":
+            elif benchmark_type == "Company Sector vs Other Sectors":
                 sector_topic = (
                     plot_long
                     .merge(df[['company','supersector']], on='company')
@@ -1477,7 +1477,7 @@ with main:
             mean_nums   = benchmark_df["num_o_seit_500"].mean()
             focal_nums  = df.loc[df["company"] == company, "num_o_seit_500"].iat[0]
         
-            if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
@@ -1510,7 +1510,8 @@ with main:
                     line_width=2,
                     annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
-                    annotation_font_size=14,
+                    annotation_font_color="black",
+                    annotation_font_size=16,
                 )
                 # 5) V-Line Focal Country
                 fig.add_vline(
@@ -1521,7 +1522,7 @@ with main:
                     annotation_text=f"<b>{focal_country} Avg</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=14,
+                    annotation_font_size=16,
                 )
         
                 # 6) Layout
@@ -1533,7 +1534,7 @@ with main:
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
-            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
@@ -1623,7 +1624,7 @@ with main:
                 st.subheader(f"{focal_country} vs. Other Countries")
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 sector_avg = (
                     df
                     .groupby("supersector")["num_o_seit_500"]
@@ -1663,7 +1664,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
         
             # Bar-Chart aller Supersektoren
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 sector_avg = (
                     df
                     .groupby("supersector")["num_o_seit_500"]
@@ -1834,7 +1835,7 @@ with main:
             mean_tables = benchmark_df["tables_500"].mean()
             focal_tables = df.loc[df["company"] == company, "tables_500"].iat[0]
         
-            if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
@@ -1867,7 +1868,8 @@ with main:
                     line_width=2,
                     annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
-                    annotation_font_size=14,
+                    annotation_font_color="black",
+                    annotation_font_size=16,
                 )
                 # 5) V-Line Focal Country
                 fig.add_vline(
@@ -1878,7 +1880,7 @@ with main:
                     annotation_text=f"<b>{focal_country} Avg</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=14,
+                    annotation_font_size=16,
                 )
         
                 # 6) Layout
@@ -1891,7 +1893,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
         
                     
-            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
@@ -1987,7 +1989,7 @@ with main:
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
 
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 sector_avg = (
                     df
                     .groupby("supersector")["tables_500"]
@@ -2029,7 +2031,7 @@ with main:
         
         
             # 2) Bar-Chart aller Supersektoren
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 sector_avg = (
                     df
                     .groupby("supersector")["tables_500"]
@@ -2203,7 +2205,7 @@ with main:
             mean_img = benchmark_df["imgsize_pages"].mean()
             focal_img = df.loc[df["company"] == company, "imgsize_pages"].iat[0]
         
-            if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
@@ -2236,7 +2238,8 @@ with main:
                     line_width=2,
                     annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
-                    annotation_font_size=14,
+                    annotation_font_color="black",
+                    annotation_font_size=16,
                 )
                 # 5) V-Line Focal Country
                 fig.add_vline(
@@ -2247,7 +2250,7 @@ with main:
                     annotation_text=f"<b>{focal_country} Avg</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=14,
+                    annotation_font_size=16,
                 )
         
                 # 6) Layout
@@ -2260,7 +2263,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
         
                     
-            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Focal Country
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
@@ -2352,7 +2355,7 @@ with main:
 
 
             # 1) Histogramm aller Supersector-Durchschnitte
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 sector_avg = (
                     df
                     .groupby("supersector")["imgsize_pages"]
@@ -2394,7 +2397,7 @@ with main:
         
         
             # 2) Bar-Chart aller Supersektoren
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 sector_avg = (
                     df
                     .groupby("supersector")["imgsize_pages"]
@@ -2560,7 +2563,7 @@ with main:
     
         elif view == "Sentiment":
             
-            if benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
+            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
                 # 1) Länder-Durchschnitte berechnen
@@ -2684,7 +2687,7 @@ with main:
                 st.plotly_chart(fig_cmp, use_container_width=True)
     
     
-            elif benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Fokus-Land
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -2778,7 +2781,7 @@ with main:
                 st.subheader("Negative Words Distribution by Country")
                 st.plotly_chart(fig_hist2, use_container_width=True)
 
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 # Focal-Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
@@ -2900,7 +2903,7 @@ with main:
             
             
             # Histogram: Verteilung der Supersector-Durchschnitte
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
                 sector_avg = (
@@ -3146,7 +3149,7 @@ with main:
             mean_boiler   = benchmark_df["boiler_500"].mean()
             focal_boiler  = df.loc[df["company"] == company, "boiler_500"].iat[0]
         
-            if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Länder-Durchschnitt vorbereiten
                 country_avg = (
                     df
@@ -3176,7 +3179,8 @@ with main:
                     line_width=2,
                     annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
-                    annotation_font_size=14
+                    annotation_font_color="black",
+                    annotation_font_size=16
                 )
                 # Focal Country Linie (rot gestrichelt)
                 fig.add_vline(
@@ -3187,7 +3191,7 @@ with main:
                     annotation_text=f"<b>{focal_country} Avg</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=14
+                    annotation_font_size=16
                 )
         
                 fig.update_layout(
@@ -3199,7 +3203,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
         
         
-            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # Länder-Durchschnitt berechnen
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
                 country_avg = (
@@ -3253,7 +3257,7 @@ with main:
                 st.plotly_chart(fig_ctry, use_container_width=True)
         
         
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 sector_avg = (
                     df
                     .groupby("supersector")["boiler_500"]
@@ -3278,6 +3282,7 @@ with main:
                     line_color="black",
                     annotation_text="<b>All Sectors Avg</b>",
                     annotation_position="top right",
+                    annotation_font_color="black",
                     annotation_font_size=16
                 )
                 fig.add_vline(
@@ -3297,7 +3302,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
         
         
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 sector_avg = (
                     df
                     .groupby("supersector")["boiler_500"]
@@ -3400,7 +3405,7 @@ with main:
             focal_fog = df.loc[df["company"] == company, "fog_avg"].iat[0]
     
     
-            if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -3436,7 +3441,8 @@ with main:
                     line_width=2,
                     annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
-                    annotation_font_size=14,
+                    annotation_font_color="black",
+                    annotation_font_size=16,
                 )
             
                 # 6) VLine für Focal Country Avg (rot gestrichelt)
@@ -3448,7 +3454,7 @@ with main:
                     annotation_text=f"<b>{focal_country} Avg</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=14,
+                    annotation_font_size=16,
                 )
             
                 # 7) Layout-Feinschliff
@@ -3461,7 +3467,7 @@ with main:
             
                 st.plotly_chart(fig, use_container_width=True)
     
-            elif benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Bestimme das Land des gewählten Unternehmens
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -3573,7 +3579,7 @@ with main:
             # Between Sector Comparison für Fog-Index
             # —————————————————————————————————————————————————————————————————————————————————
         
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 sector_avg = (
                     df
                     .groupby("supersector")["fog_avg"]
@@ -3606,7 +3612,7 @@ with main:
                 fig.update_layout(showlegend=False, xaxis_title="Fog-Index", yaxis_title="Number of Sectors")
                 st.plotly_chart(fig, use_container_width=True)
         
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 sector_avg = (
                     df
                     .groupby("supersector")["fog_avg"]
