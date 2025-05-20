@@ -218,10 +218,10 @@ with left:
     )
     selected = company
 
-    # 2) Überschrift
+    # 3) Peer-Group Titel
     st.subheader("Company vs. Peer Group")
 
-    # 3) Ein einziges Radio für alle Gruppen und Vergleiche mit Emoji-Hervorhebung
+    # 4) Kombiniertes Radio-Widget
     options = [
         "Sector Peers",
         "Country Peers",
@@ -231,12 +231,7 @@ with left:
         "⭐ Company Sector vs Other Sectors",
         "🌍 Company Country vs Other Countries"
     ]
-    raw_choice = st.radio(
-        "",  # kein Label, die Überschrift ersetzt es
-        options,
-        key="benchmark_type"
-    )
-    # Emoji wieder entfernen für interne Logik
+    raw_choice = st.radio("", options, key="benchmark_type")
     benchmark_type = raw_choice.replace("⭐ ", "").replace("🌍 ", "")
 
     # 4) Wenn „Choose specific peers“ gewählt, Multiselect anzeigen
