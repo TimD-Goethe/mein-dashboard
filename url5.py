@@ -2953,10 +2953,16 @@ with main:
                       
             
             elif plot_type == "Bar Chart":
+                # — 1) Peer vs. Company Sentiment (kompakter Vergleich) —
                 st.subheader("Peer vs. Company Sentiment")
-    
-                
-                # Vergleich positive vs. negative als grouped bar
+            
+                # erst die Kennzahlen berechnen
+                mean_pos  = benchmark_df["words_pos_500"].mean()
+                focal_pos = df.loc[df["company"] == company, "words_pos_500"].iat[0]
+                mean_neg  = benchmark_df["words_neg_500"].mean()
+                focal_neg = df.loc[df["company"] == company, "words_neg_500"].iat[0]
+            
+                # dann das Vergleichs-DataFrame anlegen
                 comp_df = pd.DataFrame({
                     "company": ["Peer Average", company],
                     "Positive": [mean_pos,  focal_pos],
@@ -2965,116 +2971,64 @@ with main:
                 fig_cmp = px.bar(
                     comp_df,
                     x="company",
-                    y=["Positive","Negative"],
+                    y=["Positive", "Negative"],
                     barmode="group",
-                    labels={"value":"Count","company":""},
+                    color_discrete_sequence=["#FF7F7F", "#E10600"],  # Pos=helles Rot, Neg=dunkles Rot
                     category_orders={"company": [company, "Peer Average"]},
+                    labels={"value": "Count", "company": ""}
                 )
+                fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
                 st.plotly_chart(fig_cmp, use_container_width=True)
-                
-                
-                # --- Positive Words -----------------------
-                st.subheader("Positive Words")
             
-                pos_df = benchmark_df.sort_values("words_pos_500", ascending=False)
             
-                # Highlight-Spalte
-                pos_df["highlight_label"] = np.where(
-                    pos_df["company"] == company,
-                    company,
-                    "Peers"
-                )
-            
-                # 1) Kurzspalte erstellen
+                # — 2) Positive Words by Company —
+                st.subheader("Positive Words by Company")
+                pos_df = benchmark_df.sort_values("words_pos_500", ascending=False).copy()
+                pos_df["highlight"] = np.where(pos_df["company"] == company, company, "Peers")
                 pos_df["company_short"] = pos_df["company"].str.slice(0, 15)
-            
-                # 2) Plot bauen gegen company_short
                 fig_pos = px.bar(
                     pos_df,
                     x="words_pos_500",
-                    y="company_short",                        # <<< hier die Kurzspalte
+                    y="company_short",
                     orientation="h",
-                    color="highlight_label",
-                    color_discrete_map={
-                        "Peers": "#4C78A8",
-                        company: "#E10600",
-                    },
-                    labels={
-                        "words_pos":    "# Positive Words",
-                        "company_short":"Company",
-                        "highlight_label":""
-                    },
+                    color="highlight",
+                    color_discrete_map={company: "#E10600", "Peers": "#ADD8E6"},  # Focal=Rot, Peers=Hellblau
                     category_orders={"company_short": pos_df["company_short"].tolist()},
-                    hover_data=["company"]                     # <<< vollen Namen im Tooltip
+                    labels={"words_pos_500": "# Positive Words", "company_short": ""}
                 )
-            
-                # Peer-Average‐Linie
-                mean_pos = pos_df["words_pos_500"].mean()
                 fig_pos.add_vline(
                     x=mean_pos,
                     line_dash="dash",
-                    line_color="#333333",
+                    line_color="black",
                     annotation_text="<b>Peer Average</b>",
-                    annotation_position="bottom right",
-                    annotation_font_color="black",
-                    annotation_font_size=16,
+                    annotation_position="bottom right"
                 )
-            
                 st.plotly_chart(fig_pos, use_container_width=True)
             
-                # --- Negative Words -----------------------
-                st.subheader("Negative Words")
             
-                neg_df = benchmark_df.sort_values("words_neg_500", ascending=False)
-            
-                # Highlight-Spalte
-                neg_df["highlight_label"] = np.where(
-                    neg_df["company"] == company,
-                    company,
-                    "Peers"
-                )
-            
-                # 1) Kurzspalte erstellen
+                # — 3) Negative Words by Company —
+                st.subheader("Negative Words by Company")
+                neg_df = benchmark_df.sort_values("words_neg_500", ascending=False).copy()
+                neg_df["highlight"] = np.where(neg_df["company"] == company, company, "Peers")
                 neg_df["company_short"] = neg_df["company"].str.slice(0, 15)
-            
-                # 2) Plot bauen gegen company_short
                 fig_neg = px.bar(
                     neg_df,
                     x="words_neg_500",
-                    y="company_short",                        # <<< hier die Kurzspalte
+                    y="company_short",
                     orientation="h",
-                    color="highlight_label",
-                    color_discrete_map={
-                        "Peers": "#4C78A8",
-                        company: "#E10600",
-                    },
-                    labels={
-                        "words_neg_500":    "# Negative Words",
-                        "company_short":"Company",
-                        "highlight_label":""
-                    },
+                    color="highlight",
+                    color_discrete_map={company: "#E10600", "Peers": "#00008B"},  # Focal=Rot, Peers=Dunkelblau
                     category_orders={"company_short": neg_df["company_short"].tolist()},
-                    hover_data=["company"]                     # <<< vollen Namen im Tooltip
+                    labels={"words_neg_500": "# Negative Words", "company_short": ""}
                 )
-            
-                # Peer-Average‐Linie
-                mean_neg = neg_df["words_neg_500"].mean()
                 fig_neg.add_vline(
                     x=mean_neg,
                     line_dash="dash",
-                    line_color="#333333",
+                    line_color="black",
                     annotation_text="<b>Peer Average</b>",
-                    annotation_position="bottom right",
-                    annotation_font_color="black",
-                    annotation_font_size=16,
+                    annotation_position="bottom right"
                 )
-            
                 st.plotly_chart(fig_neg, use_container_width=True)
-            
-                mean_pos  = benchmark_df["words_pos_500"].mean()
-                focal_pos = df.loc[df["company"] == company, "words_pos_500"].iat[0]
-                mean_neg  = benchmark_df["words_neg_500"].mean()
-                focal_neg = df.loc[df["company"] == company, "words_neg_500"].iat[0]
 
     
             elif plot_type == "Histogram":
