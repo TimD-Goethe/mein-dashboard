@@ -98,7 +98,7 @@ supersector_map = {
         'Insurance',
         'Investment Banking & Brokerage',
         'Mortgage Finance',
-        'Security & Commodity Exchanges'
+        'Security & Commodity Exchange'
     ], 'Financials'),
     # Food & Beverage
     **dict.fromkeys([
