@@ -450,7 +450,8 @@ with main:
                     line_width=2,
                     annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
-                    annotation_font_size=14,
+                    annotation_font_color="black",
+                    annotation_font_size=16,
                 )
                 
                 # 5) V-Line für Austria Avg (rot gestrichelt), ohne extra Balken
@@ -462,7 +463,7 @@ with main:
                     annotation_text=f"<b>{focal_country} Avg</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=14,
+                    annotation_font_size=16,
                 )
                 
                 # 6) Legende ausblenden und Achsentitel
