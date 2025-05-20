@@ -290,11 +290,21 @@ with right:
         st.info(help_texts[view])
 
     st.header("Chart Type")
-    plot_type = st.radio(
-        "",
-        ["Bar Chart", "Histogram"],
-        key="plot_type"
-    )
+
+    if view == "Words per ESRS standard":
+        # bei ESRS only Bar Chart erlauben
+        plot_type = st.radio(
+            "",
+            ["Bar Chart"], 
+            key="plot_type"
+        )
+    else:
+        # bei allen anderen Views beide Optionen
+        plot_type = st.radio(
+            "",
+            ["Bar Chart", "Histogram"],
+            key="plot_type"
+        )
 
 # --------------------------------------------------------------------
 # 6. Build `benchmark_df`
