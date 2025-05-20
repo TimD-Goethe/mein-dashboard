@@ -2564,9 +2564,9 @@ with main:
         elif view == "Sentiment":
             st.subheader(f"Sentiment ({benchmark_label})")
         
-            # — Company Country vs Other Countries —
+            # — COMPANY VS PEERS: Country Comparison —
             if benchmark_type == "Company Country vs Other Countries":
-                # Mittelwerte pro Country
+                # 1) Länder-Durchschnitte
                 country_avg = (
                     df
                     .groupby("country")[["words_pos_500", "words_neg_500"]]
@@ -2576,109 +2576,123 @@ with main:
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
                 if plot_type == "Bar Chart":
-                    # 1) Kompaktvergleich: Focal vs Others
-                    focal_pos  = country_avg.loc[country_avg["country"] == focal_country, "words_pos_500"].iat[0]
-                    focal_neg  = country_avg.loc[country_avg["country"] == focal_country, "words_neg_500"].iat[0]
-                    other_pos  = country_avg.loc[country_avg["country"] != focal_country, "words_pos_500"].mean()
-                    other_neg  = country_avg.loc[country_avg["country"] != focal_country, "words_neg_500"].mean()
+                    # --- A) Kompaktvergleich Peer vs Country Sentiment ---
+                    focal_pos = country_avg.loc[country_avg["country"] == focal_country, "words_pos_500"].iat[0]
+                    focal_neg = country_avg.loc[country_avg["country"] == focal_country, "words_neg_500"].iat[0]
+                    other_pos = country_avg.loc[country_avg["country"] != focal_country, "words_pos_500"].mean()
+                    other_neg = country_avg.loc[country_avg["country"] != focal_country, "words_neg_500"].mean()
         
                     comp_df = pd.DataFrame({
-                        "Group":    [focal_country,        "Other Countries"],
-                        "Positive": [focal_pos,            other_pos],
-                        "Negative": [focal_neg,            other_neg]
+                        "Group":    [focal_country,         "Other Countries"],
+                        "Positive": [focal_pos,             other_pos],
+                        "Negative": [focal_neg,             other_neg]
                     })
                     fig_cmp = px.bar(
-                        comp_df, x="Group", y=["Positive", "Negative"], barmode="group",
-                        color_discrete_sequence=["#FF7F7F", "#E10600"],
-                        labels={"value":"Count","variable":"Sentiment","Group":""}
+                        comp_df,
+                        x="Group",
+                        y=["Positive", "Negative"],
+                        barmode="group",
+                        color_discrete_sequence=["#FF7F7F", "#E10600"],  # Positive=light red, Negative=dark red
+                        labels={"value": "Count", "variable": "Sentiment", "Group": ""}
                     )
                     fig_cmp.update_layout(
-                        xaxis={"categoryorder":"array","categoryarray":[focal_country,"Other Countries"]},
+                        xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
                         showlegend=True, legend_title_text=""
                     )
                     fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
                     st.subheader("Peer vs. Country Sentiment")
                     st.plotly_chart(fig_cmp, use_container_width=True)
         
-                    # 2) Detail: Positive Words by Country
+                    # --- B) Detail: Positive Words by Country ---
                     pos_ctry = country_avg.sort_values("words_pos_500", ascending=False)
                     pos_ctry["highlight"] = np.where(
                         pos_ctry["country"] == focal_country, focal_country, "Other Countries"
                     )
                     fig_pos = px.bar(
-                        pos_ctry, x="words_pos_500", y="country", orientation="h",
+                        pos_ctry,
+                        x="words_pos_500",
+                        y="country",
+                        orientation="h",
                         color="highlight",
-                        color_discrete_map={focal_country:"#FF7F7F","Other Countries":"#ADD8E6"},
+                        color_discrete_map={focal_country: "#E10600", "Other Countries": "#ADD8E6"},
                         category_orders={"country": pos_ctry["country"].tolist()},
-                        labels={"words_pos_500":"# Positive Words","country":""}
+                        labels={"words_pos_500": "# Positive Words", "country": ""}
                     )
                     fig_pos.add_vline(
-                        x=country_avg["words_pos_500"].mean(), line_dash="dash", line_color="black",
-                        annotation_text="<b>All Countries Avg</b>", annotation_position="bottom right"
+                        x=country_avg["words_pos_500"].mean(),
+                        line_dash="dash", line_color="black",
+                        annotation_text="<b>All Countries Avg</b>",
+                        annotation_position="bottom right"
                     )
-                    fig_pos.update_layout(showlegend=False, xaxis_title="# Positive Words")
                     st.subheader("Positive Words by Country")
                     st.plotly_chart(fig_pos, use_container_width=True)
         
-                    # 3) Detail: Negative Words by Country
+                    # --- C) Detail: Negative Words by Country ---
                     neg_ctry = country_avg.sort_values("words_neg_500", ascending=False)
                     neg_ctry["highlight"] = np.where(
                         neg_ctry["country"] == focal_country, focal_country, "Other Countries"
                     )
                     fig_neg = px.bar(
-                        neg_ctry, x="words_neg_500", y="country", orientation="h",
+                        neg_ctry,
+                        x="words_neg_500",
+                        y="country",
+                        orientation="h",
                         color="highlight",
-                        color_discrete_map={focal_country:"#E10600","Other Countries":"#00008B"},
+                        color_discrete_map={focal_country: "#E10600", "Other Countries": "#1f77b4"},
                         category_orders={"country": neg_ctry["country"].tolist()},
-                        labels={"words_neg_500":"# Negative Words","country":""}
+                        labels={"words_neg_500": "# Negative Words", "country": ""}
                     )
                     fig_neg.add_vline(
-                        x=country_avg["words_neg_500"].mean(), line_dash="dash", line_color="black",
-                        annotation_text="<b>All Countries Avg</b>", annotation_position="top right"
+                        x=country_avg["words_neg_500"].mean(),
+                        line_dash="dash", line_color="black",
+                        annotation_text="<b>All Countries Avg</b>",
+                        annotation_position="top right"
                     )
-                    fig_neg.update_layout(showlegend=False, xaxis_title="# Negative Words")
                     st.subheader("Negative Words by Country")
                     st.plotly_chart(fig_neg, use_container_width=True)
         
                 elif plot_type == "Histogram":
-                    # Verteilung Positive
+                    # Positive Distribution
                     fig_h1 = px.histogram(
                         country_avg, x="words_pos_500", nbins=20, opacity=0.8,
-                        labels={"words_pos_500":"# Positive Words"}
+                        labels={"words_pos_500": "# Positive Words"}
                     )
                     fig_h1.update_traces(marker_color="#ADD8E6")
                     fig_h1.add_vline(
-                        x=country_avg["words_pos_500"].mean(), line_dash="dash", line_color="black",
+                        x=country_avg["words_pos_500"].mean(),
+                        line_dash="dash", line_color="black",
                         annotation_text="<b>All Countries Avg</b>", annotation_position="top right"
                     )
                     fig_h1.add_vline(
-                        x=country_avg.loc[country_avg["country"]==focal_country,"words_pos_500"].iat[0],
+                        x=country_avg.loc[country_avg["country"] == focal_country, "words_pos_500"].iat[0],
                         line_dash="dash", line_color="red",
                         annotation_text=f"<b>{focal_country} Avg</b>", annotation_position="bottom left"
                     )
                     st.subheader("Positive Words Distribution by Country")
                     st.plotly_chart(fig_h1, use_container_width=True)
         
-                    # Verteilung Negative
+                    # Negative Distribution
                     fig_h2 = px.histogram(
                         country_avg, x="words_neg_500", nbins=20, opacity=0.8,
-                        labels={"words_neg_500":"# Negative Words"}
+                        labels={"words_neg_500": "# Negative Words"}
                     )
-                    fig_h2.update_traces(marker_color="#00008B")
+                    fig_h2.update_traces(marker_color="#1f77b4")
                     fig_h2.add_vline(
-                        x=country_avg["words_neg_500"].mean(), line_dash="dash", line_color="black",
+                        x=country_avg["words_neg_500"].mean(),
+                        line_dash="dash", line_color="black",
                         annotation_text="<b>All Countries Avg</b>", annotation_position="top right"
                     )
                     fig_h2.add_vline(
-                        x=country_avg.loc[country_avg["country"]==focal_country,"words_neg_500"].iat[0],
+                        x=country_avg.loc[country_avg["country"] == focal_country, "words_neg_500"].iat[0],
                         line_dash="dash", line_color="red",
                         annotation_text=f"<b>{focal_country} Avg</b>", annotation_position="bottom left"
                     )
                     st.subheader("Negative Words Distribution by Country")
                     st.plotly_chart(fig_h2, use_container_width=True)
         
-            # — Company Sector vs Other Sectors —
+            # — COMPANY VS PEERS: Sector Comparison —
             elif benchmark_type == "Company Sector vs Other Sectors":
+                # 1) Sektor-Durchschnitte
                 sector_avg = (
                     df
                     .groupby("supersector")[["words_pos_500", "words_neg_500"]]
@@ -2688,75 +2702,84 @@ with main:
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
         
                 if plot_type == "Bar Chart":
-                    # Kompaktvergleich
-                    focal_pos = sector_avg.loc[sector_avg["supersector"]==focal_super,"words_pos_500"].iat[0]
-                    focal_neg = sector_avg.loc[sector_avg["supersector"]==focal_super,"words_neg_500"].iat[0]
-                    other_pos = sector_avg.loc[sector_avg["supersector"]!=focal_super,"words_pos_500"].mean()
-                    other_neg = sector_avg.loc[sector_avg["supersector"]!=focal_super,"words_neg_500"].mean()
+                    # --- A) Kompaktvergleich Peer vs Sector Sentiment ---
+                    focal_pos = sector_avg.loc[sector_avg["supersector"] == focal_super, "words_pos_500"].iat[0]
+                    focal_neg = sector_avg.loc[sector_avg["supersector"] == focal_super, "words_neg_500"].iat[0]
+                    other_pos = sector_avg.loc[sector_avg["supersector"] != focal_super, "words_pos_500"].mean()
+                    other_neg = sector_avg.loc[sector_avg["supersector"] != focal_super, "words_neg_500"].mean()
         
                     comp_df = pd.DataFrame({
-                        "Group":    [focal_super,        "Other Sectors"],
-                        "Positive": [focal_pos,          other_pos],
-                        "Negative": [focal_neg,          other_neg]
+                        "Group":    [focal_super,           "Other Sectors"],
+                        "Positive": [focal_pos,             other_pos],
+                        "Negative": [focal_neg,             other_neg]
                     })
                     fig_cmp = px.bar(
-                        comp_df, x="Group", y=["Positive","Negative"], barmode="group",
-                        color_discrete_sequence=["#FF7F7F","#E10600"],
+                        comp_df, x="Group", y=["Positive", "Negative"], barmode="group",
+                        color_discrete_sequence=["#FF7F7F", "#E10600"],
                         labels={"value":"Count","variable":"Sentiment","Group":""}
                     )
                     fig_cmp.update_layout(
-                        xaxis={"categoryorder":"array","categoryarray":[focal_super,"Other Sectors"]},
+                        xaxis={"categoryorder":"array", "categoryarray":[focal_super, "Other Sectors"]},
                         showlegend=True, legend_title_text=""
                     )
                     fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
                     st.subheader("Peer vs. Sector Sentiment")
                     st.plotly_chart(fig_cmp, use_container_width=True)
         
-                    # Positive by Sector
+                    # --- B) Detail: Positive Words by Sector ---
                     pos_sec = sector_avg.sort_values("words_pos_500", ascending=False)
                     pos_sec["highlight"] = np.where(
-                        pos_sec["supersector"]==focal_super, focal_super, "Other Sectors"
+                        pos_sec["supersector"] == focal_super, focal_super, "Other Sectors"
                     )
                     fig_pos = px.bar(
-                        pos_sec, x="words_pos_500", y="supersector", orientation="h",
-                        color="highlight", color_discrete_map={focal_super:"#FF7F7F","Other Sectors":"#ADD8E6"},
-                        category_orders={"supersector":pos_sec["supersector"].tolist()},
+                        pos_sec,
+                        x="words_pos_500", y="supersector",
+                        orientation="h",
+                        color="highlight",
+                        color_discrete_map={focal_super: "#E10600", "Other Sectors": "#ADD8E6"},
+                        category_orders={"supersector": pos_sec["supersector"].tolist()},
                         labels={"words_pos_500":"# Positive Words","supersector":""}
                     )
                     fig_pos.add_vline(
-                        x=sector_avg["words_pos_500"].mean(), line_dash="dash", line_color="black",
+                        x=sector_avg["words_pos_500"].mean(),
+                        line_dash="dash", line_color="black",
                         annotation_text="<b>All Sectors Avg</b>", annotation_position="bottom right"
                     )
                     st.subheader("Positive Words by Sector")
                     st.plotly_chart(fig_pos, use_container_width=True)
         
-                    # Negative by Sector
+                    # --- C) Detail: Negative Words by Sector ---
                     neg_sec = sector_avg.sort_values("words_neg_500", ascending=False)
                     neg_sec["highlight"] = np.where(
-                        neg_sec["supersector"]==focal_super, focal_super, "Other Sectors"
+                        neg_sec["supersector"] == focal_super, focal_super, "Other Sectors"
                     )
                     fig_neg = px.bar(
-                        neg_sec, x="words_neg_500", y="supersector", orientation="h",
-                        color="highlight", color_discrete_map={focal_super:"#E10600","Other Sectors":"#00008B"},
-                        category_orders={"supersector":neg_sec["supersector"].tolist()},
+                        neg_sec,
+                        x="words_neg_500", y="supersector",
+                        orientation="h",
+                        color="highlight",
+                        color_discrete_map={focal_super: "#E10600", "Other Sectors": "#1f77b4"},
+                        category_orders={"supersector": neg_sec["supersector"].tolist()},
                         labels={"words_neg_500":"# Negative Words","supersector":""}
                     )
                     fig_neg.add_vline(
-                        x=sector_avg["words_neg_500"].mean(), line_dash="dash", line_color="black",
+                        x=sector_avg["words_neg_500"].mean(),
+                        line_dash="dash", line_color="black",
                         annotation_text="<b>All Sectors Avg</b>", annotation_position="bottom right"
                     )
                     st.subheader("Negative Words by Sector")
                     st.plotly_chart(fig_neg, use_container_width=True)
         
                 elif plot_type == "Histogram":
-                    # Positive Distribution
+                    # Positive Distribution by Sector
                     fig_h1 = px.histogram(
                         sector_avg, x="words_pos_500", nbins=20, opacity=0.8,
                         labels={"words_pos_500":"# Positive Words"}
                     )
                     fig_h1.update_traces(marker_color="#ADD8E6")
                     fig_h1.add_vline(
-                        x=sector_avg["words_pos_500"].mean(), line_dash="dash", line_color="black",
+                        x=sector_avg["words_pos_500"].mean(),
+                        line_dash="dash", line_color="black",
                         annotation_text="<b>All Sectors Avg</b>", annotation_position="top right"
                     )
                     fig_h1.add_vline(
@@ -2767,14 +2790,15 @@ with main:
                     st.subheader("Positive Words Distribution by Sector")
                     st.plotly_chart(fig_h1, use_container_width=True)
         
-                    # Negative Distribution
+                    # Negative Distribution by Sector
                     fig_h2 = px.histogram(
                         sector_avg, x="words_neg_500", nbins=20, opacity=0.8,
                         labels={"words_neg_500":"# Negative Words"}
                     )
-                    fig_h2.update_traces(marker_color="#00008B")
+                    fig_h2.update_traces(marker_color="#1f77b4")
                     fig_h2.add_vline(
-                        x=sector_avg["words_neg_500"].mean(), line_dash="dash", line_color="black",
+                        x=sector_avg["words_neg_500"].mean(),
+                        line_dash="dash", line_color="black",
                         annotation_text="<b>All Sectors Avg</b>", annotation_position="top right"
                     )
                     fig_h2.add_vline(
@@ -2785,100 +2809,109 @@ with main:
                     st.subheader("Negative Words Distribution by Sector")
                     st.plotly_chart(fig_h2, use_container_width=True)
         
-            # — reine Peer-Gruppe (kein cross) —
-            elif plot_type == "Histogram":
-                # Positive
-                fig_h1 = px.histogram(
-                    benchmark_df, x="words_pos_500", nbins=20, opacity=0.8,
-                    labels={"words_pos_500":"# Positive Words"}
-                )
-                fig_h1.update_traces(marker_color="#ADD8E6")
-                fig_h1.add_vline(
-                    x=benchmark_df["words_pos_500"].mean(), line_dash="dash", line_color="black",
-                    annotation_text="<b>Peer Average</b>", annotation_position="top right"
-                )
-                fig_h1.add_vline(
-                    x=df.loc[df["company"]==company,"words_pos_500"].iat[0],
-                    line_dash="dash", line_color="red",
-                    annotation_text=f"<b>{company}</b>", annotation_position="bottom left"
-                )
-                st.subheader("Positive Words Distribution")
-                st.plotly_chart(fig_h1, use_container_width=True)
+            # — PURE PEER-GROUP (kein Cross) —
+            else:
+                if plot_type == "Bar Chart":
+                    # Positive by Company
+                    pos_df = benchmark_df.sort_values("words_pos_500", ascending=False).copy()
+                    pos_df["highlight"] = np.where(
+                        pos_df["company"] == company, company, "Peers"
+                    )
+                    pos_df["company_short"] = pos_df["company"].str.slice(0,15)
+                    fig_pos = px.bar(
+                        pos_df, x="words_pos_500", y="company_short",
+                        orientation="h", color="highlight",
+                        color_discrete_map={company:"#E10600","Peers":"#ADD8E6"},
+                        category_orders={"company_short": pos_df["company_short"].tolist()},
+                        labels={"words_pos_500":"# Positive Words","company_short":""}
+                    )
+                    fig_pos.add_vline(
+                        x=benchmark_df["words_pos_500"].mean(),
+                        line_dash="dash", line_color="black",
+                        annotation_text="<b>Peer Average</b>", annotation_position="bottom right"
+                    )
+                    st.subheader("Positive Words by Company")
+                    st.plotly_chart(fig_pos, use_container_width=True)
         
-                # Negative
-                fig_h2 = px.histogram(
-                    benchmark_df, x="words_neg_500", nbins=20, opacity=0.8,
-                    labels={"words_neg_500":"# Negative Words"}
-                )
-                fig_h2.update_traces(marker_color="#00008B")
-                fig_h2.add_vline(
-                    x=benchmark_df["words_neg_500"].mean(), line_dash="dash", line_color="black",
-                    annotation_text="<b>Peer Average</b>", annotation_position="top right"
-                )
-                fig_h2.add_vline(
-                    x=df.loc[df["company"]==company,"words_neg_500"].iat[0],
-                    line_dash="dash", line_color="red",
-                    annotation_text=f"<b>{company}</b>", annotation_position="bottom left"
-                )
-                st.subheader("Negative Words Distribution")
-                st.plotly_chart(fig_h2, use_container_width=True)
+                    # Negative by Company
+                    neg_df = benchmark_df.sort_values("words_neg_500", ascending=False).copy()
+                    neg_df["highlight"] = np.where(
+                        neg_df["company"] == company, company, "Peers"
+                    )
+                    neg_df["company_short"] = neg_df["company"].str.slice(0,15)
+                    fig_neg = px.bar(
+                        neg_df, x="words_neg_500", y="company_short",
+                        orientation="h", color="highlight",
+                        color_discrete_map={company:"#E10600","Peers":"#1f77b4"},
+                        category_orders={"company_short": neg_df["company_short"].tolist()},
+                        labels={"words_neg_500":"# Negative Words","company_short":""}
+                    )
+                    fig_neg.add_vline(
+                        x=benchmark_df["words_neg_500"].mean(),
+                        line_dash="dash", line_color="black",
+                        annotation_text="<b>Peer Average</b>", annotation_position="bottom right"
+                    )
+                    st.subheader("Negative Words by Company")
+                    st.plotly_chart(fig_neg, use_container_width=True)
         
-            elif plot_type == "Bar Chart":
-                # Positive by Company
-                pos_df = benchmark_df.sort_values("words_pos_500", ascending=False)
-                pos_df["highlight"] = np.where(pos_df["company"]==company, company, "Peers")
-                pos_df["company_short"] = pos_df["company"].str.slice(0,15)
-                fig_pos = px.bar(
-                    pos_df, x="words_pos_500", y="company_short", orientation="h",
-                    color="highlight",
-                    color_discrete_map={company:"#FF7F7F","Peers":"#ADD8E6"},
-                    category_orders={"company_short":pos_df["company_short"].tolist()},
-                    labels={"words_pos_500":"# Positive Words","company_short":""}
-                )
-                fig_pos.add_vline(
-                    x=benchmark_df["words_pos_500"].mean(), line_dash="dash", line_color="black",
-                    annotation_text="<b>Peer Average</b>", annotation_position="bottom right"
-                )
-                st.subheader("Positive Words by Company")
-                st.plotly_chart(fig_pos, use_container_width=True)
+                    # Peer vs Company grouped
+                    mean_pos  = benchmark_df["words_pos_500"].mean()
+                    focal_pos = df.loc[df["company"] == company, "words_pos_500"].iat[0]
+                    mean_neg  = benchmark_df["words_neg_500"].mean()
+                    focal_neg = df.loc[df["company"] == company, "words_neg_500"].iat[0]
         
-                # Negative by Company
-                neg_df = benchmark_df.sort_values("words_neg_500", ascending=False)
-                neg_df["highlight"] = np.where(neg_df["company"]==company, company, "Peers")
-                neg_df["company_short"] = neg_df["company"].str.slice(0,15)
-                fig_neg = px.bar(
-                    neg_df, x="words_neg_500", y="company_short", orientation="h",
-                    color="highlight",
-                    color_discrete_map={company:"#E10600","Peers":"#00008B"},
-                    category_orders={"company_short":neg_df["company_short"].tolist()},
-                    labels={"words_neg_500":"# Negative Words","company_short":""}
-                )
-                fig_neg.add_vline(
-                    x=benchmark_df["words_neg_500"].mean(), line_dash="dash", line_color="black",
-                    annotation_text="<b>Peer Average</b>", annotation_position="bottom right"
-                )
-                st.subheader("Negative Words by Company")
-                st.plotly_chart(fig_neg, use_container_width=True)
+                    comp_df = pd.DataFrame({
+                        "Company": ["Peer Average", company],
+                        "Positive": [mean_pos,  focal_pos],
+                        "Negative": [mean_neg,  focal_neg]
+                    })
+                    fig_cmp = px.bar(
+                        comp_df, x="Company", y=["Positive","Negative"], barmode="group",
+                        color_discrete_sequence=["#FF7F7F","#E10600"],
+                        category_orders={"Company": [company, "Peer Average"]},
+                        labels={"value":"Count","variable":"Sentiment","Company":""}
+                    )
+                    st.subheader("Peer vs. Company Sentiment")
+                    st.plotly_chart(fig_cmp, use_container_width=True)
         
-                # Peer vs Company grouped
-                mean_pos  = benchmark_df["words_pos_500"].mean()
-                focal_pos = df.loc[df["company"]==company,"words_pos_500"].iat[0]
-                mean_neg  = benchmark_df["words_neg_500"].mean()
-                focal_neg = df.loc[df["company"]==company,"words_neg_500"].iat[0]
+                elif plot_type == "Histogram":
+                    # Positive Distribution across peers
+                    fig_h1 = px.histogram(
+                        benchmark_df, x="words_pos_500", nbins=20, opacity=0.8,
+                        labels={"words_pos_500":"# Positive Words"}
+                    )
+                    fig_h1.update_traces(marker_color="#ADD8E6")
+                    fig_h1.add_vline(
+                        x=benchmark_df["words_pos_500"].mean(),
+                        line_dash="dash", line_color="black",
+                        annotation_text="<b>Peer Average</b>", annotation_position="top right"
+                    )
+                    fig_h1.add_vline(
+                        x=df.loc[df["company"]==company,"words_pos_500"].iat[0],
+                        line_dash="dash", line_color="red",
+                        annotation_text=f"<b>{company}</b>", annotation_position="bottom left"
+                    )
+                    st.subheader("Positive Words Distribution")
+                    st.plotly_chart(fig_h1, use_container_width=True)
         
-                comp_df = pd.DataFrame({
-                    "Company": ["Peer Average", company],
-                    "Positive": [mean_pos,  focal_pos],
-                    "Negative": [mean_neg,  focal_neg]
-                })
-                fig_cmp = px.bar(
-                    comp_df, x="Company", y=["Positive","Negative"], barmode="group",
-                    color_discrete_sequence=["#FF7F7F","#E10600"],
-                    category_orders={"Company":[company,"Peer Average"]},
-                    labels={"value":"Count","variable":"Sentiment","Company":""}
-                )
-                st.subheader("Peer vs. Company Sentiment")
-                st.plotly_chart(fig_cmp, use_container_width=True)
+                    # Negative Distribution
+                    fig_h2 = px.histogram(
+                        benchmark_df, x="words_neg_500", nbins=20, opacity=0.8,
+                        labels={"words_neg_500":"# Negative Words"}
+                    )
+                    fig_h2.update_traces(marker_color="#1f77b4")
+                    fig_h2.add_vline(
+                        x=benchmark_df["words_neg_500"].mean(),
+                        line_dash="dash", line_color="black",
+                        annotation_text="<b>Peer Average</b>", annotation_position="top right"
+                    )
+                    fig_h2.add_vline(
+                        x=df.loc[df["company"]==company,"words_neg_500"].iat[0],
+                        line_dash="dash", line_color="red",
+                        annotation_text=f"<b>{company}</b>", annotation_position="bottom left"
+                    )
+                    st.subheader("Negative Words Distribution")
+                    st.plotly_chart(fig_h2, use_container_width=True)
         
             # Fußnote
             st.caption("Average positive and negative words per 500 words")
