@@ -549,6 +549,50 @@ with main:
                 st.plotly_chart(fig_ctry, use_container_width=True)
 
 
+                # 1) Durchschnitt pro Country berechnen
+                country_avg = (
+                    df
+                    .groupby("country")["Sustainability_Page_Count"]
+                    .mean()
+                    .reset_index(name="Pages")
+                )
+            
+                # 2) Focal Country ermitteln
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+                focal_avg     = country_avg.loc[country_avg["country"] == focal_country, "Pages"].iat[0]
+            
+                # 3) Durchschnitt der anderen Countries
+                others_avg    = country_avg.loc[country_avg["country"] != focal_country, "Pages"].mean()
+            
+                # 4) Vergleichs‐DataFrame bauen
+                comp_df = pd.DataFrame({
+                    "Group": [focal_country, "Other countries average"],
+                    "Pages": [focal_avg,    others_avg]
+                })
+            
+                # 5) Plotten
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="Pages",
+                    text="Pages",
+                    color="Group",
+                    color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
+                    labels={"Pages": "Pages", "Group": ""}
+                )
+            
+                # 6) Focal Country links anordnen
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries average"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+            
+                st.plotly_chart(fig_cmp, use_container_width=True)
+
+                
+
+
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 # Histogramm aller Supersector‐Durchschnitte
                 sector_avg = (
