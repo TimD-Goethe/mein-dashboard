@@ -2563,7 +2563,7 @@ with main:
     
         elif view == "Sentiment":
             
-            if benchmark_type == "Between Country Comparison" and plot_type == "Bar Chart":
+            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
 
                 # 5) Kompaktvergleich: focal country vs alle anderen
@@ -2686,7 +2686,7 @@ with main:
                 st.plotly_chart(fig_neg, use_container_width=True)
     
     
-            elif benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Fokus-Land
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -2780,7 +2780,7 @@ with main:
                 st.subheader("Negative Words Distribution by Country")
                 st.plotly_chart(fig_hist2, use_container_width=True)
 
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 # Focal-Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
 
@@ -2901,7 +2901,7 @@ with main:
             
             
             # Histogram: Verteilung der Supersector-Durchschnitte
-            elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
                 sector_avg = (
