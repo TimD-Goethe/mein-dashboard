@@ -273,9 +273,9 @@ with right:
     )
 
     help_texts = {
-        "Number of Pages": "Die Gesamtzahl der Seiten in der Nachhaltigkeitsberichterstattung.",
-        "Number of Words": "Die Gesamtzahl der Wörter im Berichtstext.",
-        "Words per ESRS standard": "Wörter je ESRS-Kapitel …",
+        "Number of Pages": "The total number of pages of the sustainability report.",
+        "Number of Words": "The total number of words of the sustainability report.",
+        "Words per ESRS standard": "This method utilizes word2vec (Mikolov et al. 2013), an algorithm that “learns” the meaning of words in a text using a neural networks. We use the resulting textual embeddings to generate a dictionary of keywords for each ESRS. Based on general “seed words” (e.g., greenhouse gas emissions for E1 climate change), we pick the 500 most similar words based on the embeddings. The resulting list of keywords allows us to broadly capture ESG-related discussions in reporting even before ESRS-specific terminology has been introduced. The main measure shown in this presentation is the number of words from sentences that contain a keyword from one of the 11 ESRS standards.",
         "Numbers": "Count of Numbers per 500 words",
         "Tables": "Count of tables per 500 words",
         "Images": "Average image area per 500 words",
