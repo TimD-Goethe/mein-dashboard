@@ -868,7 +868,7 @@ with main:
                     line_width=2,
                     annotation_text="<b>All Countries Avg</b>",
                     annotation_position="top right",
-                    annotation_font_color:"black",
+                    annotation_font_color="black",
                     annotation_font_size=16,
                 )
             
