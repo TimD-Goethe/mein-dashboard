@@ -305,28 +305,25 @@ with right:
 # 6. Build `benchmark_df`
 # --------------------------------------------------------------------
 if benchmark_type == "Sector Peers":
-    # 1) ermittele den Super-Sector des gewählten Unternehmens
-    supersec        = df.loc[df["company"] == company, "supersector"].iat[0]
-    # 2) filtere alle Firmen auf genau diesen Super-Sector
-    benchmark_df    = df[df["supersector"] == supersec]
-    # 3) passe das Label an
+    supersec      = df.loc[df["company"] == company, "supersector"].iat[0]
+    benchmark_df  = df[df["supersector"] == supersec]
     benchmark_label = f"Sector Peers: {supersec}"
 
 elif benchmark_type == "Country Peers":
-    country         = df.loc[df["company"] == company, "country"].iat[0]
-    benchmark_df    = df[df["country"] == country]
+    country       = df.loc[df["company"] == company, "country"].iat[0]
+    benchmark_df  = df[df["country"] == country]
     benchmark_label = f"Country Peers: {country}"
 
 elif benchmark_type == "Market Cap Peers":
-    terc            = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
-    lbl             = (
+    terc          = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
+    lbl           = (
         "Very Small" if terc == 1 else
         "Small"      if terc == 2 else
         "Medium"     if terc == 3 else
         "Large"      if terc == 4 else
         "Huge"
     )
-    benchmark_df    = df[df["Market_Cap_Cat"] == terc]
+    benchmark_df  = df[df["Market_Cap_Cat"] == terc]
     benchmark_label = f"Market Cap Peers: {lbl}"
 
 elif benchmark_type == "All CSRD First Wave":
@@ -338,33 +335,27 @@ elif benchmark_type == "Choose specific peers":
     benchmark_df    = df[df["company"].isin(sel)]
     benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
 
-elif benchmark_type == "Between Country Comparison":
-    focal_country   = df.loc[df["company"] == company, "country"].iat[0]
-    country_df      = df[df["country"] == focal_country]
-    rest_df         = df[df["country"] != focal_country]
-    benchmark_df    = pd.concat([
-                        country_df.assign(_group=focal_country),
-                        rest_df.assign(_group="Others")
-                     ], ignore_index=True)
+elif benchmark_type == "Company Country vs Other Countries":
+    focal_country = df.loc[df["company"] == company, "country"].iat[0]
+    country_df    = df[df["country"] == focal_country]
+    others_df     = df[df["country"] != focal_country]
+    benchmark_df  = pd.concat([
+        country_df.assign(_group=focal_country),
+        others_df.assign(_group="Others")
+    ], ignore_index=True)
     benchmark_label = f"{focal_country} vs Others"
 
-elif benchmark_type == "Between Sector Comparison":
-    # 1) Finde den Supersector des gewählten Unternehmens
+elif benchmark_type == "Company Sector vs Other Sectors":
     focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-
-    # 2) Alle Firmen im gleichen Supersector
-    super_df     = df[df["supersector"] == focal_super]
-    others_df    = df[df["supersector"] != focal_super]
-
-    # 3) Kennzeichne für die Plots
+    super_df    = df[df["supersector"] == focal_super]
+    others_df   = df[df["supersector"] != focal_super]
     benchmark_df = pd.concat([
         super_df.assign(_group=focal_super),
         others_df.assign(_group="Other sectors")
     ], ignore_index=True)
-
     benchmark_label = f"{focal_super} vs Other sectors"
 
-# focal values
+# focal values (bleiben unverändert)
 focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
 focal_words = df.loc[df["company"] == company, "words"].iat[0]
 
