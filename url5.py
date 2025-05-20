@@ -206,8 +206,8 @@ left, main, right = st.columns([2, 5, 2])
 with left:
     # 1) Company dropdown – nutzt nun die volle Breite
     default_idx = company_list.index(default_company) if default_company in company_list else 0
+    st.subheader("Select a company:")
     company = st.selectbox(
-        "Select a company:",
         options=company_list,
         index=default_idx,
         key="company_selector",
