@@ -2158,8 +2158,8 @@ with main:
             st.subheader(f"Image Size per 500 Words ({benchmark_label})")
         
             # Peer- und Focal-Werte berechnen
-            mean_img = benchmark_df["imgsize_500"].mean()
-            focal_img = df.loc[df["company"] == company, "imgsize_500"].iat[0]
+            mean_img = benchmark_df["imgsize_pages"].mean()
+            focal_img = df.loc[df["company"] == company, "imgsize_pages"].iat[0]
         
             if benchmark_type == "Between Country Comparison" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
@@ -2168,21 +2168,21 @@ with main:
                 # 2) Länder-Durchschnitt vorbereiten
                 country_avg = (
                     df
-                    .groupby("country")["imgsize_500"]
+                    .groupby("country")["imgsize_pages"]
                     .mean()
-                    .reset_index(name="ImgSize_per_500")
+                    .reset_index(name="ImgSize_per_Page")
                 )
         
-                overall_avg = country_avg["ImgSize_per_500"].mean()
-                focal_avg   = country_avg.loc[country_avg["country"] == focal_country, "ImgSize_per_500"].iat[0]
+                overall_avg = country_avg["ImgSize_per_Page"].mean()
+                focal_avg   = country_avg.loc[country_avg["country"] == focal_country, "ImgSize_per_Page"].iat[0]
         
                 # 3) Histogramm aller Länder-Durchschnitte
                 fig = px.histogram(
                     country_avg,
-                    x="ImgSize_per_500",
+                    x="ImgSize_per_Page",
                     nbins=20,
                     opacity=0.8,
-                    labels={"ImgSize_per_500": "Image Size per 500 Words"},
+                    labels={"ImgSize_per_Page": "Image Size per Page"},
                 )
                 fig.update_traces(marker_color="#1f77b4")
         
@@ -2211,7 +2211,7 @@ with main:
                 # 6) Layout
                 fig.update_layout(
                     showlegend=False,
-                    xaxis_title="Image Size per 500 Words",
+                    xaxis_title="Image Size per Page",
                     yaxis_title="Number of Countries",
                     bargap=0.1,
                 )
@@ -2222,13 +2222,13 @@ with main:
                 # 1) Focal Country
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
-                # 2) Länder-Durchschnitt (ImgSize_per_500)
+                # 2) Länder-Durchschnitt (ImgSize_per_Page)
                 country_avg = (
                     df
-                    .groupby("country")["imgsize_500"]
+                    .groupby("country")["imgsize_pages"]
                     .mean()
-                    .reset_index(name="ImgSize_per_500")
-                    .sort_values("ImgSize_per_500", ascending=False)
+                    .reset_index(name="ImgSize_per_Page")
+                    .sort_values("ImgSize_per_Page", ascending=False)
                 )
         
                 # 3) Kürze Ländernamen für Y-Achse
@@ -2251,10 +2251,10 @@ with main:
                     color="highlight",
                     color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
                     category_orders={"country_short": y_order},
-                    labels={"ImgSize_per_500": "Image Size per 500 Words", "country_short": ""}
+                    labels={"ImgSize_per_Page": "Image Size per Page", "country_short": ""}
                 )
                 # Peer-Average als Linie
-                overall_avg = country_avg["ImgSize_per_500"].mean()
+                overall_avg = country_avg["ImgSize_per_Page"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -2267,7 +2267,7 @@ with main:
                 )
                 # Werte außen anzeigen
                 fig_ctry.update_traces(texttemplate="%{x:.2f}", textposition="outside", cliponaxis=False)
-                fig_ctry.update_layout(showlegend=False, xaxis_title="Image Size per 500 Words")
+                fig_ctry.update_layout(showlegend=False, xaxis_title="Image Size per Page")
         
                 st.plotly_chart(fig_ctry, use_container_width=True)
         
@@ -2276,28 +2276,28 @@ with main:
                 # -------------------------------------------------------
                 focal_avg = (
                     country_avg
-                    .loc[country_avg["country"] == focal_country, "ImgSize_per_500"]
+                    .loc[country_avg["country"] == focal_country, "ImgSize_per_Page"]
                     .iat[0]
                 )
                 other_avg = (
                     country_avg
-                    .loc[country_avg["country"] != focal_country, "ImgSize_per_500"]
+                    .loc[country_avg["country"] != focal_country, "ImgSize_per_Page"]
                     .mean()
                 )
         
                 comp_df = pd.DataFrame({
                     "Group":            [focal_country, "Other Countries"],
-                    "ImgSize_per_500":  [focal_avg,      other_avg]
+                    "ImgSize_per_Page":  [focal_avg,      other_avg]
                 })
         
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
-                    y="ImgSize_per_500",
-                    text="ImgSize_per_500",
+                    y="ImgSize_per_Page",
+                    text="ImgSize_per_Page",
                     color="Group",
                     color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
-                    labels={"ImgSize_per_500": "Image Size per 500 Words", "Group": ""}
+                    labels={"ImgSize_per_Page": "Image Size per Page", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
@@ -2313,23 +2313,23 @@ with main:
             elif benchmark_type == "Between Sector Comparison" and plot_type == "Histogram":
                 sector_avg = (
                     df
-                    .groupby("supersector")["imgsize_500"]
+                    .groupby("supersector")["imgsize_pages"]
                     .mean()
-                    .reset_index(name="ImgArea per 500")
+                    .reset_index(name="ImgArea per Page")
                 )
                 fig = px.histogram(
                     sector_avg,
-                    x="ImgArea per 500",
+                    x="ImgArea per Page",
                     nbins=20,
                     opacity=0.8,
-                    labels={"ImgArea per 500": "Average image area per 500 words"}
+                    labels={"ImgArea per Page": "Average image area per Page"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
         
                 # Linien für All vs. Focal Supersector
-                overall_avg = sector_avg["ImgArea per 500"].mean()
+                overall_avg = sector_avg["ImgArea per Page"].mean()
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "ImgArea per 500"].iat[0]
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "ImgArea per Page"].iat[0]
         
                 fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
                               annotation_text="<b>All Sectors Avg</b>", 
@@ -2345,7 +2345,7 @@ with main:
                              )
         
                 fig.update_layout(showlegend=False,
-                                  xaxis_title="Average image area per 500 words",
+                                  xaxis_title="Average image area per Pages",
                                   yaxis_title="Number of Sectors",
                                   bargap=0.1)
                 st.plotly_chart(fig, use_container_width=True)
@@ -2355,10 +2355,10 @@ with main:
             elif benchmark_type == "Between Sector Comparison" and plot_type == "Bar Chart":
                 sector_avg = (
                     df
-                    .groupby("supersector")["imgsize_500"]
+                    .groupby("supersector")["imgsize_pages"]
                     .mean()
-                    .reset_index(name="ImgArea per 500")
-                ).sort_values("ImgArea per 500", ascending=False)
+                    .reset_index(name="ImgArea per Page")
+                ).sort_values("ImgArea per Page", ascending=False)
         
                 # auf 15 Zeichen kürzen
                 sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
@@ -2373,15 +2373,15 @@ with main:
         
                 fig_s = px.bar(
                     sector_avg,
-                    x="ImgArea per 500",
+                    x="ImgArea per Page",
                     y="sector_short",
                     orientation="h",
                     color="highlight",
                     color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order},
-                    labels={"sector_short": "", "ImgArea per 500": "Average image area per 500 words"}
+                    labels={"sector_short": "", "ImgArea per Page": "Average image area per Page"}
                 )
-                fig_s.add_vline(x=sector_avg["ImgArea per 500"].mean(),
+                fig_s.add_vline(x=sector_avg["ImgArea per Page"].mean(),
                                 line_dash="dash", line_color="black",
                                 annotation_text="<b>All Sectors Avg</b>",
                                 annotation_position="bottom right",
@@ -2389,12 +2389,12 @@ with main:
                                 annotation_font_size=16
                                )
                 fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
-                fig_s.update_layout(showlegend=False, xaxis_title="Average image area per 500 words")
+                fig_s.update_layout(showlegend=False, xaxis_title="Average image area per Page")
                 st.plotly_chart(fig_s, use_container_width=True)
         
                 # 3) Kompakter Vergleich: focal vs. avg of others
-                focal_avg  = sector_avg.loc[sector_avg["supersector"] == focal_super, "ImgArea per 500"].iat[0]
-                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "ImgArea per 500"].mean()
+                focal_avg  = sector_avg.loc[sector_avg["supersector"] == focal_super, "ImgArea per Page"].iat[0]
+                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "ImgArea per Page"].mean()
         
                 comp_df = pd.DataFrame({
                     "Group": [focal_super, "Other sectors avg"],
@@ -2421,9 +2421,9 @@ with main:
                 # Benchmark_df verwenden, um sicher imgsize_500 zu haben
                 fig = px.histogram(
                     benchmark_df,
-                    x="imgsize_500",
+                    x="imgsize_pages",
                     nbins=20,
-                    labels={"imgsize_500": "Image Size per 500 Words"}
+                    labels={"imgsize_500": "Image Size per Page"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
         
@@ -2452,25 +2452,25 @@ with main:
                 )
         
                 fig.update_layout(
-                    xaxis_title="Image Size per 500 Words",
+                    xaxis_title="Image Size per Page",
                     yaxis_title="Number of Companies"
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
             elif plot_type == "Bar Chart":
                 # 1) Peer-Detail-Chart
-                peers_df = plot_df.sort_values("imgsize_500", ascending=False)
+                peers_df = plot_df.sort_values("imgsize_pages", ascending=False)
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
                 y_order_short = peers_df["company_short"].tolist()[::-1]
         
                 fig2 = px.bar(
                     peers_df,
-                    x="imgsize_500",
+                    x="imgsize_pages",
                     y="company_short",
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"imgsize_500": "Image Size per 500 Words", "company_short": "Company", "highlight_label": ""},
+                    labels={"imgsize_pages": "Image Size per Page", "company_short": "Company", "highlight_label": ""},
                     category_orders={"company_short": y_order_short}
                 )
                 fig2.add_vline(
@@ -2491,17 +2491,17 @@ with main:
         
                 comp_df = pd.DataFrame({
                     "Group":            [company, "Peer Average"],
-                    "ImgSize_per_500":  [focal_img, mean_img]
+                    "ImgSize_per_Page":  [focal_img, mean_img]
                 })
         
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
-                    y="ImgSize_per_500",
-                    text="ImgSize_per_500",
+                    y="ImgSize_per_Page",
+                    text="ImgSize_per_Page",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"ImgSize_per_500": "Image Size per 500 Words", "Group": ""}
+                    labels={"ImgSize_per_Page": "Image Size per Page", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
@@ -2509,11 +2509,11 @@ with main:
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
         
-                st.subheader("Peer vs. Company Image Size per 500 Words")
+                st.subheader("Peer vs. Company Image Size per Page")
                 st.plotly_chart(fig_cmp, use_container_width=True)
         
             # Fußnote
-            st.caption("Total image file size (in KB) per 500 words of companies’ sustainability reports.")
+            st.caption("Total image file size (in KB) per page of companies’ sustainability reports.")
         
     
         elif view == "Sentiment":
