@@ -14,6 +14,11 @@ st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 st.markdown(
     """
     <style>
+      /* 0) Selectbox volle Breite */
+      .stSelectbox > div > div > div > div {
+        width: 100% !important;
+      }
+
       /* 1) Toolbar (Hamburger/Share/…) ausblenden */
       [data-testid="stToolbar"] {
         display: none !important;
@@ -33,19 +38,19 @@ st.markdown(
       section[data-testid="column"]:first-of-type,
       section[data-testid="column"]:last-of-type {
         background-color: #F3E8FF !important;
-        box-shadow:       2px 2px 8px rgba(0,0,0,0.1) !important;
-        border-radius:    0.5rem;
-        padding:          1rem;
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.1) !important;
+        border-radius: 0.5rem;
+        padding: 1rem;
       }
 
       /* 4) Mittlere Column transparent + alle Schatten killen */
       section[data-testid="column"]:nth-of-type(2) {
         background-color: transparent !important;
-        box-shadow:       none        !important;
+        box-shadow: none !important;
       }
       section[data-testid="column"]:nth-of-type(2) * {
-        box-shadow: none               !important;
-        background: transparent        !important;
+        background: transparent !important;
+        box-shadow: none !important;
       }
 
       /* 5) In der mittleren Column: die Standard-.block-container-Abstände auf 0 */
@@ -53,14 +58,13 @@ st.markdown(
         > div[class*="block-container"]
         > section[data-testid="column"]:nth-of-type(2)
         > div[class*="block-container"] {
-        padding-left:  0 !important;
+        padding-left: 0 !important;
         padding-right: 0 !important;
       }
     </style>
     """,
     unsafe_allow_html=True,
 )
-
 #-------------------------------------------------------------------------------------
 # 2. Daten laden
 #--------------------------------------------------------------------------------------
@@ -200,7 +204,7 @@ left, main, right = st.columns([2, 5, 2])
 
 # 4a. Linke Sidebar: Company + Top-Level Radio + Unter-Radio
 with left:
-    # 1) Company dropdown bleibt unverändert
+    # 1) Company dropdown – nutzt nun die volle Breite
     default_idx = company_list.index(default_company) if default_company in company_list else 0
     company = st.selectbox(
         "Select a company:",
@@ -210,25 +214,28 @@ with left:
     )
     selected = company
 
-    # 2) Neue Überschrift
+    # 2) Überschrift
     st.subheader("Company vs. Peer Group")
 
-    # 3) Ein einziges Radio für alle Gruppen und Vergleiche
-    benchmark_type = st.radio(
-        "",  # kein Label, weil es als Überschrift schon steht
-        [
-            "Sector Peers",
-            "Country Peers",
-            "Market Cap Peers",
-            "All CSRD First Wave",
-            "Choose specific peers",
-            "Company Sector vs Other Sectors",
-            "Company Country vs Other Countries"
-        ],
+    # 3) Ein einziges Radio für alle Gruppen und Vergleiche mit Emoji-Hervorhebung
+    options = [
+        "Sector Peers",
+        "Country Peers",
+        "Market Cap Peers",
+        "All CSRD First Wave",
+        "Choose specific peers",
+        "⭐ Company Sector vs Other Sectors",
+        "🌍 Company Country vs Other Countries"
+    ]
+    raw_choice = st.radio(
+        "",  # kein Label, die Überschrift ersetzt es
+        options,
         key="benchmark_type"
     )
+    # Emoji wieder entfernen für interne Logik
+    benchmark_type = raw_choice.replace("⭐ ", "").replace("🌍 ", "")
 
-    # 4) Wenn „Choose specific peers“ gewählt, Multiselect zeigen
+    # 4) Wenn „Choose specific peers“ gewählt, Multiselect anzeigen
     if benchmark_type == "Choose specific peers":
         peer_selection = st.multiselect(
             "Or choose specific peer companies:",
