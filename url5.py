@@ -202,15 +202,19 @@ default_company = mapping_ci.get(raw.strip().casefold(), company_list[0])
 #------------------------------------------------------------------------------------------
 left, main, right = st.columns([2, 5, 2])
 
-# 4a. Linke Sidebar: Company + Top-Level Radio + Unter-Radio
+# 4a. Linke Sidebar: Company + Peer-Group-/Cross-Comparison-Radio
 with left:
-    # 1) Company dropdown – nutzt nun die volle Breite
-    default_idx = company_list.index(default_company) if default_company in company_list else 0
+
+    # 1) Große Überschrift für Company
     st.subheader("Select a company:")
+
+    # 2) Dann das Selectbox selbst, ganz ohne Label-Text
+    default_idx = company_list.index(default_company) if default_company in company_list else 0
     company = st.selectbox(
+        "",                    # <— kein Label hier
         options=company_list,
         index=default_idx,
-        key="company_selector",
+        key="company_selector"
     )
     selected = company
 
