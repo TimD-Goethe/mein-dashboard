@@ -2973,10 +2973,17 @@ with main:
                     x="company",
                     y=["Positive", "Negative"],
                     barmode="group",
-                    color_discrete_sequence=["#FF7F7F", "#E10600"],  # Pos=helles Rot, Neg=dunkles Rot
+                    # wir lassen color_discrete_sequence hier stehen, wird aber gleich überschrieben
+                    color_discrete_sequence=["#FF7F7F", "#E10600"],
                     category_orders={"company": [company, "Peer Average"]},
                     labels={"value": "Count", "company": ""}
                 )
+                
+                # Jetzt pro Trace (0 = Positive, 1 = Negative) die Farben für Peer vs. Company setzen
+                # Trace 0 = "Positive": [Peer, Company]
+                fig_cmp.data[0].marker.color = ["#ADD8E6", "#FF7F7F"]
+                # Trace 1 = "Negative": [Peer, Company]
+                fig_cmp.data[1].marker.color = ["#00008B", "#E10600"]
                 fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
