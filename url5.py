@@ -624,27 +624,27 @@ with main:
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
-                # 1) Durchschnittliche Wortzahl pro Supersector
+                # 1) Durchschnittliche Seitenzahl pro Supersector
                 sector_avg = (
                     df
-                    .groupby("supersector")["words"]
+                    .groupby("supersector")["Sustainability_Page_Count"]
                     .mean()
-                    .reset_index(name="Words")
+                    .reset_index(name="Sustainability_Page_Count")
                 )
                 # 2) Plot
                 fig = px.histogram(
                     sector_avg,
-                    x="Words",
+                    x="Sustainability_Page_Count",
                     nbins=20,
                     opacity=0.8,
-                    labels={"Words": "Words"}
+                    labels={"Sustainability_Page_Count": "Sustainability_Page_Count"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
         
                 # 3) Linien für All vs. Focal Supersector
-                overall_avg = sector_avg["Words"].mean()
+                overall_avg = sector_avg["Sustainability_Page_Count"].mean()
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Words"].iat[0]
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Sustainability_Page_Count"].iat[0]
         
                 fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
                               annotation_text="<b>All Sectors Avg</b>",
@@ -658,7 +658,7 @@ with main:
                               annotation_font_size=16)
         
                 fig.update_layout(showlegend=False,
-                                  xaxis_title="Words",
+                                  xaxis_title="Sustainability_Page_Count",
                                   yaxis_title="Number of Sectors",
                                   bargap=0.1)
                 st.plotly_chart(fig, use_container_width=True)
@@ -705,7 +705,7 @@ with main:
                     color="highlight",
                     color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order},  # niedrig→hoch
-                    labels={"sector_short": "", "Sustainability_Page_Count": "Words"},
+                    labels={"sector_short": "", "Sustainability_Page_Count": "Sustainability_Page_Count"},
                     hover_data={"Sustainability_Page_Count": ":.0f"}
                 )
             
