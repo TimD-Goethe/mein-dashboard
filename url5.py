@@ -1659,129 +1659,143 @@ with main:
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
-                # 1) Durchschnittliche Seitenzahl pro Supersector
+            elif benchmark_type == "Company Sector vs Other Countries" and plot_type == "Histogram":
+                # 1) Durchschnittliche Numbers pro Supersector
                 sector_avg = (
                     df
                     .groupby("supersector")["num_o_seit_500"]
                     .mean()
-                    .reset_index(name="num_o_seit_500")
+                    .reset_index(name="Numbers")
                 )
-                # 2) Plot
+                # 2) Histogramm
                 fig = px.histogram(
                     sector_avg,
-                    x="num_o_seit_500",
+                    x="Numbers",
                     nbins=20,
                     opacity=0.8,
-                    labels={"num_o_seit_500": "num_o_seit_500"}
+                    labels={"Numbers": "Numbers per 500 words"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
-        
+            
                 # 3) Linien für All vs. Focal Supersector
-                overall_avg = sector_avg["num_o_seit_500"].mean()
+                overall_avg = sector_avg["Numbers"].mean()
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "num_o_seit_500"].iat[0]
-        
-                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
-                              annotation_text="<b>All Sectors Avg</b>",
-                              annotation_position="top right",
-                              annotation_font_color= "black",
-                              annotation_font_size=16)
-                fig.add_vline(x=focal_avg, line_dash="dash", line_color="red",
-                              annotation_text=f"<b>{focal_super} Avg</b>",
-                              annotation_position="bottom left",
-                              annotation_font_color="red",
-                              annotation_font_size=16)
-        
-                fig.update_layout(showlegend=False,
-                                  xaxis_title="num_o_seit_500",
-                                  yaxis_title="Number of Sectors",
-                                  bargap=0.1)
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Numbers"].iat[0]
+            
+                fig.add_vline(
+                    x=overall_avg, line_dash="dash", line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_avg, line_dash="dash", line_color="red",
+                    annotation_text=f"<b>{focal_super} Avg</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16
+                )
+            
+                # 4) Layout anpassen
+                fig.update_layout(
+                    showlegend=False,
+                    xaxis_title="Numbers per 500 words",
+                    yaxis_title="Number of Sectors",
+                    bargap=0.1
+                )
                 st.plotly_chart(fig, use_container_width=True)
-
-
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
-                import textwrap
             
-                # 1) Focal Supersector ermitteln
-                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
-                # 2) Durchschnittliche Sietnzahl pro Supersector, absteigend sortiert
-                sector_avg = (
+            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+                # 1) Focal Country ermitteln
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+            
+                # 2) Durchschnitt pro Country und Sortierung (absteigend)
+                country_avg = (
                     df
-                    .groupby("supersector")["num_o_seit_500"]
+                    .groupby("country")["num_o_seit_500"]
                     .mean()
-                    .reset_index(name="num_o_seit_500")
-                    .sort_values("num_o_seit_500", ascending=False)
+                    .reset_index(name="Numbers")
+                    .sort_values("Numbers", ascending=False)
                 )
             
-                # 3) Mehrzeilige Labels mit "\n" (wrap bei 20 Zeichen)
-                sector_avg["sector_short"] = sector_avg["supersector"].apply(
-                    lambda s: "<br>".join(textwrap.wrap(s, width=20))
+                # 3) Labels kürzen (max. 15 Zeichen)
+                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
+            
+                # 4) Reihenfolge nach sort_values (absteigend), ohne zusätzliches Umkehren
+                y_order = country_avg["country_short"].tolist()
+            
+                # 5) Highlight für Dein Land
+                country_avg["highlight"] = np.where(
+                    country_avg["country"] == focal_country,
+                    country_avg["country_short"],
+                    "Other Countries"
                 )
             
-                # 4) Reihenfolge für category_orders: 
-                #    wir kehren die absteigend sortierte Liste um → niedrigste zuerst
-                y_order = sector_avg["sector_short"].tolist()[::-1]
-            
-                # 5) Highlight fürs eigene Supersector
-                focal_label = "\n".join(textwrap.wrap(focal_super, width=20))
-                sector_avg["highlight"] = np.where(
-                    sector_avg["supersector"] == focal_super,
-                    focal_label,
-                    "Other sectors"
-                )
-            
-                # 6) Horizontalen Bar‐Chart bauen
-                fig_s = px.bar(
-                    sector_avg,
-                    x="num_o_seit_500",
-                    y="sector_short",
+                # 6) Bar-Chart erzeugen mit category_orders
+                fig_ctry = px.bar(
+                    country_avg,
+                    x="Numbers",
+                    y="country_short",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
-                    category_orders={"sector_short": y_order},  # niedrig→hoch
-                    labels={"sector_short": "", "num_o_seit_500": "Pages"},
-                    hover_data={"num_o_seit_500": ":.0f"}
+                    color_discrete_map={
+                        focal_country: "red",
+                        "Other Countries": "#1f77b4"
+                    },
+                    category_orders={"country_short": y_order},
+                    labels={"Numbers": "Numbers per 500 words", "country_short": ""},
                 )
             
-                # 7) Linie für den Durchschnitt aller Sektoren
-                avg_all = sector_avg["num_o_seit_500"].mean()
-                fig_s.add_vline(
-                    x=avg_all,
+                # 7) Linien & Styling
+                overall_avg = df["num_o_seit_500"].mean()
+                fig_ctry.add_vline(
+                    x=overall_avg,
                     line_dash="dash",
                     line_color="black",
-                    annotation_text="<b>All Sectors Avg</b>",
+                    line_width=2,
+                    annotation_text="<b>Peer Average</b>",
                     annotation_position="bottom right",
                     annotation_font_color="black",
-                    annotation_font_size=16,
+                    annotation_font_size=16
                 )
             
-                # 8) Einheitliches Styling & Höhe/Shriftgröße + automatische y-Reverse
-                fig_s = smart_layout(fig_s, len(sector_avg))
-                fig_s.update_layout(showlegend=False)
+                # 8) Dynamische Höhe & Schriftgröße
+                fig_ctry = smart_layout(fig_ctry, len(country_avg))
+                fig_ctry.update_layout(showlegend=False)
             
-                # 9) Chart rendern
-                st.plotly_chart(fig_s, use_container_width=True)
+                # 9) Reihenfolge final festlegen
+                fig_ctry.update_yaxes(
+                    categoryorder="array",
+                    categoryarray=y_order
+                )
             
-                # — Optional: Vergleichs‐Chart Supersector vs Rest —
-                focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "num_o_seit_500"].iat[0]
-                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "num_o_seit_500"].mean()
+                # 10) Chart rendern
+                st.plotly_chart(fig_ctry, use_container_width=True)
+            
+                # — Optional: Vergleichs-Chart Focal vs. Other Countries Average —
                 comp_df = pd.DataFrame({
-                    "Group": [focal_super, "Other sectors avg"],
-                    "num_o_seit_500": [focal_avg, others_avg]
+                    "Group": [focal_country, "Other countries average"],
+                    "Numbers": [
+                        country_avg.loc[country_avg["country"] == focal_country, "Numbers"].iat[0],
+                        country_avg.loc[country_avg["country"] != focal_country, "Numbers"].mean()
+                    ]
                 })
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
-                    y="num_o_seit_500",
-                    text="num_o_seit_500",
+                    y="Numbers",
+                    text="Numbers",
                     color="Group",
-                    color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
-                    labels={"num_o_seit_500": "Pages", "Group": ""}
+                    color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
+                    labels={"Numbers": "Numbers per 500 words", "Group": ""}
                 )
                 fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
+                    xaxis={
+                        "categoryorder": "array",
+                        "categoryarray": [focal_country, "Other countries average"]
+                    },
                     showlegend=False
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
@@ -1789,17 +1803,23 @@ with main:
             
             
             elif plot_type == "Histogram":
+                # 1) Peer- und Focal-Werte berechnen
+                mean_numbers  = benchmark_df["num_o_seit_500"].mean()
+                focal_numbers = df.loc[df["company"] == company, "num_o_seit_500"].iat[0]
+            
+                # 2) Histogramm aller Peer-Unternehmen nach Numbers
                 fig = px.histogram(
-                    plot_df, x="num_o_seit_500", nbins=20,
-                    labels={"num_o_seit_500": "Pages", "_group" : "Group"}
+                    plot_df,
+                    x="num_o_seit_500",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"num_o_seit_500": "Numbers per 500 words", "_group": "Group"}
                 )
-    
-                # 4) Alle Balken in Dunkelblau (#1f77b4)
                 fig.update_traces(marker_color="#1f77b4")
-    
-                # Linien bleiben hier als VLines
+            
+                # 3) Linien für Peer Average und Focal Company
                 fig.add_vline(
-                    x=mean_pages,
+                    x=mean_numbers,
                     line_dash="dash",
                     line_color="black",
                     line_width=1,
@@ -1810,29 +1830,36 @@ with main:
                     annotation_font_size=16
                 )
                 fig.add_vline(
-                    x=focal_pages,
+                    x=focal_numbers,
                     line_dash="dash",
                     line_color="red",
                     opacity=0.8,
                     annotation_text=f"<b>{company}</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=16,
+                    annotation_font_size=16
                 )
-                fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
+            
+                # 4) Achsentitel anpassen
+                fig.update_layout(
+                    xaxis_title="Numbers per 500 words",
+                    yaxis_title="Number of Companies"
+                )
+            
                 st.plotly_chart(fig, use_container_width=True)
-                            
-    
+            
+            
             elif plot_type == "Bar Chart":
-                # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken nach Wert absteigend sortieren
-                peers_df = plot_df.sort_values("num_o_seit_500", ascending=False)
-                mean_pages = benchmark_df["num_o_seit_500"].mean()
+                # 1) Sortieren nach Numbers
+                peers_df     = plot_df.sort_values("num_o_seit_500", ascending=False)
+                mean_numbers = benchmark_df["num_o_seit_500"].mean()
+                focal_numbers = df.loc[df["company"] == company, "num_o_seit_500"].iat[0]
             
-                # 2) Kurz-Namen für die Y-Achse, damit sie nicht zu lang werden
+                # 2) Kurz-Namen für die Y-Achse
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
-                y_order_short = peers_df["company_short"].tolist()[::-1]
+                y_order_short             = peers_df["company_short"].tolist()[::-1]
             
-                # 3) Horizontales Balkendiagramm erstellen
+                # 3) Horizontalen Bar‐Chart erzeugen
                 fig2 = px.bar(
                     peers_df,
                     x="num_o_seit_500",
@@ -1850,26 +1877,25 @@ with main:
             
                 # 4) Peer-Average-Linie hinzufügen
                 fig2.add_vline(
-                    x=mean_pages,
+                    x=mean_numbers,
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="bottom right",
                     annotation_font_color="black",
-                    annotation_font_size=16,
+                    annotation_font_size=16
                 )
             
-                # 5) Einheitliches Styling direkt hier anwenden
+                # 5) Styling & Automatische Höhe/Reihenfolge
                 fig2 = smart_layout(fig2, len(peers_df))
+                fig2.update_layout(showlegend=False)
             
-                # 6) Chart ausgeben
                 st.plotly_chart(fig2, use_container_width=True)
             
                 # — Vertikaler Vergleich Peer Average vs. Focal Company —
-                avg_pages = mean_pages
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "num_o_seit_500": [avg_pages, focal_pages]
+                    "num_o_seit_500": [mean_numbers, focal_numbers]
                 })
                 fig_avg = px.bar(
                     comp_df,
@@ -1880,7 +1906,6 @@ with main:
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
                     labels={"num_o_seit_500": "Numbers per 500 words", "Group": ""}
                 )
-                # rote Firma links anzeigen
                 fig_avg.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
