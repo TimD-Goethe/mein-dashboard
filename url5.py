@@ -2468,109 +2468,141 @@ with main:
 
             # 1) Histogramm aller Supersector-Durchschnitte
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+                # 1) Durchschnittliche Bildfläche pro Supersector
                 sector_avg = (
                     df
                     .groupby("supersector")["imgsize_pages"]
                     .mean()
-                    .reset_index(name="ImgArea per Page")
+                    .reset_index(name="ImageArea")
                 )
+                # 2) Histogramm
                 fig = px.histogram(
                     sector_avg,
-                    x="ImgArea per Page",
+                    x="ImageArea",
                     nbins=20,
                     opacity=0.8,
-                    labels={"ImgArea per Page": "Average image area per Page"}
+                    labels={"ImageArea": "Image area per 500 words"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
-        
-                # Linien für All vs. Focal Supersector
-                overall_avg = sector_avg["ImgArea per Page"].mean()
+            
+                # 3) Linien für All vs. Focal Supersector
+                overall_avg = sector_avg["ImageArea"].mean()
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "ImgArea per Page"].iat[0]
-        
-                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
-                              annotation_text="<b>All Sectors Avg</b>", 
-                              annotation_position="top right",
-                              annotation_font_color="black",
-                              annotation_font_size=16
-                             )
-                fig.add_vline(x=focal_avg,   line_dash="dash", line_color="red",
-                              annotation_text=f"<b>{focal_super} Avg</b>", 
-                              annotation_position="bottom left",
-                              annotation_font_color="black",
-                              annotation_font_size=16
-                             )
-        
-                fig.update_layout(showlegend=False,
-                                  xaxis_title="Average image area per Pages",
-                                  yaxis_title="Number of Sectors",
-                                  bargap=0.1)
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "ImageArea"].iat[0]
+            
+                fig.add_vline(
+                    x=overall_avg, line_dash="dash", line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black", annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_avg, line_dash="dash", line_color="red",
+                    annotation_text=f"<b>{focal_super} Avg</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red", annotation_font_size=16
+                )
+            
+                # 4) Layout anpassen
+                fig.update_layout(
+                    showlegend=False,
+                    xaxis_title="Image area per 500 words",
+                    yaxis_title="Number of Sectors",
+                    bargap=0.1
+                )
                 st.plotly_chart(fig, use_container_width=True)
-        
-        
-            # 2) Bar-Chart aller Supersektoren
+            
+            
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
-                sector_avg = (
+                import textwrap
+            
+                # 1) Focal Supersector ermitteln
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+            
+                # 2) Durchschnittliche Bildfläche pro Supersector, absteigend sortiert
+                super_avg = (
                     df
                     .groupby("supersector")["imgsize_pages"]
                     .mean()
-                    .reset_index(name="ImgArea per Page")
-                ).sort_values("ImgArea per Page", ascending=False)
-        
-                # auf 15 Zeichen kürzen
-                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
-                y_order = sector_avg["sector_short"].tolist()
-        
-                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                sector_avg["highlight"] = np.where(
-                    sector_avg["supersector"] == focal_super,
-                    sector_avg["sector_short"],
+                    .reset_index(name="ImageArea")
+                    .sort_values("ImageArea", ascending=False)
+                )
+            
+                # 3) Mehrzeilige Labels mit "\n" (wrap bei 20 Zeichen)
+                super_avg["super_short"] = super_avg["supersector"].apply(
+                    lambda s: "\n".join(textwrap.wrap(s, width=20))
+                )
+            
+                # 4) Reihenfolge nach sort_values (absteigend)
+                y_order = super_avg["super_short"].tolist()
+            
+                # 5) Highlight fürs eigene Supersector
+                super_avg["highlight"] = np.where(
+                    super_avg["supersector"] == focal_super,
+                    super_avg["super_short"],
                     "Other sectors"
                 )
-        
+            
+                # 6) Horizontalen Bar‐Chart bauen
                 fig_s = px.bar(
-                    sector_avg,
-                    x="ImgArea per Page",
-                    y="sector_short",
+                    super_avg,
+                    x="ImageArea",
+                    y="super_short",
                     orientation="h",
                     color="highlight",
                     color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
-                    category_orders={"sector_short": y_order},
-                    labels={"sector_short": "", "ImgArea per Page": "Average image area per Page"}
+                    category_orders={"super_short": y_order},
+                    labels={"super_short": "", "ImageArea": "Image area per 500 words"},
+                    hover_data={"ImageArea": ":.1f"}
                 )
-                fig_s.add_vline(x=sector_avg["ImgArea per Page"].mean(),
-                                line_dash="dash", line_color="black",
-                                annotation_text="<b>All Sectors Avg</b>",
-                                annotation_position="bottom right",
-                                annotation_font_color="black",
-                                annotation_font_size=16
-                               )
-                fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
-                fig_s.update_layout(showlegend=False, xaxis_title="Average image area per Page")
+            
+                # 7) Linie für den Durchschnitt aller Sektoren
+                avg_all = super_avg["ImageArea"].mean()
+                fig_s.add_vline(
+                    x=avg_all,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+            
+                # 8) Einheitliches Styling & Höhe/Schriftgröße + automatische y-Reverse
+                fig_s = smart_layout(fig_s, len(super_avg))
+                fig_s.update_layout(showlegend=False)
+            
+                # 9) Reihenfolge final festlegen
+                fig_s.update_yaxes(
+                    categoryorder="array",
+                    categoryarray=y_order
+                )
+            
+                # 10) Chart rendern
                 st.plotly_chart(fig_s, use_container_width=True)
-        
-                # 3) Kompakter Vergleich: focal vs. avg of others
-                focal_avg  = sector_avg.loc[sector_avg["supersector"] == focal_super, "ImgArea per Page"].iat[0]
-                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "ImgArea per Page"].mean()
-        
+            
+                # — Optional: Vergleichs‐Chart Supersector vs. Rest —
                 comp_df = pd.DataFrame({
-                    "Group": [focal_super, "Other sectors avg"],
-                    "ImgArea": [focal_avg, others_avg]
+                    "Group": [focal_super, "Other sectors average"],
+                    "ImageArea": [
+                        super_avg.loc[super_avg["supersector"] == focal_super, "ImageArea"].iat[0],
+                        super_avg.loc[super_avg["supersector"] != focal_super, "ImageArea"].mean()
+                    ]
                 })
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
-                    y="ImgArea",
-                    text="ImgArea",
+                    y="ImageArea",
+                    text="ImageArea",
                     color="Group",
-                    color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
-                    labels={"ImgArea": "Average image area per 500 words", "Group": ""}
+                    color_discrete_map={focal_super: "red", "Other sectors average": "#1f77b4"},
+                    labels={"ImageArea": "Image area per 500 words", "Group": ""}
                 )
                 fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors average"]},
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
 
