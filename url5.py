@@ -207,6 +207,8 @@ def smart_layout(fig, num_items, *,
                 ):
     """
     Passt Höhe und Schriften an, je nachdem wie viele Balken (num_items) wir haben.
+    Bei horizontalen Bars wird die y-Achse automatisch inverted, 
+    so dass der größte Wert oben steht.
     """
     # 1) Höhe: pro Item bar_height px plus etwas Padding
     height = min(max_height, max(min_height, num_items * bar_height + 150))
@@ -216,12 +218,12 @@ def smart_layout(fig, num_items, *,
     if num_items <= 1:
         font_size = max_font
     else:
-        # je mehr Items umso näher an min_font
         font_size = max(min_font,
                         max_font - (num_items-1) * (max_font-min_font) / 29
                        )
     font_size = round(font_size, 1)
     
+    # 3) Grund-Layout
     fig.update_layout(
         height=height,
         font=dict(size=font_size),
@@ -229,6 +231,11 @@ def smart_layout(fig, num_items, *,
         yaxis=dict(tickfont=dict(size=font_size)),
         xaxis=dict(tickfont=dict(size=font_size))
     )
+
+    # 4) Wenn es mindestens einen horizontalen Bar-Trace gibt, y-Achse invertieren
+    if any(getattr(trace, "orientation", None) == "h" for trace in fig.data):
+        fig.update_yaxes(autorange="reversed")
+    
     return fig
 
 #--------------------------------------------------------------------------------------
