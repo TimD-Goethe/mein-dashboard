@@ -2318,32 +2318,32 @@ with main:
             mean_img = benchmark_df["imgsize_pages"].mean()
             focal_img = df.loc[df["company"] == company, "imgsize_pages"].iat[0]
         
-            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
-        
-                # 2) Länder-Durchschnitt vorbereiten
+            
+                # 2) Länder-Durchschnitt vorbereiten, Spalte in "ImageArea" umbenennen
                 country_avg = (
                     df
                     .groupby("country")["imgsize_pages"]
                     .mean()
-                    .reset_index(name="ImgSize_per_Page")
+                    .reset_index(name="ImageArea")
                 )
-        
-                overall_avg = country_avg["ImgSize_per_Page"].mean()
-                focal_avg   = country_avg.loc[country_avg["country"] == focal_country, "ImgSize_per_Page"].iat[0]
-        
+            
+                overall_avg = country_avg["ImageArea"].mean()
+                focal_avg   = country_avg.loc[country_avg["country"] == focal_country, "ImageArea"].iat[0]
+            
                 # 3) Histogramm aller Länder-Durchschnitte
                 fig = px.histogram(
                     country_avg,
-                    x="ImgSize_per_Page",
+                    x="ImageArea",
                     nbins=20,
                     opacity=0.8,
-                    labels={"ImgSize_per_Page": "Image Size per Page"},
+                    labels={"ImageArea": "Image area per 500 words", "_group": "Group"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
-        
-                # 4) V-Line Overall Avg
+            
+                # 4) V-Lines für Länderavg
                 fig.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -2354,7 +2354,6 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
-                # 5) V-Line Focal Country
                 fig.add_vline(
                     x=focal_avg,
                     line_dash="dash",
@@ -2365,54 +2364,60 @@ with main:
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
-        
-                # 6) Layout
+            
+                # 5) Layout anpassen
                 fig.update_layout(
                     showlegend=False,
-                    xaxis_title="Image Size per Page",
+                    xaxis_title="Image area per 500 words",
                     yaxis_title="Number of Countries",
                     bargap=0.1,
                 )
                 st.plotly_chart(fig, use_container_width=True)
-        
-                    
+            
+            
             elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
-                # 1) Focal Country
+                # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
-        
-                # 2) Länder-Durchschnitt (ImgSize_per_Page)
+            
+                # 2) Durchschnitt pro Country und Sortierung (absteigend)
                 country_avg = (
                     df
                     .groupby("country")["imgsize_pages"]
                     .mean()
-                    .reset_index(name="ImgSize_per_Page")
-                    .sort_values("ImgSize_per_Page", ascending=False)
+                    .reset_index(name="ImageArea")
+                    .sort_values("ImageArea", ascending=False)
                 )
-        
-                # 3) Kürze Ländernamen für Y-Achse
+            
+                # 3) Labels kürzen (max. 15 Zeichen)
                 country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
+            
+                # 4) Reihenfolge nach sort_values (absteigend)
                 y_order = country_avg["country_short"].tolist()
-        
-                # 4) Highlight-Spalte
+            
+                # 5) Highlight für Dein Land
                 country_avg["highlight"] = np.where(
                     country_avg["country"] == focal_country,
                     country_avg["country_short"],
                     "Other Countries"
                 )
-        
-                # 5) Erstes horizontales Balkendiagramm: alle Länder
+            
+                # 6) Bar-Chart erzeugen mit category_orders
                 fig_ctry = px.bar(
                     country_avg,
-                    x="ImgSize_per_500",
+                    x="ImageArea",
                     y="country_short",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
+                    color_discrete_map={
+                        focal_country: "red",
+                        "Other Countries": "#1f77b4"
+                    },
                     category_orders={"country_short": y_order},
-                    labels={"ImgSize_per_Page": "Image Size per Page", "country_short": ""}
+                    labels={"ImageArea": "Image area per 500 words", "country_short": ""},
                 )
-                # Peer-Average als Linie
-                overall_avg = country_avg["ImgSize_per_Page"].mean()
+            
+                # 7) Linien & Styling
+                overall_avg = df["imgsize_pages"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -2423,49 +2428,43 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
-                # Werte außen anzeigen
-                fig_ctry.update_traces(texttemplate="%{x:.2f}", textposition="outside", cliponaxis=False)
-                fig_ctry.update_layout(showlegend=False, xaxis_title="Image Size per Page")
-        
+            
+                # 8) Dynamische Höhe & Schriftgröße
+                fig_ctry = smart_layout(fig_ctry, len(country_avg))
+                fig_ctry.update_layout(showlegend=False)
+            
+                # 9) Reihenfolge final festlegen
+                fig_ctry.update_yaxes(
+                    categoryorder="array",
+                    categoryarray=y_order
+                )
+            
+                # 10) Chart rendern
                 st.plotly_chart(fig_ctry, use_container_width=True)
-        
-                # -------------------------------------------------------
-                # 6) Kompaktvergleich: Focal Country vs. Other Countries
-                # -------------------------------------------------------
-                focal_avg = (
-                    country_avg
-                    .loc[country_avg["country"] == focal_country, "ImgSize_per_Page"]
-                    .iat[0]
-                )
-                other_avg = (
-                    country_avg
-                    .loc[country_avg["country"] != focal_country, "ImgSize_per_Page"]
-                    .mean()
-                )
-        
+            
+                # — Optional: Vergleichs-Chart Focal vs. Other Countries Average —
                 comp_df = pd.DataFrame({
-                    "Group":            [focal_country, "Other Countries"],
-                    "ImgSize_per_Page":  [focal_avg,      other_avg]
+                    "Group": [focal_country, "Other countries average"],
+                    "ImageArea": [
+                        country_avg.loc[country_avg["country"] == focal_country, "ImageArea"].iat[0],
+                        country_avg.loc[country_avg["country"] != focal_country, "ImageArea"].mean()
+                    ]
                 })
-        
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
-                    y="ImgSize_per_Page",
-                    text="ImgSize_per_Page",
+                    y="ImageArea",
+                    text="ImageArea",
                     color="Group",
-                    color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
-                    labels={"ImgSize_per_Page": "Image Size per Page", "Group": ""}
+                    color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
+                    labels={"ImageArea": "Image area per 500 words", "Group": ""}
                 )
                 fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other Countries"]},
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries average"]},
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
-        
-                st.subheader(f"{focal_country} vs. Other Countries")
+                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
-
 
             # 1) Histogramm aller Supersector-Durchschnitte
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
