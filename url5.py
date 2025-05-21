@@ -634,7 +634,7 @@ with main:
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 # 1) Focal Country
-                focal_super = df.loc[df["supersector"] == company, "supersector"].iat[0]
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
                 # 2) Durchschnitt pro Country und Sortierung (absteigend)
                 super_avg = (
@@ -655,7 +655,7 @@ with main:
                 super_avg["highlight"] = np.where(
                     super_avg["supersector"] == focal_super,
                     super_avg["super_short"],
-                    "Other Sectors"
+                    "Other sectors"
                 )
             
                 # 6) Bar-Chart erzeugen
@@ -666,8 +666,8 @@ with main:
                     orientation="h",
                     color="highlight",
                     color_discrete_map={
-                        focal_country: "red",
-                        "Other Countries": "#1f77b4"
+                        focal_super: "red",
+                        "Other sectors": "#1f77b4"
                     },
                     category_orders={"super_short": y_order},
                     labels={"Pages": "Pages", "super_short": ""},
