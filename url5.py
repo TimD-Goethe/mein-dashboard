@@ -670,13 +670,13 @@ with main:
                 # 1) Focal Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
-                # 2) Durchschnittliche Wortzahl pro Supersector, absteigend sortiert
+                # 2) Durchschnittliche Sietnzahl pro Supersector, absteigend sortiert
                 sector_avg = (
                     df
-                    .groupby("supersector")["words"]
+                    .groupby("supersector")["Sustainability_Page_Count"]
                     .mean()
-                    .reset_index(name="Words")
-                    .sort_values("Words", ascending=False)
+                    .reset_index(name="Sustainability_Page_Count")
+                    .sort_values("Sustainability_Page_Count", ascending=False)
                 )
             
                 # 3) Mehrzeilige Labels mit "\n" (wrap bei 20 Zeichen)
@@ -699,14 +699,14 @@ with main:
                 # 6) Horizontalen Bar‐Chart bauen
                 fig_s = px.bar(
                     sector_avg,
-                    x="Words",
+                    x="Sustainability_Page_Count",
                     y="sector_short",
                     orientation="h",
                     color="highlight",
                     color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order},  # niedrig→hoch
-                    labels={"sector_short": "", "Words": "Words"},
-                    hover_data={"Words": ":.0f"}
+                    labels={"sector_short": "", "Sustainability_Page_Count": "Words"},
+                    hover_data={"Sustainability_Page_Count": ":.0f"}
                 )
             
                 # 7) Linie für den Durchschnitt aller Sektoren
@@ -729,20 +729,20 @@ with main:
                 st.plotly_chart(fig_s, use_container_width=True)
             
                 # — Optional: Vergleichs‐Chart Supersector vs Rest —
-                focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "Words"].iat[0]
-                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "Words"].mean()
+                focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "Sustainability_Page_Count"].iat[0]
+                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "Sustainability_Page_Count"].mean()
                 comp_df = pd.DataFrame({
                     "Group": [focal_super, "Other sectors avg"],
-                    "Words": [focal_avg, others_avg]
+                    "Sustainability_Page_Count": [focal_avg, others_avg]
                 })
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
-                    y="Words",
-                    text="Words",
+                    y="Sustainability_Page_Count",
+                    text="Sustainability_Page_Count",
                     color="Group",
                     color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
-                    labels={"Words": "Words", "Group": ""}
+                    labels={"Words": "Sustainability_Page_Count", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
