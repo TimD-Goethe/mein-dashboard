@@ -1659,7 +1659,7 @@ with main:
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
-            elif benchmark_type == "Company Sector vs Other Countries" and plot_type == "Histogram":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 # 1) Durchschnittliche Numbers pro Supersector
                 sector_avg = (
                     df
@@ -1707,50 +1707,50 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
             
             
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 # 1) Focal Country ermitteln
-                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
                 # 2) Durchschnitt pro Country und Sortierung (absteigend)
-                country_avg = (
+                super_avg = (
                     df
-                    .groupby("country")["num_o_seit_500"]
+                    .groupby("supersector")["num_o_seit_500"]
                     .mean()
                     .reset_index(name="Numbers")
                     .sort_values("Numbers", ascending=False)
                 )
             
                 # 3) Labels kürzen (max. 15 Zeichen)
-                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
+                super_avg["super_short"] = super_avg["supersector"].str.slice(0, 15)
             
                 # 4) Reihenfolge nach sort_values (absteigend), ohne zusätzliches Umkehren
-                y_order = country_avg["country_short"].tolist()
+                y_order = super_avg["super_short"].tolist()
             
                 # 5) Highlight für Dein Land
-                country_avg["highlight"] = np.where(
-                    country_avg["country"] == focal_country,
-                    country_avg["country_short"],
-                    "Other Countries"
+                super_avg["highlight"] = np.where(
+                    super_avg["supersector"] == focal_super,
+                    super_avg["super_short"],
+                    "Other Sectors"
                 )
             
                 # 6) Bar-Chart erzeugen mit category_orders
-                fig_ctry = px.bar(
-                    country_avg,
+                fig_s = px.bar(
+                    super_avg,
                     x="Numbers",
-                    y="country_short",
+                    y="super_short",
                     orientation="h",
                     color="highlight",
                     color_discrete_map={
-                        focal_country: "red",
-                        "Other Countries": "#1f77b4"
+                        super_country: "red",
+                        "Other Sectors": "#1f77b4"
                     },
-                    category_orders={"country_short": y_order},
-                    labels={"Numbers": "Numbers per 500 words", "country_short": ""},
+                    category_orders={"super_short": y_order},
+                    labels={"Numbers": "Numbers per 500 words", "super_short": ""},
                 )
             
                 # 7) Linien & Styling
                 overall_avg = df["num_o_seit_500"].mean()
-                fig_ctry.add_vline(
+                fig_s.add_vline(
                     x=overall_avg,
                     line_dash="dash",
                     line_color="black",
@@ -1762,24 +1762,24 @@ with main:
                 )
             
                 # 8) Dynamische Höhe & Schriftgröße
-                fig_ctry = smart_layout(fig_ctry, len(country_avg))
-                fig_ctry.update_layout(showlegend=False)
+                fig_s = smart_layout(fig_s, len(country_avg))
+                fig_s.update_layout(showlegend=False)
             
                 # 9) Reihenfolge final festlegen
-                fig_ctry.update_yaxes(
+                fig_s.update_yaxes(
                     categoryorder="array",
                     categoryarray=y_order
                 )
             
                 # 10) Chart rendern
-                st.plotly_chart(fig_ctry, use_container_width=True)
+                st.plotly_chart(fig_s, use_container_width=True)
             
                 # — Optional: Vergleichs-Chart Focal vs. Other Countries Average —
                 comp_df = pd.DataFrame({
-                    "Group": [focal_country, "Other countries average"],
+                    "Group": [focal_country, "Other sectors average"],
                     "Numbers": [
-                        country_avg.loc[country_avg["country"] == focal_country, "Numbers"].iat[0],
-                        country_avg.loc[country_avg["country"] != focal_country, "Numbers"].mean()
+                        super_avg.loc[super_avg["supersector"] == focal_super, "Numbers"].iat[0],
+                        super_avg.loc[super_avg["supersector"] != focal_super, "Numbers"].mean()
                     ]
                 })
                 fig_cmp = px.bar(
@@ -1788,13 +1788,13 @@ with main:
                     y="Numbers",
                     text="Numbers",
                     color="Group",
-                    color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
+                    color_discrete_map={focal_country: "red", "Other sectors average": "#1f77b4"},
                     labels={"Numbers": "Numbers per 500 words", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={
                         "categoryorder": "array",
-                        "categoryarray": [focal_country, "Other countries average"]
+                        "categoryarray": [focal_super, "Other sectors average"]
                     },
                     showlegend=False
                 )
