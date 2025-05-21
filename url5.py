@@ -1511,32 +1511,29 @@ with main:
             if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
-            
-                # 2) Länder‐Durchschnitt vorbereiten (egal ob vorher schon definiert)
+        
+                # 2) Länder‐Durchschnitt vorbereiten, Spalte in "Numbers" umbenennen
                 country_avg = (
                     df
                     .groupby("country")["num_o_seit_500"]
                     .mean()
-                    .reset_index(name="num_o_seit_500")
+                    .reset_index(name="Numbers")
                 )
-                
-                focal_country = df.loc[df["company"] == company, "country"].iat[0]
-                overall_avg = country_avg["num_o_seit_500"].mean()
-                focal_avg   = country_avg.loc[country_avg["country"] == focal_country, "num_o_seit_500"].iat[0]
-                
-                # 2) Einfaches Histogramm aller Länder‐Durchschnitte in dunkelblau
+        
+                overall_avg = country_avg["Numbers"].mean()
+                focal_avg   = country_avg.loc[country_avg["country"] == focal_country, "Numbers"].iat[0]
+        
+                # 3) Histogramm aller Länder‐Durchschnitte
                 fig = px.histogram(
                     country_avg,
-                    x="num_o_seit_500",
-                    nbins=20,  # nach Belieben anpassen
+                    x="Numbers",
+                    nbins=20,
                     opacity=0.8,
-                    labels={"Pages": "Pages"},
+                    labels={"Numbers": "Numbers", "_group": "Group"}
                 )
-                
-                # 4) Alle Balken in Dunkelblau (#1f77b4)
                 fig.update_traces(marker_color="#1f77b4")
-                
-                # 4) V-Line für All Countries Avg (schwarz gestrichelt)
+        
+                # 4) V-Lines für Länderavg
                 fig.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -1547,8 +1544,6 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
-                
-                # 5) V-Line für Austria Avg (rot gestrichelt), ohne extra Balken
                 fig.add_vline(
                     x=focal_avg,
                     line_dash="dash",
@@ -1559,15 +1554,14 @@ with main:
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
-                
-                # 6) Legende ausblenden und Achsentitel
+        
+                # 5) Layout anpassen
                 fig.update_layout(
                     showlegend=False,
-                    xaxis_title="num_o_seit_500",
+                    xaxis_title="Numbers",
                     yaxis_title="Number of Countries",
                     bargap=0.1,
                 )
-                
                 st.plotly_chart(fig, use_container_width=True)
     
     
