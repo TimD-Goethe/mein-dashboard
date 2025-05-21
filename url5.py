@@ -1788,7 +1788,7 @@ with main:
                     y="Numbers",
                     text="Numbers",
                     color="Group",
-                    color_discrete_map={focal_country: "red", "Other sectors average": "#1f77b4"},
+                    color_discrete_map={focal_super: "red", "Other sectors average": "#1f77b4"},
                     labels={"Numbers": "Numbers per 500 words", "Group": ""}
                 )
                 fig_s_cmp.update_layout(
