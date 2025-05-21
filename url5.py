@@ -1668,28 +1668,28 @@ with main:
                     .reset_index(name="Numbers")
                 )
                 # 2) Histogramm
-                fig = px.histogram(
+                fig2 = px.histogram(
                     sector_avg,
                     x="Numbers",
                     nbins=20,
                     opacity=0.8,
                     labels={"Numbers": "Numbers per 500 words"}
                 )
-                fig.update_traces(marker_color="#1f77b4")
+                fig2.update_traces(marker_color="#1f77b4")
             
                 # 3) Linien für All vs. Focal Supersector
                 overall_avg = sector_avg["Numbers"].mean()
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
                 focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Numbers"].iat[0]
             
-                fig.add_vline(
+                fig2.add_vline(
                     x=overall_avg, line_dash="dash", line_color="black",
                     annotation_text="<b>All Sectors Avg</b>",
                     annotation_position="top right",
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
-                fig.add_vline(
+                fig2.add_vline(
                     x=focal_avg, line_dash="dash", line_color="red",
                     annotation_text=f"<b>{focal_super} Avg</b>",
                     annotation_position="bottom left",
@@ -1698,7 +1698,7 @@ with main:
                 )
             
                 # 4) Layout anpassen
-                fig.update_layout(
+                fig2.update_layout(
                     showlegend=False,
                     xaxis_title="Numbers per 500 words",
                     yaxis_title="Number of Sectors",
@@ -1782,7 +1782,7 @@ with main:
                         super_avg.loc[super_avg["supersector"] != focal_super, "Numbers"].mean()
                     ]
                 })
-                fig_cmp = px.bar(
+                fig_s_cmp = px.bar(
                     comp_df,
                     x="Group",
                     y="Numbers",
@@ -1791,14 +1791,14 @@ with main:
                     color_discrete_map={focal_country: "red", "Other sectors average": "#1f77b4"},
                     labels={"Numbers": "Numbers per 500 words", "Group": ""}
                 )
-                fig_cmp.update_layout(
+                fig_s_cmp.update_layout(
                     xaxis={
                         "categoryorder": "array",
                         "categoryarray": [focal_super, "Other sectors average"]
                     },
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                fig_s_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
             
