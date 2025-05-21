@@ -635,7 +635,7 @@ with main:
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 import textwrap
             
-                # 1) Durchschnitt pro Supersector
+                # 1) Durchschnitt pro Supersector berechnen und absteigend sortieren
                 sector_avg = (
                     df
                     .groupby("supersector")["Sustainability_Page_Count"]
@@ -644,38 +644,42 @@ with main:
                     .sort_values("Pages", ascending=False)
                 )
             
-                # 2) Volle Namen automatisch umbrechen und in sector_full speichern
-                sector_avg["sector_full"] = sector_avg["supersector"].apply(
+                # 2) Sektor-Namen umbrechen auf max. 15 Zeichen pro Zeile
+                sector_avg["sector_short"] = sector_avg["supersector"].apply(
                     lambda s: "\n".join(textwrap.wrap(s, width=15))
                 )
             
-                # 3) Für Plotly benutzen wir denselben geknickten Text
-                sector_avg["sector_short"] = sector_avg["sector_full"]
-            
-                # 4) Reihenfolge umdrehen, damit größte Bar oben sitzt
+                # 3) Reihenfolge so umdrehen, dass größte Bar oben ist
                 y_order_short = sector_avg["sector_short"].tolist()[::-1]
             
-                # 5) Fokus-Supersector markieren
+                # 4) Focal-Supersector ermitteln und ebenfalls umbrechen
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                sector_avg["highlight"] = np.where(
+                focal_label = "\n".join(textwrap.wrap(focal_super, width=15))
+            
+                # 5) Highlight-Spalte mit den geknickten Labels
+                sector_avg["highlight_label"] = np.where(
                     sector_avg["supersector"] == focal_super,
-                    sector_avg["sector_short"],
+                    focal_label,
                     "Other sectors"
                 )
             
-                # 6) Horizontalen Bar-Chart bauen
+                # 6) Horizontalen Bar-Chart bauen (identisch zu fig2 bei Company Peers)
                 fig_s = px.bar(
                     sector_avg,
                     x="Pages",
                     y="sector_short",
                     orientation="h",
-                    color="highlight",
-                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
+                    color="highlight_label",
+                    color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order_short},
-                    labels={"sector_short": "", "Pages": "Pages"},
+                    labels={
+                        "sector_short": "",
+                        "Pages": "Pages",
+                        "highlight_label": ""
+                    },
                 )
             
-                # 7) All Sectors Avg Linie
+                # 7) All Sectors Avg-Linie
                 avg_all = sector_avg["Pages"].mean()
                 fig_s.add_vline(
                     x=avg_all,
@@ -687,13 +691,13 @@ with main:
                     annotation_font_size=16,
                 )
             
-                # 8) Einheitliches Styling
+                # 8) Einheitliches Styling: dicke Balken, Außen-Labels, dynamische Höhe
                 fig_s = style_bar_chart(fig_s, sector_avg, y_order_short)
             
-                # 9) Rendern
+                # 9) Chart rendern
                 st.plotly_chart(fig_s, use_container_width=True)
             
-                # — Vergleichs-Chart wie gehabt —
+                # — Optional: Vergleichs-Chart Supersector vs Rest bleibt unverändert —
                 comp_df = pd.DataFrame({
                     "Group": [focal_super, "Other sectors average"],
                     "Pages": [
