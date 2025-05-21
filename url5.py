@@ -2529,7 +2529,7 @@ with main:
                 )
             
                 # 3) Mehrzeilige Labels mit "\n" (wrap bei 20 Zeichen)
-                super_avg["sector_short"] = super_avg["supersector"].apply(
+                super_avg["super_short"] = super_avg["supersector"].apply(
                     lambda s: "<br>".join(textwrap.wrap(s, width=20))
                 )
             
