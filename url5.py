@@ -1704,7 +1704,7 @@ with main:
                     yaxis_title="Number of Sectors",
                     bargap=0.1
                 )
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig2, use_container_width=True)
             
             
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
