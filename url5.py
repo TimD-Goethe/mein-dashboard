@@ -76,7 +76,7 @@ df['SASB_industry'] = (
       .str.replace(r'\s+', ' ', regex=True)  # alle mehrfachen spaces → 1 space
       .str.strip()
 )
-df['supersector'] = df['SASB_industry'].map(supersector_map).fillna('Other')
+
 
 # Zusammenfassen der SASB_industry Variable in die SASB Sectors
 
@@ -193,8 +193,10 @@ supersector_map = {
     ], 'Transportation'),
 }
 
-# neue Spalte anlegen
-df['supersector'] = df['SASB_industry'].map(supersector_map).fillna('Other')
+# 5. Mapping anwenden
+df['supersector'] = df['SASB_industry'] \
+    .map(supersector_map) \
+    .fillna('Other')
 
 # ==== Ganz direkt nach den Imports: Hilfsfunktion definieren ====
 def style_bar_chart(fig, df, y_order):
