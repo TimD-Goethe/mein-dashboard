@@ -529,7 +529,7 @@ with main:
                 fig_ctry = px.bar(
                     country_avg,
                     x="Pages",
-                    y="country_short",           # ← hier die gekürzten Labels
+                    y="country_short",
                     orientation="h",
                     color="highlight",
                     color_discrete_map={
@@ -540,7 +540,7 @@ with main:
                     labels={"Pages":"Pages","country_short":""},
                 )
             
-                # 8) Peer‐Average‐Linie
+                # Peer-Average-Linie
                 overall_avg = df["Sustainability_Page_Count"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
@@ -552,23 +552,14 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
-                
             
-                # 9) Werte außen anzeigen
-                fig_ctry.update_traces(
-                    texttemplate="%{x:.0f}",
-                    textposition="outside",
-                    cliponaxis=False
-                )
-            
-                # 10) Legende & Achsentitel
-                fig_ctry.update_layout(
-                    showlegend=False,
-                    xaxis_title="Pages",
-                )
+                # hier kommt das Styling:
+                fig_ctry = style_bar_chart(fig_ctry, country_avg, y_order)
+                # und falls Du die Legende wirklich ausblenden willst,  
+                # kannst Du danach einmal `showlegend=False` setzen:
+                fig_ctry.update_layout(showlegend=False)
             
                 st.plotly_chart(fig_ctry, use_container_width=True)
-
 
                 # 1) Durchschnitt pro Country berechnen
                 country_avg = (
