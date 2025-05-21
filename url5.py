@@ -742,7 +742,7 @@ with main:
                     text="Sustainability_Page_Count",
                     color="Group",
                     color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
-                    labels={"Words": "Sustainability_Page_Count", "Group": ""}
+                    labels={"Sustainability_Page_Count": "Pages", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
