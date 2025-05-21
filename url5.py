@@ -681,7 +681,7 @@ with main:
             
                 # 3) Mehrzeilige Labels mit "\n" (wrap bei 20 Zeichen)
                 sector_avg["sector_short"] = sector_avg["supersector"].apply(
-                    lambda s: "\n".join(textwrap.wrap(s, width=20))
+                    lambda s: "<br>".join(textwrap.wrap(s, width=20))
                 )
             
                 # 4) Reihenfolge für category_orders: 
@@ -705,7 +705,7 @@ with main:
                     color="highlight",
                     color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order},  # niedrig→hoch
-                    labels={"sector_short": "", "Sustainability_Page_Count": "Sustainability_Page_Count"},
+                    labels={"sector_short": "", "Sustainability_Page_Count": "Pages"},
                     hover_data={"Sustainability_Page_Count": ":.0f"}
                 )
             
