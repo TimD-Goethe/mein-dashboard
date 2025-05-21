@@ -770,19 +770,15 @@ with main:
                             
     
             elif plot_type == "Bar Chart":
-                # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken
-                #    nach Wert absteigend sortieren
+                # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken nach Wert absteigend sortieren
                 peers_df = plot_df.sort_values("Sustainability_Page_Count", ascending=False)
-                
                 mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
-                
-                # 2) Wir drehen die Firmenliste, damit die größte ganz oben landet
-                #    aber diesmal mit dem gekürzten Namen
+            
+                # 2) Kurz-Namen für die Y-Achse, damit sie nicht zu lang werden
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
                 y_order_short = peers_df["company_short"].tolist()[::-1]
-                
-                # 3) Erstelle das horizontale Balkendiagramm anhand der Kurz-Namen
-              
+            
+                # 3) Horizontales Balkendiagramm erstellen
                 fig2 = px.bar(
                     peers_df,
                     x="Sustainability_Page_Count",
@@ -797,8 +793,8 @@ with main:
                     },
                     category_orders={"company_short": y_order_short},
                 )
-        
-                # c) Peer-Average-Linie
+            
+                # 4) Peer-Average-Linie hinzufügen
                 fig2.add_vline(
                     x=mean_pages,
                     line_dash="dash",
@@ -808,20 +804,19 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
-        
-                # d) Einheitliches Styling via Hilfsfunktion
+            
+                # 5) Einheitliches Styling direkt hier anwenden
                 fig2 = style_bar_chart(fig2, peers_df, y_order_short)
-        
-                # e) Chart ausgeben
+            
+                # 6) Chart ausgeben
                 st.plotly_chart(fig2, use_container_width=True)
             
-                # 2) Peer Average vs. Focal Company, jetzt als vertikale Balken mit rotem Balken links
+                # — Vertikaler Vergleich Peer Average vs. Focal Company —
                 avg_pages = mean_pages
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
                     "Pages": [avg_pages, focal_pages]
                 })
-            
                 fig_avg = px.bar(
                     comp_df,
                     x="Group",
@@ -831,16 +826,14 @@ with main:
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
-                # rote Firma links (als erste Kategorie) anzeigen
+                # rote Firma links anzeigen
                 fig_avg.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
                 )
                 fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+            
                 st.plotly_chart(fig_avg, use_container_width=True)
-    
-            # Fußnote
-            st.caption("Number of pages of companies’ sustainability reports.")
     
         
         elif view == "Number of Words":
