@@ -2282,6 +2282,7 @@ with main:
             
                 # 5) Einheitliches Styling direkt hier anwenden
                 fig2 = smart_layout(fig2, len(peers_df))
+                fig2.update_layout(showlegend=False)
                 st.plotly_chart(fig2, use_container_width=True)
             
                 # Vergleichs-Chart
