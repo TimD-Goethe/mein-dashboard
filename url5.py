@@ -1799,7 +1799,7 @@ with main:
                     showlegend=False
                 )
                 fig_s_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-                st.plotly_chart(fig_cmp, use_container_width=True)
+                st.plotly_chart(fig_s_cmp, use_container_width=True)
             
             
             elif plot_type == "Histogram":
