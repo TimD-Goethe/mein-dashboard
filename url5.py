@@ -1741,7 +1741,7 @@ with main:
                     orientation="h",
                     color="highlight",
                     color_discrete_map={
-                        super_country: "red",
+                        focal_super: "red",
                         "Other Sectors": "#1f77b4"
                     },
                     category_orders={"super_short": y_order},
