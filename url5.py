@@ -498,10 +498,10 @@ with main:
     
     
             elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
-                # 1) Land des gewählten Unternehmens
+                # 1) Focal Country
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
-                # 2) Durchschnitt pro Land berechnen und sortieren
+                # 2) Durchschnitt pro Country und Sortierung (absteigend)
                 country_avg = (
                     df
                     .groupby("country")["Sustainability_Page_Count"]
@@ -510,18 +510,20 @@ with main:
                     .sort_values("Pages", ascending=False)
                 )
             
-                # 3) Ländername kürzen und Reihenfolge (umgedreht für Plotly)
+                # 3) Labels kürzen
                 country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
+            
+                # 4) Reihenfolge umdrehen, damit in Plotly die größte Bar oben landet
                 y_order = country_avg["country_short"].tolist()[::-1]
             
-                # 4) Focal Country markieren
+                # 5) Highlight für Dein Land
                 country_avg["highlight"] = np.where(
                     country_avg["country"] == focal_country,
-                    country_avg["country_short"],  
+                    country_avg["country_short"],
                     "Other Countries"
                 )
             
-                # 5) Horizontalen Bar-Chart bauen
+                # 6) Bar-Chart erzeugen
                 fig_ctry = px.bar(
                     country_avg,
                     x="Pages",
@@ -536,7 +538,7 @@ with main:
                     labels={"Pages": "Pages", "country_short": ""},
                 )
             
-                # 6) Peer-Average-Linie
+                # 7) Peer-Average-Linie
                 overall_avg = df["Sustainability_Page_Count"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
@@ -549,12 +551,12 @@ with main:
                     annotation_font_size=16
                 )
             
-                # 7) Einheitliches Styling + Legende ausblenden + Achse umkehren
+                # 8) Einheitliches Styling anwenden (dicke Bars, Außen-Labels, dynamische Höhe)
                 fig_ctry = style_bar_chart(fig_ctry, country_avg, y_order)
+                # 9) Legende ausblenden, wenn gewünscht
                 fig_ctry.update_layout(showlegend=False)
-                fig_ctry.update_yaxes(autorange="reversed")
             
-                # 8) Chart rendern
+                # 10) Chart rendern
                 st.plotly_chart(fig_ctry, use_container_width=True)
             
                 # — Optional: Vergleichs-Chart Focal vs. Other Countries Avg —
@@ -580,7 +582,6 @@ with main:
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
-
                 
 
 
