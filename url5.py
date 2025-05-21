@@ -633,8 +633,8 @@ with main:
 
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
-                import textwrap
-            
+                
+                
                 # 1) Durchschnitt pro Supersector
                 sector_avg = (
                     df
@@ -644,9 +644,7 @@ with main:
                     .sort_values("Pages", ascending=False)
                 )
             
-                # 2) Automatisch umbrechen bei >15 Zeichen
-                sector_avg["sector_full"] = sector_avg["supersector"].apply(
-                    lambda s: "\n".join(textwrap.wrap(s, width=15))
+                
                 )
                 # Für Plotly als y-Achse benutzen wir diesen geknickten Text
                 sector_avg["sector_short"] = sector_avg["sector_full"]
