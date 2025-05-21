@@ -597,41 +597,72 @@ with main:
                 
 
 
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
-                # Histogramm aller Supersector‐Durchschnitte
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+                # 1) Durchschnittliche Wortzahl pro Supersector
                 sector_avg = (
                     df
-                    .groupby("supersector")["Sustainability_Page_Count"]
+                    .groupby("supersector")["words"]
                     .mean()
-                    .reset_index(name="Pages")
-                )
-                # Normales Histogramm
-                fig = px.histogram(
-                    sector_avg,
-                    x="Pages",
-                    nbins=20,
-                    opacity=0.8,
-                    labels={"Pages": "Pages"}
-                )
-                fig.update_traces(marker_color="#1f77b4")
-                # Linien
-                overall_avg = sector_avg["Pages"].mean()
-                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Pages"].iat[0]
+                    .reset_index(name="Words")
+                ).sort_values("Words", ascending=False)
         
-                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
-                              annotation_text="<b>All Sectors Avg</b>",
-                              annotation_position="top right",
-                              annotation_font_color="black",
-                              annotation_font_size=16
-                             )
-                fig.add_vline(x=focal_avg, line_dash="dash", line_color="red",
-                              annotation_text=f"<b>{focal_super} Avg</b>",
-                              annotation_position="bottom left",
-                              annotation_font_color="red",
-                              annotation_font_size=16
-                             )
-                fig.update_layout(showlegend=False, xaxis_title="Pages", yaxis_title="Number of Sectors")
-                st.plotly_chart(fig, use_container_width=True)
+                # 2) Kurzlabel auf 15 Zeichen
+                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
+                y_order = sector_avg["sector_short"].tolist()
+        
+                # 3) Highlight focal Supersector
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                sector_avg["highlight"] = np.where(
+                    sector_avg["supersector"] == focal_super,
+                    sector_avg["sector_short"],
+                    "Other sectors"
+                )
+        
+                # 4) Plot
+                fig_s = px.bar(
+                    sector_avg,
+                    x="Words",
+                    y="sector_short",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
+                    category_orders={"sector_short": y_order},
+                    labels={"sector_short": "", "Words": "Words"}
+                )
+                fig_s.add_vline(x=sector_avg["Words"].mean(), line_dash="dash",
+                                line_color="black",
+                                annotation_text="<b>All Sectors Avg</b>",
+                                annotation_position="bottom right",
+                                annotation_font_color="black",
+                                annotation_font_size=16
+                               )
+                fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
+                fig_s.update_layout(showlegend=False, xaxis_title="Words")
+                st.plotly_chart(fig_s, use_container_width=True)
+        
+                # 5) Kompakter Vergleich: focal vs. average of others
+                focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "Words"].iat[0]
+                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "Words"].mean()
+        
+                comp_df = pd.DataFrame({
+                    "Group": [focal_super, "Other sectors avg"],
+                    "Words": [focal_avg, others_avg]
+                })
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="Words",
+                    text="Words",
+                    color="Group",
+                    color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
+                    labels={"Words": "Words", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_cmp, use_container_width=True)
 
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
