@@ -2280,11 +2280,8 @@ with main:
                     annotation_font_size=16
                 )
             
-                fig2.update_layout(
-                    showlegend=True,
-                    legend_title_text="",
-                    yaxis={"categoryorder": "array", "categoryarray": y_order_short}
-                )
+                # 5) Einheitliches Styling direkt hier anwenden
+                fig2 = smart_layout(fig2, len(peers_df))
                 st.plotly_chart(fig2, use_container_width=True)
             
                 # Vergleichs-Chart
