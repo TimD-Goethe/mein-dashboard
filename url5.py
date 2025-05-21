@@ -633,8 +633,8 @@ with main:
 
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
-                
-                
+                import textwrap
+            
                 # 1) Durchschnitt pro Supersector
                 sector_avg = (
                     df
@@ -644,13 +644,18 @@ with main:
                     .sort_values("Pages", ascending=False)
                 )
             
-                # Für Plotly als y-Achse benutzen wir diesen geknickten Text
+                # 2) Volle Namen automatisch umbrechen und in sector_full speichern
+                sector_avg["sector_full"] = sector_avg["supersector"].apply(
+                    lambda s: "\n".join(textwrap.wrap(s, width=15))
+                )
+            
+                # 3) Für Plotly benutzen wir denselben geknickten Text
                 sector_avg["sector_short"] = sector_avg["sector_full"]
             
-                # 3) Reihenfolge umdrehen, damit die größte Bar oben sitzt
+                # 4) Reihenfolge umdrehen, damit größte Bar oben sitzt
                 y_order_short = sector_avg["sector_short"].tolist()[::-1]
             
-                # 4) Fokus‐Supersector markieren
+                # 5) Fokus-Supersector markieren
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
                 sector_avg["highlight"] = np.where(
                     sector_avg["supersector"] == focal_super,
@@ -658,7 +663,7 @@ with main:
                     "Other sectors"
                 )
             
-                # 5) Horizontalen Bar-Chart wie bei allen Peers bauen
+                # 6) Horizontalen Bar-Chart bauen
                 fig_s = px.bar(
                     sector_avg,
                     x="Pages",
@@ -670,7 +675,7 @@ with main:
                     labels={"sector_short": "", "Pages": "Pages"},
                 )
             
-                # 6) All Sectors Avg Linie
+                # 7) All Sectors Avg Linie
                 avg_all = sector_avg["Pages"].mean()
                 fig_s.add_vline(
                     x=avg_all,
@@ -682,14 +687,13 @@ with main:
                     annotation_font_size=16,
                 )
             
-                # 7) Einheitliches Styling (Balkenstärke, Außen­werte, Höhe) + Legend anlassen
+                # 8) Einheitliches Styling
                 fig_s = style_bar_chart(fig_s, sector_avg, y_order_short)
-                # style_bar_chart setzt showlegend=True, wir brauchen hier kein showlegend=False
             
-                # 8) Rendern
+                # 9) Rendern
                 st.plotly_chart(fig_s, use_container_width=True)
             
-                # — Vergleichs-Chart (Supersector vs Rest) bleibt unverändert —
+                # — Vergleichs-Chart wie gehabt —
                 comp_df = pd.DataFrame({
                     "Group": [focal_super, "Other sectors average"],
                     "Pages": [
