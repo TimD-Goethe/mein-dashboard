@@ -1776,7 +1776,7 @@ with main:
             
                 # — Optional: Vergleichs-Chart Focal vs. Other Countries Average —
                 comp_df = pd.DataFrame({
-                    "Group": [focal_country, "Other sectors average"],
+                    "Group": [focal_super, "Other sectors average"],
                     "Numbers": [
                         super_avg.loc[super_avg["supersector"] == focal_super, "Numbers"].iat[0],
                         super_avg.loc[super_avg["supersector"] != focal_super, "Numbers"].mean()
