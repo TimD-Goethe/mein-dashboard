@@ -2529,17 +2529,18 @@ with main:
                 )
             
                 # 3) Mehrzeilige Labels mit "\n" (wrap bei 20 Zeichen)
-                super_avg["super_short"] = super_avg["supersector"].apply(
-                    lambda s: "\n".join(textwrap.wrap(s, width=20))
+                super_avg["sector_short"] = super_avg["supersector"].apply(
+                    lambda s: "<br>".join(textwrap.wrap(s, width=20))
                 )
             
                 # 4) Reihenfolge nach sort_values (absteigend)
                 y_order = super_avg["super_short"].tolist()
             
                 # 5) Highlight fürs eigene Supersector
+                focal_label = "\n".join(textwrap.wrap(focal_super, width=20))
                 super_avg["highlight"] = np.where(
                     super_avg["supersector"] == focal_super,
-                    super_avg["super_short"],
+                    focal_label,
                     "Other sectors"
                 )
             
