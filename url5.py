@@ -1762,7 +1762,7 @@ with main:
                 )
             
                 # 8) Dynamische Höhe & Schriftgröße
-                fig_s = smart_layout(fig_s, len(country_avg))
+                fig_s = smart_layout(fig_s, len(super_avg))
                 fig_s.update_layout(showlegend=False)
             
                 # 9) Reihenfolge final festlegen
