@@ -2318,7 +2318,7 @@ with main:
             mean_img = benchmark_df["imgsize_pages"].mean()
             focal_img = df.loc[df["company"] == company, "imgsize_pages"].iat[0]
         
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
