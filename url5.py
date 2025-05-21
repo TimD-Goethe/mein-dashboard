@@ -644,8 +644,6 @@ with main:
                     .sort_values("Pages", ascending=False)
                 )
             
-                
-                )
                 # Für Plotly als y-Achse benutzen wir diesen geknickten Text
                 sector_avg["sector_short"] = sector_avg["sector_full"]
             
