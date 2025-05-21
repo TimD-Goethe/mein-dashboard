@@ -1751,7 +1751,7 @@ with main:
                 # 7) Linien & Styling
                 overall_avg = df["num_o_seit_500"].mean()
                 fig_s.add_vline(
-                    x=overall_avg,
+                    x=super_avg,
                     line_dash="dash",
                     line_color="black",
                     line_width=2,
