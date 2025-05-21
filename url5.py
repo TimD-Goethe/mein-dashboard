@@ -634,48 +634,48 @@ with main:
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 # 1) Focal Country
-                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+                focal_super = df.loc[df["supersector"] == company, "supersector"].iat[0]
             
                 # 2) Durchschnitt pro Country und Sortierung (absteigend)
-                country_avg = (
+                super_avg = (
                     df
-                    .groupby("country")["Sustainability_Page_Count"]
+                    .groupby("supersector")["Sustainability_Page_Count"]
                     .mean()
                     .reset_index(name="Pages")
                     .sort_values("Pages", ascending=False)
                 )
             
                 # 3) Labels kürzen
-                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
+                super_avg["super_short"] = super_avg["supersector"].str.slice(0, 15)
             
                 # 4) Reihenfolge umdrehen, damit in Plotly die größte Bar oben landet
-                y_order = country_avg["country_short"].tolist()[::-1]
+                y_order = super_avg["super_short"].tolist()[::-1]
             
                 # 5) Highlight für Dein Land
-                country_avg["highlight"] = np.where(
-                    country_avg["country"] == focal_country,
-                    country_avg["country_short"],
-                    "Other Countries"
+                super_avg["highlight"] = np.where(
+                    super_avg["supersector"] == focal_super,
+                    super_avg["super_short"],
+                    "Other Sectors"
                 )
             
                 # 6) Bar-Chart erzeugen
-                fig_ctry = px.bar(
-                    country_avg,
+                fig_s = px.bar(
+                    super_avg,
                     x="Pages",
-                    y="country_short",
+                    y="super_short",
                     orientation="h",
                     color="highlight",
                     color_discrete_map={
                         focal_country: "red",
                         "Other Countries": "#1f77b4"
                     },
-                    category_orders={"country_short": y_order},
-                    labels={"Pages": "Pages", "country_short": ""},
+                    category_orders={"super_short": y_order},
+                    labels={"Pages": "Pages", "super_short": ""},
                 )
             
                 # 7) Peer-Average-Linie
                 overall_avg = df["Sustainability_Page_Count"].mean()
-                fig_ctry.add_vline(
+                fig_s.add_vline(
                     x=overall_avg,
                     line_dash="dash",
                     line_color="black",
@@ -687,19 +687,19 @@ with main:
                 )
             
                 # 8) Einheitliches Styling anwenden (dicke Bars, Außen-Labels, dynamische Höhe)
-                fig_ctry = style_bar_chart(fig_ctry, country_avg, y_order)
+                fig_s = style_bar_chart(fig_s, super_avg, y_order)
                 # 9) Legende ausblenden, wenn gewünscht
-                fig_ctry.update_layout(showlegend=False)
+                fig_s.update_layout(showlegend=False)
             
                 # 10) Chart rendern
-                st.plotly_chart(fig_ctry, use_container_width=True)
+                st.plotly_chart(fig_s, use_container_width=True)
             
                 # — Optional: Vergleichs-Chart Focal vs. Other Countries Avg —
                 comp_df = pd.DataFrame({
-                    "Group": [focal_country, "Other countries average"],
+                    "Group": [focal_super, "Other sectors average"],
                     "Pages": [
-                        country_avg.loc[country_avg["country"] == focal_country, "Pages"].iat[0],
-                        country_avg.loc[country_avg["country"] != focal_country, "Pages"].mean()
+                        super_avg.loc[super_avg["supersector"] == focal_super, "Pages"].iat[0],
+                        super_avg.loc[super_avg["supersector"] != focal_super, "Pages"].mean()
                     ]
                 })
                 fig_cmp = px.bar(
@@ -708,11 +708,11 @@ with main:
                     y="Pages",
                     text="Pages",
                     color="Group",
-                    color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
+                    color_discrete_map={focal_super: "red", "Other sectors average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
                 fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries average"]},
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors average"]},
                     showlegend=False
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
