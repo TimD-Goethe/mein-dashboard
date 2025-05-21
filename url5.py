@@ -70,6 +70,14 @@ st.markdown(
 #--------------------------------------------------------------------------------------
 df = pd.read_csv("summary_final_version.csv")
 
+# direkt nach dem Einlesen
+df['SASB_industry'] = (
+    df['SASB_industry']
+      .str.replace(r'\s+', ' ', regex=True)  # alle mehrfachen spaces → 1 space
+      .str.strip()
+)
+df['supersector'] = df['SASB_industry'].map(supersector_map).fillna('Other')
+
 # Zusammenfassen der SASB_industry Variable in die SASB Sectors
 
 supersector_map = {
