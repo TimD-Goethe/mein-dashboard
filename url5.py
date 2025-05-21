@@ -509,43 +509,43 @@ with main:
     
             elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Focal Country
-                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
                 # 2) Durchschnitt pro Country und Sortierung (absteigend)
                 country_avg = (
                     df
-                    .groupby("supersector")["Sustainability_Page_Count"]
+                    .groupby("country")["Sustainability_Page_Count"]
                     .mean()
                     .reset_index(name="Pages")
                     .sort_values("Pages", ascending=False)
                 )
             
                 # 3) Labels kürzen
-                super_avg["supersector_short"] = country_avg["supersector"].str.slice(0, 15)
+                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
             
                 # 4) Reihenfolge umdrehen, damit in Plotly die größte Bar oben landet
-                y_order = super_avg["country_short"].tolist()[::-1]
+                y_order = country_avg["country_short"].tolist()[::-1]
             
                 # 5) Highlight für Dein Land
-                super_avg["highlight"] = np.where(
-                    super_avg["country"] == focal_super,
-                    super_avg["country_short"],
-                    "Other Sectors"
+                country_avg["highlight"] = np.where(
+                    country_avg["country"] == focal_country,
+                    country_avg["country_short"],
+                    "Other Countries"
                 )
             
                 # 6) Bar-Chart erzeugen
                 fig_ctry = px.bar(
                     country_avg,
                     x="Pages",
-                    y="supersector_short",
+                    y="country_short",
                     orientation="h",
                     color="highlight",
                     color_discrete_map={
                         focal_country: "red",
                         "Other Countries": "#1f77b4"
                     },
-                    category_orders={"supersector_short": y_order},
-                    labels={"Pages": "Pages", "supersector_short": ""},
+                    category_orders={"country_short": y_order},
+                    labels={"Pages": "Pages", "country_short": ""},
                 )
             
                 # 7) Peer-Average-Linie
@@ -562,7 +562,7 @@ with main:
                 )
             
                 # 8) Einheitliches Styling anwenden (dicke Bars, Außen-Labels, dynamische Höhe)
-                fig_ctry = style_bar_chart(fig_ctry, super_avg, y_order)
+                fig_ctry = style_bar_chart(fig_ctry, country_avg, y_order)
                 # 9) Legende ausblenden, wenn gewünscht
                 fig_ctry.update_layout(showlegend=False)
             
@@ -571,10 +571,10 @@ with main:
             
                 # — Optional: Vergleichs-Chart Focal vs. Other Countries Avg —
                 comp_df = pd.DataFrame({
-                    "Group": [focal_super, "Other sectors average"],
+                    "Group": [focal_country, "Other countries average"],
                     "Pages": [
-                        super_avg.loc[super_avg["supersector"] == focal_super, "Pages"].iat[0],
-                        super_avg.loc[super_avg["supersector"] != focal_super, "Pages"].mean()
+                        country_avg.loc[country_avg["country"] == focal_country, "Pages"].iat[0],
+                        country_avg.loc[country_avg["country"] != focal_country, "Pages"].mean()
                     ]
                 })
                 fig_cmp = px.bar(
@@ -583,11 +583,11 @@ with main:
                     y="Pages",
                     text="Pages",
                     color="Group",
-                    color_discrete_map={focal_country: "red", "Other sectors average": "#1f77b4"},
+                    color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
                 fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors average"]},
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries average"]},
                     showlegend=False
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
