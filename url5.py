@@ -650,7 +650,9 @@ with main:
                 sector_avg["sector_short"] = sector_avg["supersector"].apply(
                     lambda s: "\n".join(textwrap.wrap(s, width=20))
                 )
-        
+
+                # 3) Reihenfolge umdrehen
+                y_order_short = sector_avg["sector_short"].tolist()[::-1]
                 # 3) Highlight focal Supersector
                 focal_label = "\n".join(textwrap.wrap(focal_super, width=20))
                 sector_avg["highlight"] = np.where(
