@@ -1985,7 +1985,7 @@ with main:
                 # 2) Durchschnitt pro Country und Sortierung (absteigend)
                 country_avg = (
                     df
-                    .groupby("country")["tables_per_500"]
+                    .groupby("country")["tables_500"]
                     .mean()
                     .reset_index(name="Tables")
                     .sort_values("Tables", ascending=False)
