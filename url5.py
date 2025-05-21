@@ -623,68 +623,74 @@ with main:
 
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
-                # 1) Durchschnitt pro Supersector
-                sector_avg = (
-                    df
-                    .groupby("supersector")["Sustainability_Page_Count"]
-                    .mean()
-                    .reset_index(name="Pages")
-                )
-                sector_avg = sector_avg.sort_values("Pages", ascending=False)
-                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
-                y_order = sector_avg["sector_short"].tolist()
-        
-                # 2) Highlight
-                sector_avg["highlight"] = np.where(
-                    sector_avg["supersector"] == focal_super,
-                    sector_avg["sector_short"],
-                    "Other sectors"
-                )
-        
-                # 3) Bar-Chart
-                fig_s = px.bar(
-                    sector_avg,
-                    x="Pages", y="sector_short",
-                    orientation="h",
-                    color="highlight",
-                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
-                    category_orders={"sector_short": y_order},
-                    labels={"sector_short": "", "Pages": "Pages"}
-                )
-                fig_s.add_vline(x=sector_avg["Pages"].mean(), line_dash="dash",
-                                line_color="black", 
-                                annotation_text="<b>All Sectors Avg</b>",
-                                annotation_position="bottom right",
-                                annotation_font_color="black",
-                                annotation_font_size=16,
-                               )
-                fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
-                fig_s.update_layout(showlegend=False, xaxis_title="Pages")
-                st.plotly_chart(fig_s, use_container_width=True)
-
-                # Zweites Bar Chart, durchschnittliche Werte
+                import textwrap  # nur hier, zum automatischen Umbrechen langer Namen
+            
                 # 1) Durchschnitt pro Supersector berechnen
                 sector_avg = (
                     df
                     .groupby("supersector")["Sustainability_Page_Count"]
                     .mean()
                     .reset_index(name="Pages")
+                    .sort_values("Pages", ascending=False)
                 )
-    
-                # 2) Focal-Supersector
+            
+                # 2) Volle Namen nehmen, bei >20 Zeichen umbrechen
+                sector_avg["sector_full"] = sector_avg["supersector"].apply(
+                    lambda s: "\n".join(textwrap.wrap(s, width=20))
+                )
+            
+                # 3) Reihenfolge so, dass größte ganz oben landet
+                y_order = sector_avg["sector_full"].tolist()
+            
+                # 4) Highlight fürs eigene Supersector
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Pages"].iat[0]
-                
-                # 3) Durchschnitt der anderen Super-Sectors
-                others_avg  = sector_avg.loc[sector_avg["supersector"] != focal_super, "Pages"].mean()
-    
-                # 4) Vergleichs-DataFrame bauen
+                sector_avg["highlight"] = np.where(
+                    sector_avg["supersector"] == focal_super,
+                    sector_avg["sector_full"],
+                    "Other sectors"
+                )
+            
+                # 5) Horizontalen Bar-Chart bauen
+                fig_s = px.bar(
+                    sector_avg,
+                    x="Pages",
+                    y="sector_full",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
+                    category_orders={"sector_full": y_order},
+                    labels={"sector_full": "", "Pages": "Pages"},
+                )
+            
+                # 6) Durchschnitts-Linie
+                avg_all = sector_avg["Pages"].mean()
+                fig_s.add_vline(
+                    x=avg_all,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16,
+                )
+            
+                # 7) Einheitliches Styling anwenden und Legende ausblenden
+                fig_s = style_bar_chart(fig_s, sector_avg, y_order)
+                fig_s.update_layout(showlegend=False)
+                # und umkehren, damit der erste Eintrag (größter) oben steht
+                fig_s.update_yaxes(autorange="reversed")
+            
+                # 8) Chart ausspielen
+                st.plotly_chart(fig_s, use_container_width=True)
+            
+                # — Zweites Vergleichs-Chart bleibt unverändert —
                 comp_df = pd.DataFrame({
                     "Group": [focal_super, "Other sectors average"],
-                    "Pages": [focal_avg, others_avg]
+                    "Pages": [
+                        sector_avg.loc[sector_avg["supersector"] == focal_super, "Pages"].iat[0],
+                        sector_avg.loc[sector_avg["supersector"] != focal_super, "Pages"].mean()
+                    ]
                 })
-    
-                # 5) Plotten
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
@@ -694,14 +700,11 @@ with main:
                     color_discrete_map={focal_super: "red", "Other sectors average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
-    
-                # 6) Focal Supersector links
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors average"]},
                     showlegend=False
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-    
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
             elif plot_type == "Histogram":
