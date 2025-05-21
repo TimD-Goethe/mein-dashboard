@@ -781,7 +781,8 @@ with main:
                 y_order_short = peers_df["company_short"].tolist()[::-1]
                 
                 # 3) Erstelle das horizontale Balkendiagramm anhand der Kurz-Namen
-                 fig2 = px.bar(
+              
+                fig2 = px.bar(
                     peers_df,
                     x="Sustainability_Page_Count",
                     y="company_short",
