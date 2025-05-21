@@ -1085,7 +1085,7 @@ with main:
             
                 # 3) Labels umbrechen mit "\n" (max. 20 Zeichen pro Zeile)
                 sector_avg["sector_short"] = sector_avg["supersector"].apply(
-                    lambda s: "\n".join(textwrap.wrap(s, width=20))
+                    lambda s: "<b>".join(textwrap.wrap(s, width=20))
                 )
             
                 # 4) Reihenfolge für category_orders: niedrigste zuerst
