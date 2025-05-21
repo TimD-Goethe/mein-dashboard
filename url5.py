@@ -1581,7 +1581,7 @@ with main:
                     .groupby("country")["num_o_seit_500"]
                     .mean()
                     .reset_index(name="num_o_seit_500")
-                    .sort_values("Pages", ascending=False)
+                    .sort_values("num_o_seit_500", ascending=False)
                 )
             
                 # 3) Labels kürzen (max. 15 Zeichen)
