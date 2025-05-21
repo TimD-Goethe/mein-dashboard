@@ -710,7 +710,7 @@ with main:
                 )
             
                 # 7) Linie für den Durchschnitt aller Sektoren
-                avg_all = sector_avg["Words"].mean()
+                avg_all = sector_avg["Sustainability_Page_Count"].mean()
                 fig_s.add_vline(
                     x=avg_all,
                     line_dash="dash",
