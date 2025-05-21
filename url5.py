@@ -1921,7 +1921,7 @@ with main:
             mean_tables = benchmark_df["tables_500"].mean()
             focal_tables = df.loc[df["company"] == company, "tables_500"].iat[0]
         
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
