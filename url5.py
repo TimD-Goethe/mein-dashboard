@@ -665,7 +665,7 @@ with main:
 
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
-                import textwrap  # für automatischen Zeilenumbruch
+                import textwrap
             
                 # 1) Focal Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
@@ -679,16 +679,16 @@ with main:
                     .sort_values("Words", ascending=False)
                 )
             
-                # 3) Mehrzeilige Labels mit wrap (width gibt Max-Zeichen pro Zeile an)
+                # 3) Mehrzeilige Labels mit <br> – hier wrap-Width 20 Zeichen
                 sector_avg["sector_short"] = sector_avg["supersector"].apply(
-                    lambda s: "\n".join(textwrap.wrap(s, width=20))
+                    lambda s: "<br>".join(textwrap.wrap(s, width=20))
                 )
             
-                # 4) Reihenfolge umdrehen, damit die größte Bar oben sitzt
-                y_order_short = sector_avg["sector_short"].tolist()[::-1]
+                # 4) Reihenfolge OHNE manuelles Umdrehen – smart_layout macht das später automatisch
+                y_order = sector_avg["sector_short"].tolist()
             
-                # 5) Highlight fürs eigene Supersector (umgebrochener Label)
-                focal_label = "\n".join(textwrap.wrap(focal_super, width=20))
+                # 5) Highlight fürs eigene Supersector
+                focal_label = "<br>".join(textwrap.wrap(focal_super, width=20))
                 sector_avg["highlight"] = np.where(
                     sector_avg["supersector"] == focal_super,
                     focal_label,
@@ -703,8 +703,9 @@ with main:
                     orientation="h",
                     color="highlight",
                     color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
-                    category_orders={"sector_short": y_order_short},
+                    category_orders={"sector_short": y_order},  # sicherheitshalber
                     labels={"sector_short": "", "Words": "Words"},
+                    hover_data={"supersector": True, "Words": ":.0f"}  # optional: saubere Tooltips
                 )
             
                 # 7) Linie für den Durchschnitt aller Sektoren
@@ -719,8 +720,15 @@ with main:
                     annotation_font_size=16,
                 )
             
-                # 8) Einheitliches Styling (Balkenstärke, Außen‐Labels, dynamische Höhe)
-                fig_s = smart_layout(fig_s, len(sector_avg))
+                # 8) Einheitliches Styling & Höhe/Shriftgröße
+                #    Hier übergeben wir bei Bedarf einen festen min_height,
+                #    damit dieser Chart genauso groß wird wie deine Länder- oder Company-Charts.
+                fig_s = smart_layout(
+                    fig_s,
+                    len(sector_avg),
+                    min_height=500,   # z.B. 500px; anpassen, bis alle Charts gleich groß sind
+                    bar_height=40     # Standard-Bar-Höhe
+                )
                 fig_s.update_layout(showlegend=False)
             
                 # 9) Chart ausgeben
