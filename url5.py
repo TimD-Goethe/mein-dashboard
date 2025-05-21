@@ -2210,7 +2210,9 @@ with main:
                     labels={"tables_500": "Tables per 500 Words", "_group": "Group"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
+            
                 # Peer-Average
+                mean_tables  = benchmark_df["tables_500"].mean()
                 fig.add_vline(
                     x=mean_tables,
                     line_dash="dash",
@@ -2222,7 +2224,9 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
+            
                 # Focal Company
+                focal_tables = df.loc[df["company"] == company, "tables_500"].iat[0]
                 fig.add_vline(
                     x=focal_tables,
                     line_dash="dash",
@@ -2233,17 +2237,23 @@ with main:
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
+            
                 fig.update_layout(
                     xaxis_title="Tables per 500 Words",
                     yaxis_title="Number of Companies"
                 )
                 st.plotly_chart(fig, use_container_width=True)
-        
+            
+            
             elif plot_type == "Bar Chart":
                 # 1) Peer-Detail-Chart
                 peers_df = plot_df.sort_values("tables_500", ascending=False)
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
                 y_order_short = peers_df["company_short"].tolist()[::-1]
+            
+                mean_tables  = benchmark_df["tables_500"].mean()
+                focal_tables = df.loc[df["company"] == company, "tables_500"].iat[0]
+            
                 fig2 = px.bar(
                     peers_df,
                     x="tables_500",
@@ -2251,9 +2261,14 @@ with main:
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"tables_500": "Tables per 500 Words", "company_short": "Company", "highlight_label": ""},
+                    labels={
+                        "tables_500": "Tables per 500 Words",
+                        "company_short": "Company",
+                        "highlight_label": ""
+                    },
                     category_orders={"company_short": y_order_short}
                 )
+            
                 # Peer-Average-Linie
                 fig2.add_vline(
                     x=mean_tables,
@@ -2264,44 +2279,40 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
+            
                 fig2.update_layout(
                     showlegend=True,
                     legend_title_text="",
                     yaxis={"categoryorder": "array", "categoryarray": y_order_short}
                 )
                 st.plotly_chart(fig2, use_container_width=True)
-
+            
+                # Vergleichs-Chart
                 comp_df = pd.DataFrame({
                     "Group": [company, "Peer Average"],
-                    "Tables_per_500": [focal_tables, mean_tables]
+                    "Tables": [focal_tables, mean_tables]
                 })
-                
+            
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
-                    y="Tables_per_500",
-                    text="Tables_per_500",
+                    y="Tables",
+                    text="Tables",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"Tables_per_500": "Tables per 500 Words", "Group": ""}
+                    labels={"Tables": "Tables per 500 Words", "Group": ""}
                 )
-                
-                # Sorge dafür, dass Dein Unternehmen links steht:
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
                 )
-                
-                # Werte außen anzeigen
                 fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
-                
+            
                 st.subheader("Peer vs. Company Tables per 500 Words")
                 st.plotly_chart(fig_cmp, use_container_width=True)
-                
-        
+            
             # Fußnote
             st.caption("Number of tables per 500 words in companies’ sustainability reports.")
-
 
         elif view == "Images":
             st.subheader(f"Image Size per 500 Words ({benchmark_label})")
