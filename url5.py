@@ -3264,6 +3264,7 @@ with main:
             mean_boiler   = benchmark_df["boiler_500"].mean()
             focal_boiler  = df.loc[df["company"] == company, "boiler_500"].iat[0]
         
+            
             if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Länder-Durchschnitt vorbereiten
                 country_avg = (
@@ -3272,55 +3273,43 @@ with main:
                     .mean()
                     .reset_index(name="StdLang")
                 )
+        
                 overall_avg = country_avg["StdLang"].mean()
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
                 focal_avg = country_avg.loc[country_avg["country"] == focal_country, "StdLang"].iat[0]
         
-                # Histogramm aller Länder-Durchschnitte
+                # 2) Histogramm
                 fig = px.histogram(
                     country_avg,
                     x="StdLang",
                     nbins=20,
                     opacity=0.8,
-                    labels={"StdLang": "Standardized Language"}
+                    labels={"StdLang": "Standardized language per 500 words"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
         
-                # Peer-Average-Linie (schwarz gestrichelt)
+                # 3) Vertical lines
                 fig.add_vline(
-                    x=overall_avg,
-                    line_dash="dash",
-                    line_color="black",
-                    line_width=2,
-                    annotation_text="<b>All Countries Avg</b>",
-                    annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16
+                    x=overall_avg, line_dash="dash", line_color="black", line_width=2,
+                    annotation_text="<b>All Countries Avg</b>", annotation_position="top right",
+                    annotation_font_color="black", annotation_font_size=16
                 )
-                # Focal Country Linie (rot gestrichelt)
                 fig.add_vline(
-                    x=focal_avg,
-                    line_dash="dash",
-                    line_color="red",
-                    line_width=2,
-                    annotation_text=f"<b>{focal_country} Avg</b>",
-                    annotation_position="bottom left",
-                    annotation_font_color="red",
-                    annotation_font_size=16
+                    x=focal_avg, line_dash="dash", line_color="red", line_width=2,
+                    annotation_text=f"<b>{focal_country} Avg</b>", annotation_position="bottom left",
+                    annotation_font_color="red", annotation_font_size=16
                 )
         
                 fig.update_layout(
                     showlegend=False,
-                    xaxis_title="Standardized Language",
+                    xaxis_title="Standardized language per 500 words",
                     yaxis_title="Number of Countries",
                     bargap=0.1
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
-        
             elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
-                # Länder-Durchschnitt berechnen
-                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+                # 1) Länder-Durchschnitt sortieren
                 country_avg = (
                     df
                     .groupby("country")["boiler_500"]
@@ -3328,16 +3317,15 @@ with main:
                     .reset_index(name="StdLang")
                     .sort_values("StdLang", ascending=False)
                 )
-                # Länder-Namen kürzen
                 country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
                 y_order = country_avg["country_short"].tolist()
-                # Highlight
                 country_avg["highlight"] = np.where(
                     country_avg["country"] == focal_country,
                     country_avg["country_short"],
                     "Other Countries"
                 )
         
+                # 2) Bar Chart
                 fig_ctry = px.bar(
                     country_avg,
                     x="StdLang",
@@ -3346,30 +3334,46 @@ with main:
                     color="highlight",
                     color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
                     category_orders={"country_short": y_order},
-                    labels={"StdLang": "Standardized Language", "country_short": ""}
-                )
-                # Peer-Average-Linie
-                overall_avg = df["boiler_500"].mean()
-                fig_ctry.add_vline(
-                    x=overall_avg,
-                    line_dash="dash",
-                    line_color="black",
-                    line_width=2,
-                    annotation_text="<b>Peer Average</b>",
-                    annotation_position="bottom right",
-                    annotation_font_size=16
+                    labels={"country_short": "", "StdLang": "Standardized language per 500 words"}
                 )
         
-                fig_ctry.update_traces(
-                    texttemplate="%{x:.2f}",
-                    textposition="outside",
-                    cliponaxis=False
+                # 3) Peer-Average-Linie
+                fig_ctry.add_vline(
+                    x=mean_stdlang, line_dash="dash", line_color="black", line_width=2,
+                    annotation_text="<b>Peer Average</b>", annotation_position="bottom right",
+                    annotation_font_color="black", annotation_font_size=16
                 )
-                fig_ctry.update_layout(
-                    showlegend=False,
-                    xaxis_title="Standardized Language"
-                )
+        
+                # 4) Styling & Reihenfolge
+                fig_ctry = smart_layout(fig_ctry, len(country_avg))
+                fig_ctry.update_layout(showlegend=False)
+                fig_ctry.update_yaxes(categoryorder="array", categoryarray=y_order)
+        
                 st.plotly_chart(fig_ctry, use_container_width=True)
+        
+                # — Vergleichs-Chart —
+                comp_df = pd.DataFrame({
+                    "Group": [focal_country, "Other countries avg"],
+                    "StdLang": [
+                        country_avg.loc[country_avg["country"] == focal_country, "StdLang"].iat[0],
+                        country_avg.loc[country_avg["country"] != focal_country, "StdLang"].mean()
+                    ]
+                })
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="StdLang",
+                    text="StdLang",
+                    color="Group",
+                    color_discrete_map={focal_country: "red", "Other countries avg": "#1f77b4"},
+                    labels={"StdLang": "Standardized language per 500 words", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries avg"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_cmp, use_container_width=True)
         
         
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
