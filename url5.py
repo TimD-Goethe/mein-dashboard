@@ -536,8 +536,8 @@ with main:
                 # 3) Labels kürzen (max. 15 Zeichen)
                 country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
             
-                # 4) Reihenfolge umdrehen, damit in Plotly die größte Bar oben landet
-                y_order = country_avg["country_short"].tolist()[::-1]
+                # 4) Reihenfolge **nach** sort_values (absteigend), **ohne** zusätzliches Umkehren
+                y_order = country_avg["country_short"].tolist()
             
                 # 5) Highlight für Dein Land
                 country_avg["highlight"] = np.where(
@@ -546,7 +546,7 @@ with main:
                     "Other Countries"
                 )
             
-                # 6) Bar-Chart erzeugen mit expliziter Reihenfolge
+                # 6) Bar-Chart erzeugen mit category_orders
                 fig_ctry = px.bar(
                     country_avg,
                     x="Pages",
@@ -557,13 +557,13 @@ with main:
                         focal_country: "red",
                         "Other Countries": "#1f77b4"
                     },
-                    category_orders={              # ← hier die exakte Reihenfolge festlegen
+                    category_orders={              # ← Hier übergibst du die exakte (nicht umgedrehte) Liste
                         "country_short": y_order
                     },
                     labels={"Pages": "Pages", "country_short": ""},
                 )
             
-                # 7) Peer-Average-Linie
+                # 7) Linien & Styling
                 overall_avg = df["Sustainability_Page_Count"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
@@ -576,11 +576,17 @@ with main:
                     annotation_font_size=16
                 )
             
-                # 8) Einheitliches Styling & dynamische Höhe/Shriftgröße
+                # 8) Dynamische Höhe & Schriftgröße
                 fig_ctry = smart_layout(fig_ctry, len(country_avg))
                 fig_ctry.update_layout(showlegend=False)
             
-                # 9) Chart rendern
+                # 9) Jetzt nochmal sicherstellen, dass Plotly die Reihenfolge aus y_order **als Array** nimmt
+                fig_ctry.update_yaxes(
+                    categoryorder="array",
+                    categoryarray=y_order
+                )
+            
+                # 10) Chart rendern
                 st.plotly_chart(fig_ctry, use_container_width=True)
             
                 # — Optional: Vergleichs-Chart Focal vs. Other Countries Avg —
@@ -600,7 +606,6 @@ with main:
                     color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
-                # Reihenfolge festlegen: rote Firma links
                 fig_cmp.update_layout(
                     xaxis={
                         "categoryorder": "array",
