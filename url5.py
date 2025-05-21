@@ -2689,11 +2689,7 @@ with main:
             
                 # Styling & automatische Höhe/Reihenfolge
                 fig2 = smart_layout(fig2, len(peers_df))
-                fig2.update_layout(
-                    showlegend=True,
-                    legend_title_text="",
-                    yaxis={"categoryorder": "array", "categoryarray": y_order_short}
-                )
+                
                 st.plotly_chart(fig2, use_container_width=True)
             
                 # Vertikaler Vergleich Peer vs. Focal Company
