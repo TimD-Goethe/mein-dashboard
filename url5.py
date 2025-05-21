@@ -1581,7 +1581,7 @@ with main:
                 # 3) Labels kürzen (max. 15 Zeichen)
                 country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
             
-                # 4) Reihenfolge **nach** sort_values (absteigend), **ohne** zusätzliches Umkehren
+                # 4) Reihenfolge nach sort_values (absteigend), ohne zusätzliches Umkehren
                 y_order = country_avg["country_short"].tolist()
             
                 # 5) Highlight für Dein Land
@@ -1602,14 +1602,12 @@ with main:
                         focal_country: "red",
                         "Other Countries": "#1f77b4"
                     },
-                    category_orders={              # ← Hier übergibst du die exakte (nicht umgedrehte) Liste
-                        "country_short": y_order
-                    },
+                    category_orders={"country_short": y_order},
                     labels={"num_o_seit_500": "Numbers per 500 words", "country_short": ""},
                 )
             
                 # 7) Linien & Styling
-                overall_avg = df["Sustainability_Page_Count"].mean()
+                overall_avg = df["num_o_seit_500"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -1625,7 +1623,7 @@ with main:
                 fig_ctry = smart_layout(fig_ctry, len(country_avg))
                 fig_ctry.update_layout(showlegend=False)
             
-                # 9) Jetzt nochmal sicherstellen, dass Plotly die Reihenfolge aus y_order **als Array** nimmt
+                # 9) Jetzt nochmal sicherstellen, dass Plotly die Reihenfolge aus y_order als Array nimmt
                 fig_ctry.update_yaxes(
                     categoryorder="array",
                     categoryarray=y_order
@@ -1634,10 +1632,10 @@ with main:
                 # 10) Chart rendern
                 st.plotly_chart(fig_ctry, use_container_width=True)
             
-                # — Optional: Vergleichs-Chart Focal vs. Other Countries Avg —
+                # — Optional: Vergleichs-Chart Focal vs. Other Countries Average —
                 comp_df = pd.DataFrame({
                     "Group": [focal_country, "Other countries average"],
-                    "Pages": [
+                    "num_o_seit_500": [
                         country_avg.loc[country_avg["country"] == focal_country, "num_o_seit_500"].iat[0],
                         country_avg.loc[country_avg["country"] != focal_country, "num_o_seit_500"].mean()
                     ]
