@@ -1749,7 +1749,7 @@ with main:
                 )
             
                 # 7) Linien & Styling
-                overall_avg = df["num_o_seit_500"].mean()
+                overall_avg = df["Numbers"].mean()
                 fig_s.add_vline(
                     x=overall_avg,
                     line_dash="dash",
