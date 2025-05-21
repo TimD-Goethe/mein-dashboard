@@ -188,6 +188,26 @@ supersector_map = {
 # neue Spalte anlegen
 df['supersector'] = df['SASB_industry'].map(supersector_map).fillna('Other')
 
+# ==== Ganz direkt nach den Imports: Hilfsfunktion definieren ====
+def style_bar_chart(fig, df, y_order):
+    # Werte außen anzeigen
+    fig.update_traces(
+        texttemplate="%{x:.0f}",
+        textposition="outside",
+        cliponaxis=False
+    )
+    # Layout: dicke Bars, Platz für Labels, dynamische Höhe
+    fig.update_layout(
+        showlegend=True,
+        legend_title_text="",
+        yaxis={"categoryorder": "array", "categoryarray": y_order},
+        xaxis_title="Pages",
+        bargap=0.1,
+        margin=dict(l=150, r=20, t=40, b=40),
+        height=max(30 * len(df), 300)
+    )
+    return fig
+
 #--------------------------------------------------------------------------------------
 # 3. URL-Param & Default
 #--------------------------------------------------------------------------------------
@@ -761,7 +781,7 @@ with main:
                 y_order_short = peers_df["company_short"].tolist()[::-1]
                 
                 # 3) Erstelle das horizontale Balkendiagramm anhand der Kurz-Namen
-                fig2 = px.bar(
+                 fig2 = px.bar(
                     peers_df,
                     x="Sustainability_Page_Count",
                     y="company_short",
@@ -775,8 +795,8 @@ with main:
                     },
                     category_orders={"company_short": y_order_short},
                 )
-                
-                # 4) V-Line für Peer Average
+        
+                # c) Peer-Average-Linie
                 fig2.add_vline(
                     x=mean_pages,
                     line_dash="dash",
@@ -786,26 +806,11 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16,
                 )
-                
-                # 5) Layout anpassen, damit die Kurz-Namen korrekt oben stehen
-                fig2.update_layout(
-                    # Legend & Y-Axis wie gehabt
-                    showlegend=True,
-                    legend_title_text="",
-                    yaxis={
-                        "categoryorder": "array",
-                        "categoryarray": y_order_short,
-                    },
-                    # Achsenbeschriftung
-                    xaxis_title="Pages",
-                    # Balkenabstand <-> Dicke
-                    bargap=0.1,
-                    # Außenabstände, damit Labels Platz haben
-                    margin=dict(l=150, r=20, t=40, b=40),
-                    # Höhe ca. 30px pro Bar  
-                    height=30 * len(peers_df)
-                )
-                
+        
+                # d) Einheitliches Styling via Hilfsfunktion
+                fig2 = style_bar_chart(fig2, peers_df, y_order_short)
+        
+                # e) Chart ausgeben
                 st.plotly_chart(fig2, use_container_width=True)
             
                 # 2) Peer Average vs. Focal Company, jetzt als vertikale Balken mit rotem Balken links
