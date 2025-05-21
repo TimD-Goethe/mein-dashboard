@@ -575,7 +575,7 @@ with main:
                 )
             
                 # 8) Einheitliches Styling anwenden (dicke Bars, Außen-Labels, dynamische Höhe)
-                fig_ctry = smart_layout(fig_ctry, country_avg, y_order)
+                fig_ctry = smart_layout(fig_ctry, len(country_avg))
                 # 9) Legende ausblenden, wenn gewünscht
                 fig_ctry.update_layout(showlegend=False)
             
@@ -703,7 +703,7 @@ with main:
                 )
             
                 # 8) Einheitliches Styling (Balkenstärke, Außen‐Labels, dynamische Höhe)
-                fig_s = smart_layout(fig_s, sector_avg, y_order_short)
+                fig_s = smart_layout(fig_s, len(sector_avg))
                 fig_s.update_layout(showlegend=False)
             
                 # 9) Chart ausgeben
@@ -806,7 +806,7 @@ with main:
                 )
             
                 # 5) Einheitliches Styling direkt hier anwenden
-                fig2 = smart_layout(fig2, peers_df, y_order_short)
+                fig2 = smart_layout(fig2, len(peers_df))
             
                 # 6) Chart ausgeben
                 st.plotly_chart(fig2, use_container_width=True)
