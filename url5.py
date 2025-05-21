@@ -635,7 +635,7 @@ with main:
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 import textwrap
             
-                # 1) Durchschnitt pro Supersector berechnen und absteigend sortieren
+                # 1) Durchschnitt pro Supersector berechnen
                 sector_avg = (
                     df
                     .groupby("supersector")["Sustainability_Page_Count"]
@@ -644,26 +644,24 @@ with main:
                     .sort_values("Pages", ascending=False)
                 )
             
-                # 2) Sektor-Namen umbrechen auf max. 15 Zeichen pro Zeile
+                # 2) Voller Name → automatischer Zeilenumbruch bei 15 Zeichen
                 sector_avg["sector_short"] = sector_avg["supersector"].apply(
                     lambda s: "\n".join(textwrap.wrap(s, width=15))
                 )
             
-                # 3) Reihenfolge so umdrehen, dass größte Bar oben ist
+                # 3) Reihenfolge Umdrehen, damit größte Bar oben sitzt
                 y_order_short = sector_avg["sector_short"].tolist()[::-1]
             
-                # 4) Focal-Supersector ermitteln und ebenfalls umbrechen
+                # 4) Highlight‐Label mit umgebrochenem Focal‐Supersector
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
                 focal_label = "\n".join(textwrap.wrap(focal_super, width=15))
-            
-                # 5) Highlight-Spalte mit den geknickten Labels
                 sector_avg["highlight_label"] = np.where(
                     sector_avg["supersector"] == focal_super,
                     focal_label,
                     "Other sectors"
                 )
             
-                # 6) Horizontalen Bar-Chart bauen (identisch zu fig2 bei Company Peers)
+                # 5) Horizontales Bar‐Chart (wie in Deinem Company‐Peers‐Chart fig2)
                 fig_s = px.bar(
                     sector_avg,
                     x="Pages",
@@ -673,13 +671,13 @@ with main:
                     color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order_short},
                     labels={
-                        "sector_short": "",
-                        "Pages": "Pages",
+                        "sector_short": "", 
+                        "Pages": "Pages", 
                         "highlight_label": ""
                     },
                 )
             
-                # 7) All Sectors Avg-Linie
+                # 6) Linie für den Durchschnitt aller Sektoren
                 avg_all = sector_avg["Pages"].mean()
                 fig_s.add_vline(
                     x=avg_all,
@@ -691,13 +689,13 @@ with main:
                     annotation_font_size=16,
                 )
             
-                # 8) Einheitliches Styling: dicke Balken, Außen-Labels, dynamische Höhe
+                # 7) Einheitliches Styling (Balkenstärke, Außen‐Labels, Höhe)
                 fig_s = style_bar_chart(fig_s, sector_avg, y_order_short)
             
-                # 9) Chart rendern
+                # 8) Chart ausgeben
                 st.plotly_chart(fig_s, use_container_width=True)
             
-                # — Optional: Vergleichs-Chart Supersector vs Rest bleibt unverändert —
+                # — Vergleichs‐Chart Supersector vs Rest bleibt unverändert —
                 comp_df = pd.DataFrame({
                     "Group": [focal_super, "Other sectors average"],
                     "Pages": [
@@ -720,7 +718,6 @@ with main:
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
-
             elif plot_type == "Histogram":
                 fig = px.histogram(
                     plot_df, x="Sustainability_Page_Count", nbins=20,
