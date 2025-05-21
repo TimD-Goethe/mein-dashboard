@@ -2608,18 +2608,22 @@ with main:
 
 
             elif plot_type == "Histogram":
-                # Benchmark_df verwenden, um sicher imgsize_500 zu haben
+                # Peer- und Focal-Werte berechnen
+                mean_images  = benchmark_df["imgsize_pages"].mean()
+                focal_images = df.loc[df["company"] == company, "imgsize_pages"].iat[0]
+            
+                # Histogramm aller Peer-Unternehmen nach Bildfläche
                 fig = px.histogram(
-                    benchmark_df,
+                    plot_df,
                     x="imgsize_pages",
                     nbins=20,
-                    labels={"imgsize_500": "Image Size per Page"}
+                    labels={"imgsize_pages": "Image area per 500 words", "_group": "Group"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
-        
+            
                 # Peer Average
                 fig.add_vline(
-                    x=mean_img,
+                    x=mean_images,
                     line_dash="dash",
                     line_color="black",
                     line_width=1,
@@ -2631,28 +2635,32 @@ with main:
                 )
                 # Focal Company
                 fig.add_vline(
-                    x=focal_img,
+                    x=focal_images,
                     line_dash="dash",
                     line_color="red",
                     opacity=0.8,
                     annotation_text=f"<b>{company}</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=16
+                    annotation_font_size=16,
                 )
-        
+            
                 fig.update_layout(
-                    xaxis_title="Image Size per Page",
+                    xaxis_title="Image area per 500 words",
                     yaxis_title="Number of Companies"
                 )
                 st.plotly_chart(fig, use_container_width=True)
-        
+            
+            
             elif plot_type == "Bar Chart":
-                # 1) Peer-Detail-Chart
-                peers_df = plot_df.sort_values("imgsize_pages", ascending=False)
+                # 1) Peer-Detail-Chart nach Bildfläche absteigend sortieren
+                peers_df     = plot_df.sort_values("imgsize_pages", ascending=False)
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
-                y_order_short = peers_df["company_short"].tolist()[::-1]
-        
+                y_order_short           = peers_df["company_short"].tolist()[::-1]
+            
+                mean_images  = benchmark_df["imgsize_pages"].mean()
+                focal_images = df.loc[df["company"] == company, "imgsize_pages"].iat[0]
+            
                 fig2 = px.bar(
                     peers_df,
                     x="imgsize_pages",
@@ -2660,11 +2668,17 @@ with main:
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"imgsize_pages": "Image Size per Page", "company_short": "Company", "highlight_label": ""},
+                    labels={
+                        "imgsize_pages": "Image area per 500 words",
+                        "company_short": "Company",
+                        "highlight_label": ""
+                    },
                     category_orders={"company_short": y_order_short}
                 )
+            
+                # Peer Average Linie
                 fig2.add_vline(
-                    x=mean_img,
+                    x=mean_images,
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
@@ -2672,38 +2686,37 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
+            
+                # Styling & automatische Höhe/Reihenfolge
+                fig2 = smart_layout(fig2, len(peers_df))
                 fig2.update_layout(
                     showlegend=True,
                     legend_title_text="",
                     yaxis={"categoryorder": "array", "categoryarray": y_order_short}
                 )
                 st.plotly_chart(fig2, use_container_width=True)
-        
+            
+                # Vertikaler Vergleich Peer vs. Focal Company
                 comp_df = pd.DataFrame({
-                    "Group":            [company, "Peer Average"],
-                    "ImgSize_per_Page":  [focal_img, mean_img]
+                    "Group": [company, "Peer Average"],
+                    "ImageArea": [focal_images, mean_images]
                 })
-        
-                fig_cmp = px.bar(
+            
+                fig_avg = px.bar(
                     comp_df,
                     x="Group",
-                    y="ImgSize_per_Page",
-                    text="ImgSize_per_Page",
+                    y="ImageArea",
+                    text="ImageArea",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"ImgSize_per_Page": "Image Size per Page", "Group": ""}
+                    labels={"ImageArea": "Image area per 500 words", "Group": ""}
                 )
-                fig_cmp.update_layout(
+                fig_avg.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
-        
-                st.subheader("Peer vs. Company Image Size per Page")
-                st.plotly_chart(fig_cmp, use_container_width=True)
-        
-            # Fußnote
-            st.caption("Total image file size (in KB) per page of companies’ sustainability reports.")
+                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_avg, use_container_width=True)
         
     
         elif view == "Sentiment":
