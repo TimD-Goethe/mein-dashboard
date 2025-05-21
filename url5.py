@@ -1928,7 +1928,7 @@ with main:
                 # 2) Länder‐Durchschnitt vorbereiten, Spalte in "Tables" umbenennen
                 country_avg = (
                     df
-                    .groupby("country")["tables_per_500"]
+                    .groupby("country")["tables_500"]
                     .mean()
                     .reset_index(name="Tables")
                 )
@@ -1994,7 +1994,7 @@ with main:
                 # 3) Labels kürzen (max. 15 Zeichen)
                 country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
             
-                # 4) Reihenfolge nach sort_values (absteigend), ohne zusätzliches Umkehren
+                # 4) Reihenfolge nach sort_values (absteigend)
                 y_order = country_avg["country_short"].tolist()
             
                 # 5) Highlight für Dein Land
@@ -2011,16 +2011,13 @@ with main:
                     y="country_short",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={
-                        focal_country: "red",
-                        "Other Countries": "#1f77b4"
-                    },
+                    color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
                     category_orders={"country_short": y_order},
                     labels={"Tables": "Tables per 500 words", "country_short": ""},
                 )
             
                 # 7) Linien & Styling
-                overall_avg = df["tables_per_500"].mean()
+                overall_avg = df["tables_500"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -2063,15 +2060,11 @@ with main:
                     labels={"Tables": "Tables per 500 words", "Group": ""}
                 )
                 fig_cmp.update_layout(
-                    xaxis={
-                        "categoryorder": "array",
-                        "categoryarray": [focal_country, "Other countries average"]
-                    },
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries average"]},
                     showlegend=False
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
-
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 sector_avg = (
