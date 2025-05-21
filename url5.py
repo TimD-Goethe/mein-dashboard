@@ -598,6 +598,7 @@ with main:
 
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+                import textwrap  # für automatischen Zeilenumbruch
                 # 1) Durchschnittliche Wortzahl pro Supersector
                 sector_avg = (
                     df
@@ -606,18 +607,19 @@ with main:
                     .reset_index(name="Words")
                 ).sort_values("Words", ascending=False)
         
-                # 2) Kurzlabel auf 15 Zeichen
-                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
-                y_order = sector_avg["sector_short"].tolist()
-        
-                # 3) Highlight focal Supersector
-                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                sector_avg["highlight"] = np.where(
-                    sector_avg["supersector"] == focal_super,
-                    sector_avg["sector_short"],
-                    "Other sectors"
+                # 2) Mehrzeilige Labels mit wrap (width gibt Max-Zeichen pro Zeile an)
+                sector_avg["sector_short"] = sector_avg["supersector"].apply(
+                    lambda s: "\n".join(textwrap.wrap(s, width=20))
                 )
         
+                # 3) Highlight focal Supersector
+                focal_label = "\n".join(textwrap.wrap(focal_super, width=20))
+                sector_avg["highlight"] = np.where(
+                    sector_avg["supersector"] == focal_super,
+                    focal_label,
+                    "Other sectors"
+                )
+                    
                 # 4) Plot
                 fig_s = px.bar(
                     sector_avg,
@@ -625,17 +627,19 @@ with main:
                     y="sector_short",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
+                    color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order},
                     labels={"sector_short": "", "Words": "Words"}
                 )
-                fig_s.add_vline(x=sector_avg["Words"].mean(), line_dash="dash",
-                                line_color="black",
-                                annotation_text="<b>All Sectors Avg</b>",
-                                annotation_position="bottom right",
-                                annotation_font_color="black",
-                                annotation_font_size=16
-                               )
+                fig_s.add_vline(
+                    x=sector_avg["Words"].mean(),
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
                 fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
                 fig_s.update_layout(showlegend=False, xaxis_title="Words")
                 st.plotly_chart(fig_s, use_container_width=True)
