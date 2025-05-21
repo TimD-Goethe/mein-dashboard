@@ -521,7 +521,7 @@ with main:
     
     
             elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
-                # 1) Focal Country
+                # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
                 # 2) Durchschnitt pro Country und Sortierung (absteigend)
@@ -533,7 +533,7 @@ with main:
                     .sort_values("Pages", ascending=False)
                 )
             
-                # 3) Labels kürzen
+                # 3) Labels kürzen (max. 15 Zeichen)
                 country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
             
                 # 4) Reihenfolge umdrehen, damit in Plotly die größte Bar oben landet
@@ -546,7 +546,7 @@ with main:
                     "Other Countries"
                 )
             
-                # 6) Bar-Chart erzeugen
+                # 6) Bar-Chart erzeugen mit expliziter Reihenfolge
                 fig_ctry = px.bar(
                     country_avg,
                     x="Pages",
@@ -557,7 +557,9 @@ with main:
                         focal_country: "red",
                         "Other Countries": "#1f77b4"
                     },
-                    category_orders={"country_short": y_order},
+                    category_orders={              # ← hier die exakte Reihenfolge festlegen
+                        "country_short": y_order
+                    },
                     labels={"Pages": "Pages", "country_short": ""},
                 )
             
@@ -574,12 +576,11 @@ with main:
                     annotation_font_size=16
                 )
             
-                # 8) Einheitliches Styling anwenden (dicke Bars, Außen-Labels, dynamische Höhe)
+                # 8) Einheitliches Styling & dynamische Höhe/Shriftgröße
                 fig_ctry = smart_layout(fig_ctry, len(country_avg))
-                # 9) Legende ausblenden, wenn gewünscht
                 fig_ctry.update_layout(showlegend=False)
             
-                # 10) Chart rendern
+                # 9) Chart rendern
                 st.plotly_chart(fig_ctry, use_container_width=True)
             
                 # — Optional: Vergleichs-Chart Focal vs. Other Countries Avg —
@@ -599,8 +600,12 @@ with main:
                     color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
+                # Reihenfolge festlegen: rote Firma links
                 fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries average"]},
+                    xaxis={
+                        "categoryorder": "array",
+                        "categoryarray": [focal_country, "Other countries average"]
+                    },
                     showlegend=False
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
