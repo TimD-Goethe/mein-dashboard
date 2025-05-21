@@ -198,25 +198,36 @@ df['supersector'] = df['SASB_industry'] \
     .map(supersector_map) \
     .fillna('Other')
 
-def style_bar_chart(fig, df, y_order):
-    fig.update_traces(
-        texttemplate="%{x:.0f}",
-        textposition="outside",
-        cliponaxis=False
-    )
-    # neue, kleinere Höhe und Fonts:
-    height = max(20 * len(df), 250)
+def smart_layout(fig, num_items, *,
+                 min_height=300,    # absolute Mindesthöhe
+                 max_height=1200,   # absolute Maxhöhe
+                 bar_height=40,     # Pixel pro Item
+                 min_font=8,        # absolute Mindestschrift
+                 max_font=16        # absolute Maxschrift
+                ):
+    """
+    Passt Höhe und Schriften an, je nachdem wie viele Balken (num_items) wir haben.
+    """
+    # 1) Höhe: pro Item bar_height px plus etwas Padding
+    height = min(max_height, max(min_height, num_items * bar_height + 150))
+    
+    # 2) Schriftgröße: bei wenig Items groß, bei vielen kleiner
+    #    lineare Interpolation zwischen max_font (bei 1 Item) und min_font (bei 30+ Items)
+    if num_items <= 1:
+        font_size = max_font
+    else:
+        # je mehr Items umso näher an min_font
+        font_size = max(min_font,
+                        max_font - (num_items-1) * (max_font-min_font) / 29
+                       )
+    font_size = round(font_size, 1)
+    
     fig.update_layout(
-        showlegend=True,
-        legend_title_text="",
-        yaxis={"categoryorder":"array", "categoryarray":y_order,
-               "tickfont":dict(size=10)},
-        xaxis_title="Pages",
-        xaxis=dict(title_font=dict(size=12), tickfont=dict(size=10)),
-        font=dict(size=11),
-        bargap=0.1,
+        height=height,
+        font=dict(size=font_size),
         margin=dict(l=150, r=20, t=40, b=40),
-        height=height
+        yaxis=dict(tickfont=dict(size=font_size)),
+        xaxis=dict(tickfont=dict(size=font_size))
     )
     return fig
 
