@@ -3309,6 +3309,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
         
             elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
                 # 1) Länder-Durchschnitt sortieren
                 country_avg = (
                     df
