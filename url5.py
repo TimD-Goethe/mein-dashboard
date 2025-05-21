@@ -3339,8 +3339,9 @@ with main:
                 )
         
                 # 3) Peer-Average-Linie
+                overall_avg = df["boiler_500"].mean()
                 fig_ctry.add_vline(
-                    x=mean_stdlang, line_dash="dash", line_color="black", line_width=2,
+                    x=overall_avg, line_dash="dash", line_color="black", line_width=2,
                     annotation_text="<b>Peer Average</b>", annotation_position="bottom right",
                     annotation_font_color="black", annotation_font_size=16
                 )
