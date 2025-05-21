@@ -1016,79 +1016,68 @@ with main:
 
              # Histogramm aller Supersector‐Durchschnitte
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
-                # 1) Durchschnittliche Wortzahl pro Supersector
+                # 1) Durchschnittliche Seitenzahl pro Supersector
                 sector_avg = (
                     df
                     .groupby("supersector")["words"]
                     .mean()
-                    .reset_index(name="Words")
+                    .reset_index(name="words")
                 )
-            
-                # 2) Histogramm der Wort-Durchschnitte
+                # 2) Plot
                 fig = px.histogram(
                     sector_avg,
-                    x="Words",
+                    x="words",
                     nbins=20,
                     opacity=0.8,
-                    labels={"Words": "Words"}
+                    labels={"words": "words"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
-            
+        
                 # 3) Linien für All vs. Focal Supersector
-                overall_avg = sector_avg["Words"].mean()
+                overall_avg = sector_avg["words"].mean()
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Words"].iat[0]
-            
-                fig.add_vline(
-                    x=overall_avg,
-                    line_dash="dash",
-                    line_color="black",
-                    annotation_text="<b>All Sectors Avg</b>",
-                    annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16
-                )
-                fig.add_vline(
-                    x=focal_avg,
-                    line_dash="dash",
-                    line_color="red",
-                    annotation_text=f"<b>{focal_super} Avg</b>",
-                    annotation_position="bottom left",
-                    annotation_font_color="red",
-                    annotation_font_size=16
-                )
-            
-                # 4) Layout anpassen
-                fig.update_layout(
-                    showlegend=False,
-                    xaxis_title="Words",
-                    yaxis_title="Number of Sectors",
-                    bargap=0.1
-                )
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "words"].iat[0]
+        
+                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
+                              annotation_text="<b>All Sectors Avg</b>",
+                              annotation_position="top right",
+                              annotation_font_color= "black",
+                              annotation_font_size=16)
+                fig.add_vline(x=focal_avg, line_dash="dash", line_color="red",
+                              annotation_text=f"<b>{focal_super} Avg</b>",
+                              annotation_position="bottom left",
+                              annotation_font_color="red",
+                              annotation_font_size=16)
+        
+                fig.update_layout(showlegend=False,
+                                  xaxis_title="words",
+                                  yaxis_title="Number of Sectors",
+                                  bargap=0.1)
                 st.plotly_chart(fig, use_container_width=True)
-            
-            
+
+
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 import textwrap
             
                 # 1) Focal Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
-                # 2) Durchschnittliche Wortzahl pro Supersector, absteigend sortiert
+                # 2) Durchschnittliche Sietnzahl pro Supersector, absteigend sortiert
                 sector_avg = (
                     df
                     .groupby("supersector")["words"]
                     .mean()
-                    .reset_index(name="Words")
-                    .sort_values("Words", ascending=False)
+                    .reset_index(name="words")
+                    .sort_values("words", ascending=False)
                 )
             
-                # 3) Labels umbrechen mit "\n" (max. 20 Zeichen pro Zeile)
+                # 3) Mehrzeilige Labels mit "\n" (wrap bei 20 Zeichen)
                 sector_avg["sector_short"] = sector_avg["supersector"].apply(
-                    lambda s: "<b>".join(textwrap.wrap(s, width=20))
+                    lambda s: "<br>".join(textwrap.wrap(s, width=20))
                 )
             
-                # 4) Reihenfolge für category_orders: niedrigste zuerst
+                # 4) Reihenfolge für category_orders: 
+                #    wir kehren die absteigend sortierte Liste um → niedrigste zuerst
                 y_order = sector_avg["sector_short"].tolist()[::-1]
             
                 # 5) Highlight fürs eigene Supersector
@@ -1102,18 +1091,18 @@ with main:
                 # 6) Horizontalen Bar‐Chart bauen
                 fig_s = px.bar(
                     sector_avg,
-                    x="Words",
+                    x="words",
                     y="sector_short",
                     orientation="h",
                     color="highlight",
                     color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
-                    category_orders={"sector_short": y_order},
-                    labels={"sector_short": "", "Words": "Words"},
-                    hover_data={"Words": ":.0f"}
+                    category_orders={"sector_short": y_order},  # niedrig→hoch
+                    labels={"sector_short": "", "words": "Words"},
+                    hover_data={"words": ":.0f"}
                 )
             
-                # 7) V-Line für den Durchschnitt aller Sektoren
-                avg_all = sector_avg["Words"].mean()
+                # 7) Linie für den Durchschnitt aller Sektoren
+                avg_all = sector_avg["words"].mean()
                 fig_s.add_vline(
                     x=avg_all,
                     line_dash="dash",
@@ -1121,31 +1110,31 @@ with main:
                     annotation_text="<b>All Sectors Avg</b>",
                     annotation_position="bottom right",
                     annotation_font_color="black",
-                    annotation_font_size=16
+                    annotation_font_size=16,
                 )
             
-                # 8) Einheitliches Styling, automatische y-Achse invertieren
+                # 8) Einheitliches Styling & Höhe/Shriftgröße + automatische y-Reverse
                 fig_s = smart_layout(fig_s, len(sector_avg))
                 fig_s.update_layout(showlegend=False)
             
-                # 9) Chart ausgeben
+                # 9) Chart rendern
                 st.plotly_chart(fig_s, use_container_width=True)
             
                 # — Optional: Vergleichs‐Chart Supersector vs Rest —
-                focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "Words"].iat[0]
-                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "Words"].mean()
+                focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "words"].iat[0]
+                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "words"].mean()
                 comp_df = pd.DataFrame({
                     "Group": [focal_super, "Other sectors avg"],
-                    "Words": [focal_avg, others_avg]
+                    "words": [focal_avg, others_avg]
                 })
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
-                    y="Words",
-                    text="Words",
+                    y="words",
+                    text="words",
                     color="Group",
                     color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
-                    labels={"Words": "Words", "Group": ""}
+                    labels={"words": "Words", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
