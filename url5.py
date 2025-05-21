@@ -764,13 +764,13 @@ with main:
                 fig2 = px.bar(
                     peers_df,
                     x="Sustainability_Page_Count",
-                    y="company_short",               # hier die gekürzte Spalte
+                    y="company_short",
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={
                         "Sustainability_Page_Count": "Pages",
-                        "company_short": "Company",  # Achsenbeschriftung anpassen
+                        "company_short": "Company",
                         "highlight_label": ""
                     },
                     category_orders={"company_short": y_order_short},
@@ -789,12 +789,21 @@ with main:
                 
                 # 5) Layout anpassen, damit die Kurz-Namen korrekt oben stehen
                 fig2.update_layout(
+                    # Legend & Y-Axis wie gehabt
                     showlegend=True,
                     legend_title_text="",
                     yaxis={
                         "categoryorder": "array",
                         "categoryarray": y_order_short,
-                    }
+                    },
+                    # Achsenbeschriftung
+                    xaxis_title="Pages",
+                    # Balkenabstand <-> Dicke
+                    bargap=0.1,
+                    # Außenabstände, damit Labels Platz haben
+                    margin=dict(l=150, r=20, t=40, b=40),
+                    # Höhe ca. 30px pro Bar  
+                    height=30 * len(peers_df)
                 )
                 
                 st.plotly_chart(fig2, use_container_width=True)
