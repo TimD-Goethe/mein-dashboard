@@ -509,6 +509,131 @@ with main:
     
             elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Focal Country
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+            
+                # 2) Durchschnitt pro Country und Sortierung (absteigend)
+                country_avg = (
+                    df
+                    .groupby("supersector")["Sustainability_Page_Count"]
+                    .mean()
+                    .reset_index(name="Pages")
+                    .sort_values("Pages", ascending=False)
+                )
+            
+                # 3) Labels kürzen
+                super_avg["supersector_short"] = country_avg["supersector"].str.slice(0, 15)
+            
+                # 4) Reihenfolge umdrehen, damit in Plotly die größte Bar oben landet
+                y_order = super_avg["country_short"].tolist()[::-1]
+            
+                # 5) Highlight für Dein Land
+                super_avg["highlight"] = np.where(
+                    super_avg["country"] == focal_super,
+                    super_avg["country_short"],
+                    "Other Sectors"
+                )
+            
+                # 6) Bar-Chart erzeugen
+                fig_ctry = px.bar(
+                    country_avg,
+                    x="Pages",
+                    y="supersector_short",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={
+                        focal_country: "red",
+                        "Other Countries": "#1f77b4"
+                    },
+                    category_orders={"supersector_short": y_order},
+                    labels={"Pages": "Pages", "supersector_short": ""},
+                )
+            
+                # 7) Peer-Average-Linie
+                overall_avg = df["Sustainability_Page_Count"].mean()
+                fig_ctry.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+            
+                # 8) Einheitliches Styling anwenden (dicke Bars, Außen-Labels, dynamische Höhe)
+                fig_ctry = style_bar_chart(fig_ctry, super_avg, y_order)
+                # 9) Legende ausblenden, wenn gewünscht
+                fig_ctry.update_layout(showlegend=False)
+            
+                # 10) Chart rendern
+                st.plotly_chart(fig_ctry, use_container_width=True)
+            
+                # — Optional: Vergleichs-Chart Focal vs. Other Countries Avg —
+                comp_df = pd.DataFrame({
+                    "Group": [focal_super, "Other sectors average"],
+                    "Pages": [
+                        super_avg.loc[super_avg["supersector"] == focal_super, "Pages"].iat[0],
+                        super_avg.loc[super_avg["supersector"] != focal_super, "Pages"].mean()
+                    ]
+                })
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="Pages",
+                    text="Pages",
+                    color="Group",
+                    color_discrete_map={focal_country: "red", "Other sectors average": "#1f77b4"},
+                    labels={"Pages": "Pages", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors average"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_cmp, use_container_width=True)
+                
+
+
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+                # Histogramm aller Supersector‐Durchschnitte
+                sector_avg = (
+                    df
+                    .groupby("supersector")["Sustainability_Page_Count"]
+                    .mean()
+                    .reset_index(name="Pages")
+                )
+                # Normales Histogramm
+                fig = px.histogram(
+                    sector_avg,
+                    x="Pages",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"Pages": "Pages"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+                # Linien
+                overall_avg = sector_avg["Pages"].mean()
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Pages"].iat[0]
+        
+                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
+                              annotation_text="<b>All Sectors Avg</b>",
+                              annotation_position="top right",
+                              annotation_font_color="black",
+                              annotation_font_size=16
+                             )
+                fig.add_vline(x=focal_avg, line_dash="dash", line_color="red",
+                              annotation_text=f"<b>{focal_super} Avg</b>",
+                              annotation_position="bottom left",
+                              annotation_font_color="red",
+                              annotation_font_size=16
+                             )
+                fig.update_layout(showlegend=False, xaxis_title="Pages", yaxis_title="Number of Sectors")
+                st.plotly_chart(fig, use_container_width=True)
+
+
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+                # 1) Focal Country
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
                 # 2) Durchschnitt pro Country und Sortierung (absteigend)
@@ -592,132 +717,8 @@ with main:
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
-                
 
-
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
-                # Histogramm aller Supersector‐Durchschnitte
-                sector_avg = (
-                    df
-                    .groupby("supersector")["Sustainability_Page_Count"]
-                    .mean()
-                    .reset_index(name="Pages")
-                )
-                # Normales Histogramm
-                fig = px.histogram(
-                    sector_avg,
-                    x="Pages",
-                    nbins=20,
-                    opacity=0.8,
-                    labels={"Pages": "Pages"}
-                )
-                fig.update_traces(marker_color="#1f77b4")
-                # Linien
-                overall_avg = sector_avg["Pages"].mean()
-                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Pages"].iat[0]
-        
-                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
-                              annotation_text="<b>All Sectors Avg</b>",
-                              annotation_position="top right",
-                              annotation_font_color="black",
-                              annotation_font_size=16
-                             )
-                fig.add_vline(x=focal_avg, line_dash="dash", line_color="red",
-                              annotation_text=f"<b>{focal_super} Avg</b>",
-                              annotation_position="bottom left",
-                              annotation_font_color="red",
-                              annotation_font_size=16
-                             )
-                fig.update_layout(showlegend=False, xaxis_title="Pages", yaxis_title="Number of Sectors")
-                st.plotly_chart(fig, use_container_width=True)
-
-
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
-                import textwrap
             
-                # 1) Durchschnitt pro Supersector berechnen
-                sector_avg = (
-                    df
-                    .groupby("supersector")["Sustainability_Page_Count"]
-                    .mean()
-                    .reset_index(name="Pages")
-                    .sort_values("Pages", ascending=False)
-                )
-            
-                # 2) Voller Name → automatischer Zeilenumbruch bei 15 Zeichen
-                sector_avg["sector_short"] = sector_avg["supersector"].apply(
-                    lambda s: "\n".join(textwrap.wrap(s, width=15))
-                )
-            
-                # 3) Reihenfolge Umdrehen, damit größte Bar oben sitzt
-                y_order_short = sector_avg["sector_short"].tolist()[::-1]
-            
-                # 4) Highlight‐Label mit umgebrochenem Focal‐Supersector
-                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                focal_label = "\n".join(textwrap.wrap(focal_super, width=15))
-                sector_avg["highlight_label"] = np.where(
-                    sector_avg["supersector"] == focal_super,
-                    focal_label,
-                    "Other sectors"
-                )
-            
-                # 5) Horizontales Bar‐Chart (wie in Deinem Company‐Peers‐Chart fig2)
-                fig_s = px.bar(
-                    sector_avg,
-                    x="Pages",
-                    y="sector_short",
-                    orientation="h",
-                    color="highlight_label",
-                    color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
-                    category_orders={"sector_short": y_order_short},
-                    labels={
-                        "sector_short": "", 
-                        "Pages": "Pages", 
-                        "highlight_label": ""
-                    },
-                )
-            
-                # 6) Linie für den Durchschnitt aller Sektoren
-                avg_all = sector_avg["Pages"].mean()
-                fig_s.add_vline(
-                    x=avg_all,
-                    line_dash="dash",
-                    line_color="black",
-                    annotation_text="<b>All Sectors Avg</b>",
-                    annotation_position="bottom right",
-                    annotation_font_color="black",
-                    annotation_font_size=16,
-                )
-            
-                # 7) Einheitliches Styling (Balkenstärke, Außen‐Labels, Höhe)
-                fig_s = style_bar_chart(fig_s, sector_avg, y_order_short)
-            
-                # 8) Chart ausgeben
-                st.plotly_chart(fig_s, use_container_width=True)
-            
-                # — Vergleichs‐Chart Supersector vs Rest bleibt unverändert —
-                comp_df = pd.DataFrame({
-                    "Group": [focal_super, "Other sectors average"],
-                    "Pages": [
-                        sector_avg.loc[sector_avg["supersector"] == focal_super, "Pages"].iat[0],
-                        sector_avg.loc[sector_avg["supersector"] != focal_super, "Pages"].mean()
-                    ]
-                })
-                fig_cmp = px.bar(
-                    comp_df,
-                    x="Group",
-                    y="Pages",
-                    text="Pages",
-                    color="Group",
-                    color_discrete_map={focal_super: "red", "Other sectors average": "#1f77b4"},
-                    labels={"Pages": "Pages", "Group": ""}
-                )
-                fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors average"]},
-                    showlegend=False
-                )
-                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-                st.plotly_chart(fig_cmp, use_container_width=True)
             elif plot_type == "Histogram":
                 fig = px.histogram(
                     plot_df, x="Sustainability_Page_Count", nbins=20,
