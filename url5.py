@@ -1023,7 +1023,8 @@ with main:
                     .mean()
                     .reset_index(name="Words")
                 )
-                # 2) Plot
+            
+                # 2) Histogramm der Wort-Durchschnitte
                 fig = px.histogram(
                     sector_avg,
                     x="Words",
@@ -1032,78 +1033,107 @@ with main:
                     labels={"Words": "Words"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
-        
+            
                 # 3) Linien für All vs. Focal Supersector
                 overall_avg = sector_avg["Words"].mean()
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
                 focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "Words"].iat[0]
-        
-                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
-                              annotation_text="<b>All Sectors Avg</b>",
-                              annotation_position="top right",
-                              annotation_font_color= "black",
-                              annotation_font_size=16)
-                fig.add_vline(x=focal_avg, line_dash="dash", line_color="red",
-                              annotation_text=f"<b>{focal_super} Avg</b>",
-                              annotation_position="bottom left",
-                              annotation_font_color="red",
-                              annotation_font_size=16)
-        
-                fig.update_layout(showlegend=False,
-                                  xaxis_title="Words",
-                                  yaxis_title="Number of Sectors",
-                                  bargap=0.1)
+            
+                fig.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_avg,
+                    line_dash="dash",
+                    line_color="red",
+                    annotation_text=f"<b>{focal_super} Avg</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16
+                )
+            
+                # 4) Layout anpassen
+                fig.update_layout(
+                    showlegend=False,
+                    xaxis_title="Words",
+                    yaxis_title="Number of Sectors",
+                    bargap=0.1
+                )
                 st.plotly_chart(fig, use_container_width=True)
-        
-        
-            # Bar-Chart aller Supersektoren
+            
+            
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
-                # 1) Durchschnittliche Wortzahl pro Supersector
+                import textwrap
+            
+                # 1) Focal Supersector ermitteln
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+            
+                # 2) Durchschnittliche Wortzahl pro Supersector, absteigend sortiert
                 sector_avg = (
                     df
                     .groupby("supersector")["words"]
                     .mean()
                     .reset_index(name="Words")
-                ).sort_values("Words", ascending=False)
-        
-                # 2) Kurzlabel auf 15 Zeichen
-                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
-                y_order = sector_avg["sector_short"].tolist()
-        
-                # 3) Highlight focal Supersector
-                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                    .sort_values("Words", ascending=False)
+                )
+            
+                # 3) Labels umbrechen mit "\n" (max. 20 Zeichen pro Zeile)
+                sector_avg["sector_short"] = sector_avg["supersector"].apply(
+                    lambda s: "\n".join(textwrap.wrap(s, width=20))
+                )
+            
+                # 4) Reihenfolge für category_orders: niedrigste zuerst
+                y_order = sector_avg["sector_short"].tolist()[::-1]
+            
+                # 5) Highlight fürs eigene Supersector
+                focal_label = "\n".join(textwrap.wrap(focal_super, width=20))
                 sector_avg["highlight"] = np.where(
                     sector_avg["supersector"] == focal_super,
-                    sector_avg["sector_short"],
+                    focal_label,
                     "Other sectors"
                 )
-        
-                # 4) Plot
+            
+                # 6) Horizontalen Bar‐Chart bauen
                 fig_s = px.bar(
                     sector_avg,
                     x="Words",
                     y="sector_short",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
+                    color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order},
-                    labels={"sector_short": "", "Words": "Words"}
+                    labels={"sector_short": "", "Words": "Words"},
+                    hover_data={"Words": ":.0f"}
                 )
-                fig_s.add_vline(x=sector_avg["Words"].mean(), line_dash="dash",
-                                line_color="black",
-                                annotation_text="<b>All Sectors Avg</b>",
-                                annotation_position="bottom right",
-                                annotation_font_color="black",
-                                annotation_font_size=16
-                               )
-                fig_s.update_traces(texttemplate="%{x:.0f}", textposition="outside", cliponaxis=False)
-                fig_s.update_layout(showlegend=False, xaxis_title="Words")
+            
+                # 7) V-Line für den Durchschnitt aller Sektoren
+                avg_all = sector_avg["Words"].mean()
+                fig_s.add_vline(
+                    x=avg_all,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+            
+                # 8) Einheitliches Styling, automatische y-Achse invertieren
+                fig_s = smart_layout(fig_s, len(sector_avg))
+                fig_s.update_layout(showlegend=False)
+            
+                # 9) Chart ausgeben
                 st.plotly_chart(fig_s, use_container_width=True)
-        
-                # 5) Kompakter Vergleich: focal vs. average of others
+            
+                # — Optional: Vergleichs‐Chart Supersector vs Rest —
                 focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "Words"].iat[0]
                 others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "Words"].mean()
-        
                 comp_df = pd.DataFrame({
                     "Group": [focal_super, "Other sectors avg"],
                     "Words": [focal_avg, others_avg]
@@ -1126,15 +1156,21 @@ with main:
     
     
             elif plot_type == "Histogram":
+                # 1) Gesamt-Durchschnitt und Focal-Wert der Wortzahl berechnen
+                mean_words  = benchmark_df["words"].mean()
+                focal_words = df.loc[df["company"] == company, "words"].iat[0]
+            
+                # 2) Histogramm aller Peer-Unternehmen nach Wortzahl
                 fig = px.histogram(
-                    plot_df, x="words", nbins=20,
-                    labels={"words": "Words"}
+                    plot_df,
+                    x="words",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"words": "Words", "_group": "Group"}
                 )
-    
-                # 4) Alle Balken in Dunkelblau (#1f77b4)
                 fig.update_traces(marker_color="#1f77b4")
-    
-                # Linien bleiben hier als VLines
+            
+                # 3) Linien für Peer Average und Focal Company
                 fig.add_vline(
                     x=mean_words,
                     line_dash="dash",
@@ -1156,40 +1192,40 @@ with main:
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
-                fig.update_layout(xaxis_title="Words", yaxis_title="Number of Companies")
+            
+                # 4) Achsentitel anpassen
+                fig.update_layout(
+                    xaxis_title="Words",
+                    yaxis_title="Number of Companies"
+                )
+            
                 st.plotly_chart(fig, use_container_width=True)
-    
+            
             
             elif plot_type == "Bar Chart":
-                # 1) Peer-DF sortieren, Mean berechnen
+                # 1) Detail-Bar-Chart: Peer-Unternehmen nach Wortzahl absteigend sortieren
                 peers_df  = plot_df.sort_values("words", ascending=False)
                 mean_words = benchmark_df["words"].mean()
+                focal_words = df.loc[df["company"] == company, "words"].iat[0]
             
-                # 2) Kurzspalte anlegen
+                # 2) Kurz-Namen für Y-Achse (max. 15 Zeichen)
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
+                y_order_short             = peers_df["company_short"].tolist()[::-1]
             
-                # 3) categoryarray aus Kurzspalte (umgekehrt für horizontales Bar-Chart)
-                y_order_short = peers_df["company_short"].tolist()[::-1]
-            
-                # 4) Chart mit company_short
-                fig2w = px.bar(
+                # 3) Horizontales Balkendiagramm erzeugen
+                fig2 = px.bar(
                     peers_df,
                     x="words",
-                    y="company_short",                  # ← hier die Kurzspalte verwenden
+                    y="company_short",
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={
-                        "words":           "Words",
-                        "company_short":   "Company",   # die Achsenbeschriftung umbiegen
-                        "highlight_label": ""
-                    },
+                    labels={"words": "Words", "company_short": "Company", "highlight_label": ""},
                     category_orders={"company_short": y_order_short},
-                    hover_data=["company"]               # optional: vollständiger Name im Tooltip
                 )
             
-                # 5) Peer-Average-Linie
-                fig2w.add_vline(
+                # 4) Peer-Average-Linie hinzufügen
+                fig2.add_vline(
                     x=mean_words,
                     line_dash="dash",
                     line_color="black",
@@ -1199,43 +1235,34 @@ with main:
                     annotation_font_size=16,
                 )
             
-                # 6) Layout anpassen
-                fig2w.update_layout(
-                    showlegend=True,
-                    legend_title_text="",
-                    yaxis={
-                        "categoryorder": "array",
-                        "categoryarray":  y_order_short
-                    },
-                    xaxis_title="Words"
-                )
+                # 5) Styling & automatische Höhen- und Reihenfolge-Logik
+                fig2 = smart_layout(fig2, len(peers_df))
+                fig2.update_layout(showlegend=False)
             
-                st.plotly_chart(fig2w, use_container_width=True, key="words_detail")
+                st.plotly_chart(fig2, use_container_width=True)
             
-                # 2) Peer Average vs. Focal Company als vertikale Balken (roter Balken links)
-                comp_df2 = pd.DataFrame({
+                # — Vertikaler Vergleich Peer Average vs. Focal Company —
+                comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "Words": [mean_words, focal_words],
+                    "Words": [mean_words, focal_words]
                 })
-                fig_avg2 = px.bar(
-                    comp_df2,
+                fig_avg = px.bar(
+                    comp_df,
                     x="Group",
                     y="Words",
                     text="Words",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"Words": "Words", "Group": ""},
+                    labels={"Words": "Words", "Group": ""}
                 )
-                # sortiere x-Achse so, dass red Company links steht
-                fig_avg2.update_layout(
+                # rote Firma links anzeigen
+                fig_avg.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
-                    showlegend=False,
-                    yaxis_title="Words",
+                    showlegend=False
                 )
-                fig_avg2.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-                st.plotly_chart(fig_avg2, use_container_width=True, key="words_comparison")
+                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
             
-                st.caption("Number of words in companies’ sustainability statements.")
+                st.plotly_chart(fig_avg, use_container_width=True)
 
 
 
