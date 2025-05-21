@@ -198,23 +198,25 @@ df['supersector'] = df['SASB_industry'] \
     .map(supersector_map) \
     .fillna('Other')
 
-# ==== Ganz direkt nach den Imports: Hilfsfunktion definieren ====
 def style_bar_chart(fig, df, y_order):
-    # Werte außen anzeigen
     fig.update_traces(
         texttemplate="%{x:.0f}",
         textposition="outside",
         cliponaxis=False
     )
-    # Layout: dicke Bars, Platz für Labels, dynamische Höhe
+    # neue, kleinere Höhe und Fonts:
+    height = max(20 * len(df), 250)
     fig.update_layout(
         showlegend=True,
         legend_title_text="",
-        yaxis={"categoryorder": "array", "categoryarray": y_order},
+        yaxis={"categoryorder":"array", "categoryarray":y_order,
+               "tickfont":dict(size=10)},
         xaxis_title="Pages",
+        xaxis=dict(title_font=dict(size=12), tickfont=dict(size=10)),
+        font=dict(size=11),
         bargap=0.1,
         margin=dict(l=150, r=20, t=40, b=40),
-        height=max(30 * len(df), 300)
+        height=height
     )
     return fig
 
