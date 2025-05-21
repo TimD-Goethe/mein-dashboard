@@ -670,7 +670,7 @@ with main:
                 # 1) Focal Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
-                # 2) Durchschnittliche Wortzahl pro Supersector
+                # 2) Durchschnittliche Wortzahl pro Supersector, absteigend sortiert
                 sector_avg = (
                     df
                     .groupby("supersector")["words"]
@@ -679,16 +679,17 @@ with main:
                     .sort_values("Words", ascending=False)
                 )
             
-                # 3) Mehrzeilige Labels mit <br> – hier wrap-Width 20 Zeichen
+                # 3) Mehrzeilige Labels mit "\n" (wrap bei 20 Zeichen)
                 sector_avg["sector_short"] = sector_avg["supersector"].apply(
-                    lambda s: "<br>".join(textwrap.wrap(s, width=20))
+                    lambda s: "\n".join(textwrap.wrap(s, width=20))
                 )
             
-                # 4) Reihenfolge OHNE manuelles Umdrehen – smart_layout macht das später automatisch
-                y_order = sector_avg["sector_short"].tolist()
+                # 4) Reihenfolge für category_orders: 
+                #    wir kehren die absteigend sortierte Liste um → niedrigste zuerst
+                y_order = sector_avg["sector_short"].tolist()[::-1]
             
                 # 5) Highlight fürs eigene Supersector
-                focal_label = "<br>".join(textwrap.wrap(focal_super, width=20))
+                focal_label = "\n".join(textwrap.wrap(focal_super, width=20))
                 sector_avg["highlight"] = np.where(
                     sector_avg["supersector"] == focal_super,
                     focal_label,
@@ -703,9 +704,9 @@ with main:
                     orientation="h",
                     color="highlight",
                     color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
-                    category_orders={"sector_short": y_order},  # sicherheitshalber
+                    category_orders={"sector_short": y_order},  # niedrig→hoch
                     labels={"sector_short": "", "Words": "Words"},
-                    hover_data={"supersector": True, "Words": ":.0f"}  # optional: saubere Tooltips
+                    hover_data={"Words": ":.0f"}
                 )
             
                 # 7) Linie für den Durchschnitt aller Sektoren
@@ -720,18 +721,11 @@ with main:
                     annotation_font_size=16,
                 )
             
-                # 8) Einheitliches Styling & Höhe/Shriftgröße
-                #    Hier übergeben wir bei Bedarf einen festen min_height,
-                #    damit dieser Chart genauso groß wird wie deine Länder- oder Company-Charts.
-                fig_s = smart_layout(
-                    fig_s,
-                    len(sector_avg),
-                    min_height=500,   # z.B. 500px; anpassen, bis alle Charts gleich groß sind
-                    bar_height=40     # Standard-Bar-Höhe
-                )
+                # 8) Einheitliches Styling & Höhe/Shriftgröße + automatische y-Reverse
+                fig_s = smart_layout(fig_s, len(sector_avg))
                 fig_s.update_layout(showlegend=False)
             
-                # 9) Chart ausgeben
+                # 9) Chart rendern
                 st.plotly_chart(fig_s, use_container_width=True)
             
                 # — Optional: Vergleichs‐Chart Supersector vs Rest —
