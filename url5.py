@@ -1,13 +1,32 @@
-import streamlit as st
-import pandas as pd
+from __future__ import annotations
+
+# ───────────────────────────── Standard-Lib  ────────────────────────────── #
+import csv
+import json
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Optional
+
+# ───────────────────────────── 3rd-Party  ───────────────────────────────── #
 import numpy as np
+import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
-from urllib.parse import unquote, quote
+import plotly.graph_objects as go     # noqa: F401  (für spätere Erweiterungen)
+import streamlit as st
+from urllib.parse import unquote
 
 #-------------------------------------------------------------------------
 # 1. Page config
 #-------------------------------------------------------------------------
+# ─────────────────────── Optional: Supabase import  ─────────────────────── #
+try:
+    from supabase import create_client, Client  # type: ignore
+except ModuleNotFoundError:                     # nicht überall installiert
+    Client = Any                                # MyPy-Platzhalter
+    create_client = None
+
+
 st.set_page_config(page_title="CSRD Dashboard", layout="wide")
 
 # 1a. Globales CSS – direkt nach set_page_config, vor allen st.columns(...)
@@ -65,6 +84,50 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+# 1b. Tracking / Logging
+LOCAL_LOG_PATH = Path("events_log.csv")
+
+
+@st.cache_resource(show_spinner=False)
+def init_supabase() -> Optional[Any]:
+    """
+    Liefert einen Supabase-Client, wenn gültige Credentials in
+    ``st.secrets`` vorhanden sind; andernfalls *None*.
+    Es wird **keine** Warnmeldung ausgegeben – lokaler CSV-Fallback genügt.
+    """
+    if (
+        create_client
+        and "supabase_url" in st.secrets
+        and "supabase_key" in st.secrets
+        and st.secrets["supabase_key"].startswith("ey")  # grobe Plausibilitätsprüfung
+    ):
+        return create_client(st.secrets["supabase_url"], st.secrets["supabase_key"])
+
+    # CSV-Datei sicher anlegen (mit Header), falls noch nicht vorhanden
+    if not LOCAL_LOG_PATH.exists():
+        with LOCAL_LOG_PATH.open("w", newline="", encoding="utf-8") as fp:
+            csv.DictWriter(
+                fp,
+                fieldnames=["timestamp", "session_id", "userid", "snapshot"],
+            ).writeheader()
+    return None
+
+supabase = init_supabase()
+
+
+# 1c. Session-ID & URL-Parameter (userid, company)
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid.uuid4())
+
+def _first(val, default=""):  # list|str|None → str
+    return val[0] if isinstance(val, list) else (val or default)
+
+qp = st.query_params           # empfohlene API (statt experimental_get_query_params)
+userid: str = _first(qp.get("userid"), "anonymous")
+raw_company_param = unquote(_first(qp.get("company")))
+
+
 #-------------------------------------------------------------------------------------
 # 2. Daten laden
 #--------------------------------------------------------------------------------------
@@ -238,6 +301,7 @@ def smart_layout(fig, num_items, *,
     
     return fig
 
+
 #--------------------------------------------------------------------------------------
 # 3. URL-Param & Default
 #--------------------------------------------------------------------------------------
@@ -245,7 +309,9 @@ company_list    = df["company"].dropna().unique().tolist()
 mapping_ci      = {n.strip().casefold(): n for n in company_list}
 raw             = st.query_params.get("company", [""])[0] or ""
 raw             = unquote(raw)
-default_company = mapping_ci.get(raw.strip().casefold(), company_list[0])
+#default_company = mapping_ci.get(raw.strip().casefold(), company_list[0])
+default_company = mapping_ci.get(raw_company_param.casefold(), company_list[0])
+
 
 #-----------------------------------------------------------------------------------------
 # 4. Layout: drei Columns
@@ -353,8 +419,12 @@ with right:
             key="plot_type"
         )
 
+# ─────────────── URL wieder synchronisieren (ohne embed-Flag) ───────────── #
+st.query_params = {"company": [company], "userid": [userid]}
+
+
 # --------------------------------------------------------------------
-# 6. Build `benchmark_df`
+# 5. Build `benchmark_df`
 # --------------------------------------------------------------------
 if benchmark_type == "Sector Peers":
     supersec      = df.loc[df["company"] == company, "supersector"].iat[0]
@@ -411,8 +481,9 @@ elif benchmark_type == "Company Sector vs Other Sectors":
 focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
 focal_words = df.loc[df["company"] == company, "words"].iat[0]
 
+
 # --------------------------------------------------------------------
-# 8. Main-Bereich: Header + Trennstrich + erste Content-Spalte
+# 6. Main-Bereich: Header + Trennstrich + erste Content-Spalte
 # --------------------------------------------------------------------
 with main:
     header_col, _ = st.columns([3, 1], gap="large")
@@ -446,8 +517,9 @@ with main:
         unsafe_allow_html=True,
     )
 
+
     # ----------------------------------------------------------------
-    # 9. Content Rendering: zwei Unterspalten in Main
+    # 7. Content Rendering: zwei Unterspalten in Main
     # ----------------------------------------------------------------
     col_content, col_view = st.columns([5, 1])
 
@@ -4489,3 +4561,40 @@ with main:
     
             md = df_display.to_markdown(index=False)
             st.markdown(md, unsafe_allow_html=True)
+            
+
+# ═══════════════════ Snapshot-Persistierung ════════════════════════════ #
+def _persist_snapshot(snap: dict) -> None:
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "session_id": st.session_state.session_id,
+        "userid": userid,
+        "snapshot": json.dumps(snap, default=str),
+    }
+
+    if supabase is None:  # lokaler CSV-Fallback
+        with LOCAL_LOG_PATH.open("a", newline="", encoding="utf-8") as fp:
+            csv.DictWriter(fp, fieldnames=record.keys()).writerow(record)
+        return
+
+    try:
+        supabase.table("app_events").insert(record).execute()
+    except Exception as exc:                                            # noqa: BLE001
+        # keine UI-Warnung – still fallback
+        with LOCAL_LOG_PATH.open("a", newline="", encoding="utf-8") as fp:
+            csv.DictWriter(fp, fieldnames=record.keys()).writerow(record)
+
+# Snapshot zusammenstellen
+snapshot = dict(
+    company=company,
+    benchmark_type=benchmark_type,
+    peer_selection=peer_selection,
+    view=view,
+    plot_type=plot_type,
+)
+
+# Nur schreiben, wenn sich etwas geändert hat
+if snapshot != st.session_state.get("last_snapshot"):
+    _persist_snapshot(snapshot)
+    st.session_state.last_snapshot = snapshot
+
