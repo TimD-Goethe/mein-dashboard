@@ -3377,212 +3377,212 @@ with main:
                 fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
-                elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
-                    # 1) Durchschnittliche Standardized Language pro Supersector
-                    sector_avg = (
-                        df
-                        .groupby("supersector")["boiler_500"]
-                        .mean()
-                        .reset_index(name="StdLang")
-                    )
-                    # 2) Histogramm
-                    fig = px.histogram(
-                        sector_avg,
-                        x="StdLang",
-                        nbins=20,
-                        opacity=0.8,
-                        labels={"StdLang": "Standardized language per 500 words"}
-                    )
-                    fig.update_traces(marker_color="#1f77b4")
-            
-                    # 3) Linien für All vs. Focal Supersector
-                    overall_avg = sector_avg["StdLang"].mean()
-                    focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                    focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "StdLang"].iat[0]
-            
-                    fig.add_vline(
-                        x=overall_avg, line_dash="dash", line_color="black",
-                        annotation_text="<b>All Sectors Avg</b>", annotation_position="top right",
-                        annotation_font_color="black", annotation_font_size=16
-                    )
-                    fig.add_vline(
-                        x=focal_avg, line_dash="dash", line_color="red",
-                        annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left",
-                        annotation_font_color="red", annotation_font_size=16
-                    )
-            
-                    fig.update_layout(
-                        showlegend=False,
-                        xaxis_title="Standardized language per 500 words",
-                        yaxis_title="Number of Sectors",
-                        bargap=0.1
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
-            
-                elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
-                    import textwrap
-            
-                    # 1) Durchschnitt pro Supersector, absteigend sortiert
-                    sector_avg = (
-                        df
-                        .groupby("supersector")["boiler_500"]
-                        .mean()
-                        .reset_index(name="StdLang")
-                        .sort_values("StdLang", ascending=False)
-                    )
-            
-                    # 2) Labels umbrechen (max. 20 Zeichen)
-                    sector_avg["sector_short"] = sector_avg["supersector"].apply(
-                        lambda s: "<br>".join(textwrap.wrap(s, width=20))
-                    )
-            
-                    # 3) Reihenfolge umdrehen, damit stärkster Wert oben
-                    y_order = sector_avg["sector_short"].tolist()[::-1]
-            
-                    # 4) Highlight fürs eigene Supersector
-                    focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                    focal_label = "<br>".join(textwrap.wrap(focal_super, width=20))
-                    sector_avg["highlight"] = np.where(
-                        sector_avg["supersector"] == focal_super,
-                        focal_label,
-                        "Other sectors"
-                    )
-            
-                    # 5) Horizontalen Bar‐Chart bauen
-                    fig_s = px.bar(
-                        sector_avg,
-                        x="StdLang",
-                        y="sector_short",
-                        orientation="h",
-                        color="highlight",
-                        color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
-                        category_orders={"sector_short": y_order},
-                        labels={"sector_short": "", "StdLang": "Standardized language per 500 words"}
-                    )
-            
-                    # 6) Linie für den Durchschnitt aller Sektoren
-                    avg_all = sector_avg["StdLang"].mean()
-                    fig_s.add_vline(
-                        x=avg_all, line_dash="dash", line_color="black",
-                        annotation_text="<b>All Sectors Avg</b>", annotation_position="bottom right",
-                        annotation_font_color="black", annotation_font_size=16
-                    )
-            
-                    # 7) Styling & automatische y-Achse invertieren
-                    fig_s = smart_layout(fig_s, len(sector_avg))
-                    fig_s.update_layout(showlegend=False)
-            
-                    # 8) Chart rendern
-                    st.plotly_chart(fig_s, use_container_width=True)
-            
-                    # — Optional: Vergleichs‐Chart Supersector vs. Rest —
-                    focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "StdLang"].iat[0]
-                    others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "StdLang"].mean()
-                    comp_df = pd.DataFrame({
-                        "Group": [focal_super, "Other sectors avg"],
-                        "StdLang": [focal_avg, others_avg]
-                    })
-                    fig_cmp = px.bar(
-                        comp_df,
-                        x="Group",
-                        y="StdLang",
-                        text="StdLang",
-                        color="Group",
-                        color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
-                        labels={"StdLang": "Standardized language per 500 words", "Group": ""}
-                    )
-                    fig_cmp.update_layout(
-                        xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
-                        showlegend=False
-                    )
-                    fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
-                    st.plotly_chart(fig_cmp, use_container_width=True)
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+                # 1) Durchschnittliche Standardized Language pro Supersector
+                sector_avg = (
+                    df
+                    .groupby("supersector")["boiler_500"]
+                    .mean()
+                    .reset_index(name="StdLang")
+                )
+                # 2) Histogramm
+                fig = px.histogram(
+                    sector_avg,
+                    x="StdLang",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"StdLang": "Standardized language per 500 words"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+        
+                # 3) Linien für All vs. Focal Supersector
+                overall_avg = sector_avg["StdLang"].mean()
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "StdLang"].iat[0]
+        
+                fig.add_vline(
+                    x=overall_avg, line_dash="dash", line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>", annotation_position="top right",
+                    annotation_font_color="black", annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_avg, line_dash="dash", line_color="red",
+                    annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left",
+                    annotation_font_color="red", annotation_font_size=16
+                )
+        
+                fig.update_layout(
+                    showlegend=False,
+                    xaxis_title="Standardized language per 500 words",
+                    yaxis_title="Number of Sectors",
+                    bargap=0.1
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+                import textwrap
+        
+                # 1) Durchschnitt pro Supersector, absteigend sortiert
+                sector_avg = (
+                    df
+                    .groupby("supersector")["boiler_500"]
+                    .mean()
+                    .reset_index(name="StdLang")
+                    .sort_values("StdLang", ascending=False)
+                )
+        
+                # 2) Labels umbrechen (max. 20 Zeichen)
+                sector_avg["sector_short"] = sector_avg["supersector"].apply(
+                    lambda s: "<br>".join(textwrap.wrap(s, width=20))
+                )
+        
+                # 3) Reihenfolge umdrehen, damit stärkster Wert oben
+                y_order = sector_avg["sector_short"].tolist()[::-1]
+        
+                # 4) Highlight fürs eigene Supersector
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                focal_label = "<br>".join(textwrap.wrap(focal_super, width=20))
+                sector_avg["highlight"] = np.where(
+                    sector_avg["supersector"] == focal_super,
+                    focal_label,
+                    "Other sectors"
+                )
+        
+                # 5) Horizontalen Bar‐Chart bauen
+                fig_s = px.bar(
+                    sector_avg,
+                    x="StdLang",
+                    y="sector_short",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
+                    category_orders={"sector_short": y_order},
+                    labels={"sector_short": "", "StdLang": "Standardized language per 500 words"}
+                )
+        
+                # 6) Linie für den Durchschnitt aller Sektoren
+                avg_all = sector_avg["StdLang"].mean()
+                fig_s.add_vline(
+                    x=avg_all, line_dash="dash", line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>", annotation_position="bottom right",
+                    annotation_font_color="black", annotation_font_size=16
+                )
+        
+                # 7) Styling & automatische y-Achse invertieren
+                fig_s = smart_layout(fig_s, len(sector_avg))
+                fig_s.update_layout(showlegend=False)
+        
+                # 8) Chart rendern
+                st.plotly_chart(fig_s, use_container_width=True)
+        
+                # — Optional: Vergleichs‐Chart Supersector vs. Rest —
+                focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "StdLang"].iat[0]
+                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "StdLang"].mean()
+                comp_df = pd.DataFrame({
+                    "Group": [focal_super, "Other sectors avg"],
+                    "StdLang": [focal_avg, others_avg]
+                })
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="StdLang",
+                    text="StdLang",
+                    color="Group",
+                    color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
+                    labels={"StdLang": "Standardized language per 500 words", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_cmp, use_container_width=True)
 
-                elif plot_type == "Histogram":
-                    # Einfach alle Companies im Benchmark_df
-                    fig = px.histogram(
-                        benchmark_df,
-                        x="boiler_500",
-                        nbins=20,
-                        opacity=0.8,
-                        labels={"boiler_500":"Standardized Language","count":"Number of Companies"}
-                    )
-                    fig.update_traces(marker_color="#1f77b4")
-                    # Peer-Average (schwarz) und Focal (rot)
-                    fig.add_vline(x=mean_boiler,  line_dash="dash", line_color="black",
-                                 annotation_text="<b>Peer Avg</b>", annotation_position="top right")
-                    fig.add_vline(x=focal_boiler, line_dash="dash", line_color="red",
-                                 annotation_text=f"<b>{company}</b>", annotation_position="bottom left",
-                                 annotation_font_color="red")
-                    fig.update_layout(showlegend=False)
-                    st.plotly_chart(fig, use_container_width=True)
+            elif plot_type == "Histogram":
+                # Einfach alle Companies im Benchmark_df
+                fig = px.histogram(
+                    benchmark_df,
+                    x="boiler_500",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"boiler_500":"Standardized Language","count":"Number of Companies"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+                # Peer-Average (schwarz) und Focal (rot)
+                fig.add_vline(x=mean_boiler,  line_dash="dash", line_color="black",
+                             annotation_text="<b>Peer Avg</b>", annotation_position="top right")
+                fig.add_vline(x=focal_boiler, line_dash="dash", line_color="red",
+                             annotation_text=f"<b>{company}</b>", annotation_position="bottom left",
+                             annotation_font_color="red")
+                fig.update_layout(showlegend=False)
+                st.plotly_chart(fig, use_container_width=True)
+        
+            # — **Alle Peers**: Bar Chart über boiler_500 —
+            elif plot_type == "Bar Chart":
+                # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken nach Wert absteigend sortieren
+                peers_df = plot_df.sort_values("boiler_500", ascending=False)
+                mean_boiler = benchmark_df["boiler_500"].mean()
             
-                # — **Alle Peers**: Bar Chart über boiler_500 —
-                elif plot_type == "Bar Chart":
-                    # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken nach Wert absteigend sortieren
-                    peers_df = plot_df.sort_values("boiler_500", ascending=False)
-                    mean_boiler = benchmark_df["boiler_500"].mean()
-                
-                    # 2) Kurz-Namen für die Y-Achse, damit sie nicht zu lang werden
-                    peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
-                    y_order_short = peers_df["company_short"].tolist()[::-1]
-                
-                    # 3) Horizontales Balkendiagramm erstellen
-                    fig2 = px.bar(
-                        peers_df,
-                        x="boiler_500",
-                        y="company_short",
-                        orientation="h",
-                        color="highlight_label",
-                        color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                        labels={
-                            "boiler_500": "Frequently used telegrams",
-                            "company_short": "Company",
-                            "highlight_label": ""
-                        },
-                        category_orders={"company_short": y_order_short},
-                    )
-                
-                    # 4) Peer-Average-Linie hinzufügen
-                    fig2.add_vline(
-                        x=mean_boiler,
-                        line_dash="dash",
-                        line_color="black",
-                        annotation_text="<b>Peer Average</b>",
-                        annotation_position="bottom right",
-                        annotation_font_color="black",
-                        annotation_font_size=16,
-                    )
-                
-                    # 5) Einheitliches Styling direkt hier anwenden
-                    fig2 = smart_layout(fig2, len(peers_df))
-                
-                    # 6) Chart ausgeben
-                    st.plotly_chart(fig2, use_container_width=True)
-                
-                    # — Vertikaler Vergleich Peer Average vs. Focal Company —
-                    avg_pages = mean_pages
-                    comp_df = pd.DataFrame({
-                        "Group": ["Peer Average", company],
-                        "Pages": [avg_boiler, focal_boiler]
-                    })
-                    fig_avg = px.bar(
-                        comp_df,
-                        x="Group",
-                        y="boiler_500",
-                        text="boiler_500",
-                        color="Group",
-                        color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                        labels={"boiler_500": "Frequently used telegrams", "Group": ""}
-                    )
-                    # rote Firma links anzeigen
-                    fig_avg.update_layout(
-                        xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
-                        showlegend=False
-                    )
-                    fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
-                
-                    st.plotly_chart(fig_avg, use_container_width=True)
+                # 2) Kurz-Namen für die Y-Achse, damit sie nicht zu lang werden
+                peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
+                y_order_short = peers_df["company_short"].tolist()[::-1]
+            
+                # 3) Horizontales Balkendiagramm erstellen
+                fig2 = px.bar(
+                    peers_df,
+                    x="boiler_500",
+                    y="company_short",
+                    orientation="h",
+                    color="highlight_label",
+                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
+                    labels={
+                        "boiler_500": "Frequently used telegrams",
+                        "company_short": "Company",
+                        "highlight_label": ""
+                    },
+                    category_orders={"company_short": y_order_short},
+                )
+            
+                # 4) Peer-Average-Linie hinzufügen
+                fig2.add_vline(
+                    x=mean_boiler,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16,
+                )
+            
+                # 5) Einheitliches Styling direkt hier anwenden
+                fig2 = smart_layout(fig2, len(peers_df))
+            
+                # 6) Chart ausgeben
+                st.plotly_chart(fig2, use_container_width=True)
+            
+                # — Vertikaler Vergleich Peer Average vs. Focal Company —
+                avg_pages = mean_pages
+                comp_df = pd.DataFrame({
+                    "Group": ["Peer Average", company],
+                    "Pages": [avg_boiler, focal_boiler]
+                })
+                fig_avg = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="boiler_500",
+                    text="boiler_500",
+                    color="Group",
+                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
+                    labels={"boiler_500": "Frequently used telegrams", "Group": ""}
+                )
+                # rote Firma links anzeigen
+                fig_avg.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                    showlegend=False
+                )
+                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+            
+                st.plotly_chart(fig_avg, use_container_width=True)
 
         
         elif view == "Language Complexity":
