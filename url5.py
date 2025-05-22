@@ -277,19 +277,17 @@ with left:
     "Market Cap Peers",
     "All CSRD First Wave",
     "Choose specific peers",
-    "",
     "⭐ Company Sector vs Other Sectors",
     "🌍 Company Country vs Other Countries"
     ]
     captions = [
-        "Compare within the same industry sector",
-        "Compare within the same home country",
-        "Compare by market capitalization",
-        "All first wave CSRD reporters",
-        "Select a custom peer list",
-        "",  # für die leere Option
-        "Your sector vs all other sectors",
-        "Your country vs all other countries"
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
     ]
     
     raw_choice = st.radio(
