@@ -1,6 +1,5 @@
-from url5 import main  # oder wie immer Deine entry-funktion heißt
-if __name__ == "__main__":
-    main()
+import subprocess
+import sys
 
-import streamlit as st
-st.write("✅ Hello from app.py!")
+if __name__ == "__main__":
+    subprocess.run([sys.executable, "-m", "streamlit", "run", "url5.py"])

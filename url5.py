@@ -243,9 +243,24 @@ def smart_layout(fig, num_items, *,
 #--------------------------------------------------------------------------------------
 company_list    = df["company"].dropna().unique().tolist()
 mapping_ci      = {n.strip().casefold(): n for n in company_list}
-raw             = st.query_params.get("company", [""])[0] or ""
-raw             = unquote(raw)
-default_company = mapping_ci.get(raw.strip().casefold(), company_list[0])
+
+# Get and decode the company from URL
+raw = st.query_params.get("company", None)
+if isinstance(raw, list):
+    raw = raw[0] if raw else None
+
+if raw:
+    raw = unquote(raw).strip()
+    # Try to find the company in our mapping
+    if raw in company_list:
+        default_company = raw
+    # Then try case-insensitive match
+    elif raw.casefold() in mapping_ci:
+        default_company = mapping_ci[raw.casefold()]
+    else:
+        default_company = company_list[0]
+else:
+    default_company = company_list[0]
 
 #-----------------------------------------------------------------------------------------
 # 4. Layout: drei Columns
@@ -254,18 +269,22 @@ left, main, right = st.columns([2, 5, 2])
 
 # 4a. Linke Sidebar: Company + Peer-Group-/Cross-Comparison-Radio
 with left:
-
     # 1) Große Überschrift für Company
     st.subheader("Select a company:")
 
     # 2) Dann das Selectbox selbst, ganz ohne Label-Text
-    default_idx = company_list.index(default_company) if default_company in company_list else 0
+    default_idx = company_list.index(default_company)
     company = st.selectbox(
         "",                    # <— kein Label hier
         options=company_list,
         index=default_idx,
         key="company_selector"
     )
+    
+    # Update URL when company changes
+    if company != default_company:
+        st.query_params["company"] = company
+        
     selected = company
 
     # 3) Peer-Group Titel
@@ -296,7 +315,7 @@ with left:
     # Entferne die Icons wieder aus dem tatsächlichen Wert
     benchmark_type = raw_choice.replace("⭐ ", "").replace("🌍 ", "")
 
-    # 4) Wenn „Choose specific peers“ gewählt, Multiselect anzeigen
+    # 4) Wenn „Choose specific peers" gewählt, Multiselect anzeigen
     if benchmark_type == "Choose specific peers":
         peer_selection = st.multiselect(
             "Choose specific peer companies:",
@@ -333,7 +352,7 @@ with right:
     help_texts = {
         "Number of Pages": "The total number of pages of the sustainability report.",
         "Number of Words": "The total number of words of the sustainability report.",
-        "Number of Norm Pages": "Number of Norm Pages converts each text’s total word count into standardized 500-word pages. A value of 2.5 means the document contains the equivalent of 2½ standard pages.",
+        "Number of Norm Pages": "Number of Norm Pages converts each text's total word count into standardized 500-word pages. A value of 2.5 means the document contains the equivalent of 2½ standard pages.",
         "Words in Sentences with ESRS Standard Keywords": "This method utilizes word2vec (Mikolov et al. 2013), an algorithm that learns the meaning of words in a text using a neural networks. We use the resulting textual embeddings to generate a dictionary of keywords for each ESRS. Based on general seed words (e.g., greenhouse gas emissions for E1 climate change), we pick the 500 most similar words based on the embeddings. The resulting list of keywords allows us to broadly capture ESG-related discussions in reporting even before ESRS-specific terminology has been introduced. The main measure shown in this presentation is the number of words from sentences that contain a keyword from one of the 11 ESRS standards.",
         "Numbers": "Count of Numbers per Norm Page. A norm page is a standardized 500-word page.",
         "Tables": "Count of tables per Norm Page. A norm page is a standardized 500-word page.",
@@ -438,8 +457,8 @@ with main:
               margin-top:-8px;
               margin-bottom:1rem;
             ">
-              Please select a peer group and variable of interest to benchmark your company’s 
-              CSRD reporting. All analyses are based on companies’ 2024 sustainability reports.
+              Please select a peer group and variable of interest to benchmark your company's 
+              CSRD reporting. All analyses are based on companies' 2024 sustainability reports.
             </p>
             """,
             unsafe_allow_html=True,
@@ -1241,8 +1260,8 @@ with main:
             
                 # 5) Styling & automatische Höhen- und Reihenfolge-Logik
                 fig2 = smart_layout(fig2, len(peers_df))
-                fig2.update_layout(showlegend=False)
             
+                # 6) Chart ausgeben
                 st.plotly_chart(fig2, use_container_width=True)
             
                 # — Vertikaler Vergleich Peer Average vs. Focal Company —
@@ -2247,7 +2266,7 @@ with main:
                     annotation_text=f"<b>{company}</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=16
+                    annotation_font_size=16,
                 )
             
                 # 4) Achsentitel anpassen
@@ -2298,8 +2317,8 @@ with main:
             
                 # 5) Styling & Automatische Höhe/Reihenfolge
                 fig2 = smart_layout(fig2, len(peers_df))
-                fig2.update_layout(showlegend=False)
             
+                # 6) Chart ausgeben
                 st.plotly_chart(fig2, use_container_width=True)
             
                 # — Vertikaler Vergleich Peer Average vs. Focal Company —
@@ -2720,7 +2739,7 @@ with main:
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
             # Fußnote
-            st.caption("Number of tables per 500 words in companies’ sustainability reports.")
+            st.caption("Number of tables per 500 words in companies' sustainability reports.")
 
         elif view == "Images":
             st.subheader(f"Image Size per Norm Page ({benchmark_label})")
@@ -4490,7 +4509,7 @@ with main:
             
                 st.plotly_chart(fig_avg, use_container_width=True)
             
-                st.caption("Fog index (Gunning’s language complexity measure).")
+                st.caption("Fog index (Gunning's language complexity measure).")
         
         
         else:
