@@ -3561,7 +3561,7 @@ with main:
                 st.plotly_chart(fig2, use_container_width=True)
             
                 # — Vertikaler Vergleich Peer Average vs. Focal Company —
-                avg_pages = mean_pages
+                avg_boiler = mean_boiler
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
                     "Pages": [avg_boiler, focal_boiler]
