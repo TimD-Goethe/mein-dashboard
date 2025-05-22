@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import textwrap
 from urllib.parse import unquote, quote
 
 #-------------------------------------------------------------------------
@@ -1797,61 +1798,69 @@ with main:
                 total['supersector'] = 'All sectors'
                 focal_s = df.loc[df['company']==company,'supersector'].iat[0]
                 focal_df = sector_topic[sector_topic['supersector']==focal_s].copy()
-        
+            
+                # Funktion zum Wrappen und Joinen mit <br>
+                def wrap_label(s, width=20):
+                    return "<br>".join(textwrap.wrap(s, width=width))
+            
                 # Chart A: Focal vs. All sectors
                 combo = pd.concat([focal_df, total], ignore_index=True)
-                combo['sector_short'] = combo['supersector'].str.slice(0,15)
-                catA = [focal_s[:15], 'All sectors']
-                combo['sector_short'] = pd.Categorical(combo['sector_short'],
-                                                      categories=catA, ordered=True)
-        
+                combo['sector_wrapped'] = combo['supersector'].apply(lambda s: wrap_label(s))
+                catA = [wrap_label(focal_s), wrap_label('All sectors')]
+                combo['sector_wrapped'] = pd.Categorical(combo['sector_wrapped'],
+                                                        categories=catA, ordered=True)
+            
                 figA = px.bar(
                     combo,
-                    x='pct', y='sector_short', color='topic_label',
+                    x='pct', y='sector_wrapped', color='topic_label',
                     orientation='h',
                     text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'sector_short':'','pct':'Share'},
+                    labels={'sector_wrapped':'','pct':'Share'},
                     color_discrete_map=my_colors,
-                    category_orders={'sector_short':catA,'topic_label':legend_order}
+                    category_orders={'sector_wrapped':catA,'topic_label':legend_order}
                 )
                 figA.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
-                figA.update_layout(barmode='stack', xaxis_tickformat=',.0%',
-                                   legend=dict(title='ESRS Topic', itemsizing='constant'))
+                figA.update_layout(
+                    barmode='stack',
+                    xaxis_tickformat=',.0%',
+                    legend=dict(title='ESRS Topic', itemsizing='constant')
+                )
                 st.plotly_chart(figA, use_container_width=True)
-        
+            
                 # Chart B: Alle Supersektoren (focal zuerst)
-                orderB = [focal_s[:15]] + sorted(set(sector_topic['supersector'].str.slice(0,15)) - {focal_s[:15]})
-                sector_topic['sector_short'] = pd.Categorical(
-                    sector_topic['supersector'].str.slice(0,15),
+                orderB_raw = [focal_s] + sorted(set(sector_topic['supersector']) - {focal_s})
+                orderB = [wrap_label(s) for s in orderB_raw]
+                sector_topic['sector_wrapped'] = sector_topic['supersector'].apply(lambda s: wrap_label(s))
+                sector_topic['sector_wrapped'] = pd.Categorical(
+                    sector_topic['sector_wrapped'],
                     categories=orderB, ordered=True
                 )
+            
                 figB = px.bar(
                     sector_topic,
-                    x='pct', y='sector_short', color='topic_label',
+                    x='pct', y='sector_wrapped', color='topic_label',
                     orientation='h',
                     text=sector_topic['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'sector_short':'','pct':'Share'},
+                    labels={'sector_wrapped':'','pct':'Share'},
                     color_discrete_map=my_colors,
-                    category_orders={'sector_short':orderB,'topic_label':legend_order}
+                    category_orders={'sector_wrapped':orderB,'topic_label':legend_order}
                 )
-                # 3) Namen IN die Bars platzieren und style
+                # Namen IN die Bars platzieren
                 figB.update_traces(
-                    textposition='inside',      # oder 'auto' / 'outside'
-                    insidetextanchor='start',   # linksbündig in jedem Segment
+                    textposition='inside',
+                    insidetextanchor='start',
                     textfont=dict(size=12, color='white')
                 )
-                
-                # 4) Höhe & Margin vergrößern
+            
+                # Höhe, Margin & Legende
                 figB.update_layout(
                     barmode='stack',
                     xaxis_tickformat=',.0%',
-                    legend=dict(title='ESRS Topic', itemsizing='constant'),
-                    height=600,                  # erhöhe die Höhe für dickere Bars
+                    height=600,
                     margin=dict(l=150, r=20, t=20, b=20),
                     showlegend=False
                 )
-
-                
+            
                 st.plotly_chart(figB, use_container_width=True)
         
             else:
