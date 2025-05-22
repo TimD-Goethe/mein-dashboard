@@ -3040,6 +3040,7 @@ with main:
                     line_color="black",
                     annotation_text="<b>All Sectors Avg</b>",
                     annotation_position="bottom right",
+                    annotation_font_color="black",
                     annotation_font_size=16
                 )
                 # Texte in die Balken hinein platzieren
@@ -3092,6 +3093,7 @@ with main:
                     line_color="black",
                     annotation_text="<b>All Sectors Avg</b>",
                     annotation_position="bottom right",
+                    annotation_font_color="black",
                     annotation_font_size=16
                 )
                 # Texte in die Balken hinein platzieren
@@ -3280,7 +3282,7 @@ with main:
                 )
                 
                 st.subheader("Negative Words by Country")
-                st.plotly_chart(fig_pos, use_container_width=True)
+                st.plotly_chart(fig_neg, use_container_width=True)
 
     
             elif plot_type == "Histogram":
