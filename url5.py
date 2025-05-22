@@ -3253,26 +3253,13 @@ with main:
                     labels={"words_neg_500": "# Negative Words", "country": ""}
                 )
                 overall_neg = country_avg["words_neg_500"].mean()
-                # Gesamt-Average (schwarz)
                 fig_neg.add_vline(
                     x=overall_neg,
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>All Countries Avg</b>",
-                    annotation_position="top right",
+                    annotation_position="bottom right",
                     annotation_font_color="black",
-                    annotation_font_size=16
-                )
-                
-                # Focal-Country-Average (rot)
-                focal_neg = neg_ctry.loc[neg_ctry["country"] == focal_country, "words_neg_500"].iat[0]
-                fig_neg.add_vline(
-                    x=focal_neg,
-                    line_dash="dash",
-                    line_color="red",
-                    annotation_text=f"<b>{focal_country} Avg</b>",
-                    annotation_position="bottom left",
-                    annotation_font_color="red",
                     annotation_font_size=16
                 )
                 # Texte in die Balken hinein platzieren
@@ -3368,6 +3355,7 @@ with main:
                     line_width=2,
                     annotation_text=f"<b>{focal_country} Avg Neg</b>",
                     annotation_position="bottom left",
+                    annotation_font_color="red",
                     annotation_font_size=16,
                 )
                 fig_hist2.add_vline(
@@ -3377,6 +3365,7 @@ with main:
                     line_width=2,
                     annotation_text="<b>All Countries Avg Neg</b>",
                     annotation_position="top right",
+                    annotation_font_color="black",
                     annotation_font_size=16,
                 )
                 fig_hist2.update_layout(
