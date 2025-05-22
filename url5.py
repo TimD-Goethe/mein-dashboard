@@ -271,18 +271,35 @@ with left:
     # 3) Peer-Group Titel
     st.subheader("Company vs. Peer Group")
 
-    # 4) Kombiniertes Radio-Widget
-    options = [
-        "Sector Peers",
-        "Country Peers",
-        "Market Cap Peers",
-        "All CSRD First Wave",
-        "Choose specific peers",
-        "",
-        "⭐ Company Sector vs Other Sectors",
-        "🌍 Company Country vs Other Countries"
+    options  = [
+    "Sector Peers",
+    "Country Peers",
+    "Market Cap Peers",
+    "All CSRD First Wave",
+    "Choose specific peers",
+    "",
+    "⭐ Company Sector vs Other Sectors",
+    "🌍 Company Country vs Other Countries"
     ]
-    raw_choice = st.radio("", options, key="benchmark_type")
+    captions = [
+        "Compare within the same industry sector",
+        "Compare within the same home country",
+        "Compare by market capitalization",
+        "All first wave CSRD reporters",
+        "Select a custom peer list",
+        "",  # für die leere Option
+        "Your sector vs all other sectors",
+        "Your country vs all other countries"
+    ]
+    
+    raw_choice = st.radio(
+        "",                # kein Label oberhalb
+        options,
+        captions=captions, # hier kommen die Untertitel hin
+        key="benchmark_type"
+    )
+    
+    # Entferne die Icons wieder aus dem tatsächlichen Wert
     benchmark_type = raw_choice.replace("⭐ ", "").replace("🌍 ", "")
 
     # 4) Wenn „Choose specific peers“ gewählt, Multiselect anzeigen
