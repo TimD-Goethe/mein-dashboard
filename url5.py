@@ -4039,9 +4039,9 @@ with main:
                 fig.add_vline(x=mean_boiler,  line_dash="dash", line_color="black",
                              annotation_text="<b>Peer Avg</b>", annotation_position="top right", annotation_font_color="black", annotation_font_size=16)
                 fig.add_vline(x=focal_boiler, line_dash="dash", line_color="red",
-                             annotation_text=f"<b>{company}</b>", annotation_position="bottom left",
+                             annotation_text=f"<b>{company}</b>", annotation_position="bottom right",
                              annotation_font_color="red", annotation_font_size=16)
-                fig.update_layout(showlegend=False)
+                fig.update_layout(showlegend=False, xaxis_title="Standardized Language", yaxis_title="")
                 st.plotly_chart(fig, use_container_width=True)
         
             # — **Alle Peers**: Bar Chart über boiler_500 —
