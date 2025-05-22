@@ -3552,9 +3552,9 @@ with main:
                 overall_pos = sector_avg["words_pos_500"].mean()
                 focal_pos   = sector_avg.loc[sector_avg["supersector"] == focal_super, "words_pos_500"].iat[0]
                 fig_h1.add_vline(x=overall_pos, line_dash="dash", line_color="black",
-                                 annotation_text="<b>All Sectors Avg</b>", annotation_position="top right")
+                                 annotation_text="<b>All Sectors Avg</b>", annotation_position="top right", annotation_font_color="black", annotation_font_size=16)
                 fig_h1.add_vline(x=focal_pos,   line_dash="dash", line_color="red",
-                                 annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left")
+                                 annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left", annotation_font_color="red", annotation_font_size=16)
                 fig_h1.update_layout(showlegend=False, xaxis_title="# Positive Words", yaxis_title="Number of Sectors")
                 st.subheader("Positive Words Distribution by Sector")
                 st.plotly_chart(fig_h1, use_container_width=True)
