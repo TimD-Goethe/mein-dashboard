@@ -3253,7 +3253,7 @@ with main:
                 # Layout anpassen (Höhe+Margin)
                 fig_pos.update_layout(
                     showlegend=False,
-                    xaxis_title="# Positive Words",
+                    xaxis_title="Positive Words",
                     height=600,
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
@@ -3450,14 +3450,14 @@ with main:
                     y=["Positive", "Negative"],
                     barmode="group",
                     color_discrete_sequence=["#E10600", "#1f77b4"],
-                    labels={"value": "Count", "variable": "Sentiment", "Group": ""}
+                    labels={"value": "", "variable": "Sentiment", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [wrapped_focal, "Other Sectors"]},
                     showlegend=True,
                     legend_title_text=""
                 )
-                fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
+                fig_cmp.update_traces(texttemplate="%{y:.2f}", textposition="outside")
                 st.subheader("Pos./Neg. Words per Norm Page")
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
@@ -3576,7 +3576,7 @@ with main:
                                  annotation_text="<b>All Sectors Avg</b>", annotation_position="top right", annotation_font_color="black", annotation_font_size=16)
                 fig_h1.add_vline(x=focal_pos,   line_dash="dash", line_color="red",
                                  annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left", annotation_font_color="red", annotation_font_size=16)
-                fig_h1.update_layout(showlegend=False, xaxis_title="# Positive Words", yaxis_title="Number of Sectors")
+                fig_h1.update_layout(showlegend=False, xaxis_title="Positive Words", yaxis_title="Sectors")
                 st.subheader("Pos. Words per Norm Page")
                 st.plotly_chart(fig_h1, use_container_width=True)
             
@@ -3592,17 +3592,17 @@ with main:
                 overall_neg = sector_avg["words_neg_500"].mean()
                 focal_neg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "words_neg_500"].iat[0]
                 fig_h2.add_vline(x=overall_neg, line_dash="dash", line_color="black",
-                                 annotation_text="<b>All Sectors Avg</b>", annotation_position="top right")
+                                 annotation_text="<b>All Sectors Avg</b>", annotation_position="top right", annotation_font_color="black", annotation_font_size=16)
                 fig_h2.add_vline(x=focal_neg,   line_dash="dash", line_color="red",
-                                 annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left")
-                fig_h2.update_layout(showlegend=False, xaxis_title="# Negative Words", yaxis_title="Number of Sectors")
+                                 annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left", annotation_font_color="red", annotation_font_size=16)
+                fig_h2.update_layout(showlegend=False, xaxis_title="Negative Words", yaxis_title="Sectors")
                 st.subheader("Neg. Words per Norm Page")
                 st.plotly_chart(fig_h2, use_container_width=True)
                       
             
             elif plot_type == "Bar Chart":
                 # — 1) Peer vs. Company Sentiment (kompakter Vergleich) —
-                st.subheader("Peer vs. Company Sentiment")
+                st.subheader("Pos./Neg. Words per Norm Page")
             
                 # erst die Kennzahlen berechnen
                 mean_pos  = benchmark_df["words_pos_500"].mean()
@@ -3624,7 +3624,7 @@ with main:
                     # wir lassen color_discrete_sequence hier stehen, wird aber gleich überschrieben
                     color_discrete_sequence=["#FF7F7F", "#E10600"],
                     category_orders={"company": [company, "Peer Average"]},
-                    labels={"value": "Count", "company": ""}
+                    labels={"value": "", "company": ""}
                 )
                 
                 # Jetzt pro Trace (0 = Positive, 1 = Negative) die Farben für Peer vs. Company setzen
@@ -3632,7 +3632,7 @@ with main:
                 fig_cmp.data[0].marker.color = ["#E10600", "#E10600"]
                 # Trace 1 = "Negative": [Peer, Company]
                 fig_cmp.data[1].marker.color = ["#1f77b4", "#1f77b4"]
-                fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
+                fig_cmp.update_traces(texttemplate="%{y:.2f}", textposition="outside")
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
             
@@ -3727,7 +3727,7 @@ with main:
                 mean_neg  = benchmark_df["words_neg_500"].mean()
                 focal_neg = df.loc[df["company"] == company, "words_neg_500"].iat[0]
                                 
-                st.subheader("Pos. Words per norm page")
+                st.subheader("Pos. Words per Norm Page")
                 fig_h1 = px.histogram(benchmark_df, x="words_pos_500", nbins=20,
                                      )
     
@@ -3756,7 +3756,7 @@ with main:
                 fig_h1.update_layout(xaxis_title="Positive Words", yaxis_title="Companies")
                 st.plotly_chart(fig_h1, use_container_width=True)
                 
-                st.write("Histogram of negative words")
+                st.subheader("Neg. Words per Norm Page")
                 fig_h2 = px.histogram(benchmark_df, x="words_neg_500", nbins=20)
         
                 # Peer Average als vertikale Linie mit Beschriftung
