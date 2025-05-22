@@ -4407,7 +4407,7 @@ with main:
                     annotation_font_size=16
                 )
                 fig.add_vline(
-                    x=focal_pfog,
+                    x=focal_fog,
                     line_dash="dash",
                     line_color="red",
                     opacity=0.8,
