@@ -281,7 +281,9 @@ with left:
     "🌍 Company Country vs Other Countries"
     ]
     captions = [
-        "",
+        "
+        
+        ",
         "",
         "",
         "",
