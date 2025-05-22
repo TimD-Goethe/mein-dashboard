@@ -3196,9 +3196,9 @@ with main:
                 
                 # Jetzt pro Trace (0 = Positive, 1 = Negative) die Farben für Peer vs. Company setzen
                 # Trace 0 = "Positive": [Peer, Company]
-                fig_cmp.data[0].marker.color = ["#ADD8E6", "#FF7F7F"]
+                fig_cmp.data[0].marker.color = ["#1f77b4", "#E10600"]
                 # Trace 1 = "Negative": [Peer, Company]
-                fig_cmp.data[1].marker.color = ["#00008B", "#E10600"]
+                fig_cmp.data[1].marker.color = ["#1f77b4", "#E10600"]
                 fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
@@ -3213,7 +3213,7 @@ with main:
                     y="company_short",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={company: "#E10600", "Peers": "#ADD8E6"},  # Focal=Rot, Peers=Hellblau
+                    color_discrete_map={company: "#E10600", "Peers": "#1f77b4"},  # Focal=Rot, Peers=Hellblau
                     category_orders={"company_short": pos_df["company_short"].tolist()},
                     labels={"words_pos_500": "# Positive Words", "company_short": ""}
                 )
@@ -3239,7 +3239,7 @@ with main:
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
                 
-                st.subheader("Positive Words by Country")
+                st.subheader("Positive Words by Company")
                 st.plotly_chart(fig_pos, use_container_width=True)
             
             
@@ -3253,7 +3253,7 @@ with main:
                     y="company_short",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={company: "#E10600", "Peers": "#00008B"},  # Focal=Rot, Peers=Dunkelblau
+                    color_discrete_map={company: "#E10600", "Peers": "#1f77b4"},  # Focal=Rot, Peers=Dunkelblau
                     category_orders={"company_short": neg_df["company_short"].tolist()},
                     labels={"words_neg_500": "# Negative Words", "company_short": ""}
                 )
@@ -3279,7 +3279,7 @@ with main:
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
                 
-                st.subheader("Negative Words by Country")
+                st.subheader("Negative Words by Company")
                 st.plotly_chart(fig_neg, use_container_width=True)
 
     
