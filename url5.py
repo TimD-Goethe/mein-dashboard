@@ -271,34 +271,27 @@ with left:
     # 3) Peer-Group Titel
     st.subheader("Company vs. Peer Group")
 
-    options = [
+    opts1 = [
     "Sector Peers",
     "Country Peers",
     "Market Cap Peers",
     "All CSRD First Wave",
     "Choose specific peers",
-    "⭐ Company Sector vs Other Sectors",
-    "🌍 Company Country vs Other Countries"
     ]
-    captions = [
-        "",     # Sector Peers
-        "",     # Country Peers
-        "",     # Market Cap Peers
-        "",     # All CSRD First Wave
-        "",     # blank above Choose specific peers
-        "",     # actual Choose specific peers–Caption
-        "",     # blank below Choose specific peers
-        "",     # blank above Company Sector vs Other Sectors
-        "Pick exactly which companies you want to compare",  # Caption unter Choose …
-        "",     # blank unter dieser Caption
-        "",     # blank vor Company Sector…
-        "Your sector vs all other sectors",                # Caption unter Company Sector…
-        ""      # blank unter dieser Caption
-    ]
-    # (Len=7, genau wie options)
-    raw_choice = st.radio("", options, captions=captions, key="benchmark_type")
+    choice1 = st.radio("", opts1, key="bench1")
     
-    # Entferne die Icons wieder aus dem tatsächlichen Wert
+    # hier kommt der gewünschte Abstand hin
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    
+    # untere Optionen
+    opts2 = [
+        "⭐ Company Sector vs Other Sectors",
+        "🌍 Company Country vs Other Countries"
+    ]
+    choice2 = st.radio("", opts2, key="bench2")
+    
+    # Ergebnis zusammenführen
+    raw_choice = choice1 or choice2
     benchmark_type = raw_choice.replace("⭐ ", "").replace("🌍 ", "")
 
     # 4) Wenn „Choose specific peers“ gewählt, Multiselect anzeigen
