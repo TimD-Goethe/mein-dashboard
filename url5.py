@@ -3632,7 +3632,9 @@ with main:
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
-                    annotation_position="bottom right"
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
                 )
                 # Texte in die Balken hinein platzieren
                 fig_pos.update_traces(
@@ -3672,7 +3674,9 @@ with main:
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
-                    annotation_position="bottom right"
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
                 )
                 # Texte in die Balken hinein platzieren
                 fig_neg.update_traces(
