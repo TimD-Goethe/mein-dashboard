@@ -358,7 +358,7 @@ with right:
         "Numbers": "Count of Numbers per Norm Page. A norm page is a standardized 500-word page.",
         "Tables": "Count of tables per Norm Page. A norm page is a standardized 500-word page.",
         "Images": "Average image area per Norm Page. A norm page is a standardized 500-word page.",
-        "Standardized Language": "Average count of frequently used tetragrams" ,
+        "Standardized Language": "Standardized language measures how often a company relies on recurring four-word sequences (so-called tetragrams) in its reporting." ,
         "Language Complexity": "Fog-Index, an aggregate measure of readability where higher values suggest more complex and technical language - which may be appropriate in professional sustainability disclosures.",
         "Sentiment": "Average number of positive and negative words per Norm Page. A norm page is a standardized 500-word page.",
         "Peer Company List": "List of companies included in the peer group based on your choice.",
@@ -3811,7 +3811,7 @@ with main:
                     x="StdLang",
                     nbins=20,
                     opacity=0.8,
-                    labels={"StdLang": "Standardized language per 500 words"}
+                    labels={"StdLang": "Tetragrams per Norm Page"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
         
@@ -3829,8 +3829,8 @@ with main:
         
                 fig.update_layout(
                     showlegend=False,
-                    xaxis_title="Standardized language per 500 words",
-                    yaxis_title="Number of Countries",
+                    xaxis_title="Tetragrams per Norm Page",
+                    yaxis_title="Countries",
                     bargap=0.1
                 )
                 st.plotly_chart(fig, use_container_width=True)
@@ -3862,7 +3862,7 @@ with main:
                     color="highlight",
                     color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
                     category_orders={"country_short": y_order},
-                    labels={"country_short": "", "StdLang": "Standardized language per 500 words"}
+                    labels={"country_short": "", "StdLang": "Tetragrams per Norm Page"}
                 )
         
                 # 3) Peer-Average-Linie
@@ -3895,13 +3895,13 @@ with main:
                     text="StdLang",
                     color="Group",
                     color_discrete_map={focal_country: "red", "Other countries avg": "#1f77b4"},
-                    labels={"StdLang": "Standardized language per 500 words", "Group": ""}
+                    labels={"StdLang": "Tetragrams per Norm Page", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries avg"]},
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
@@ -3918,7 +3918,7 @@ with main:
                     x="StdLang",
                     nbins=20,
                     opacity=0.8,
-                    labels={"StdLang": "Standardized language per 500 words"}
+                    labels={"StdLang": "Tetragrams per Norm Page"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
         
@@ -3940,8 +3940,8 @@ with main:
         
                 fig.update_layout(
                     showlegend=False,
-                    xaxis_title="Standardized language per 500 words",
-                    yaxis_title="Number of Sectors",
+                    xaxis_title="Tetragrams per Norm Page",
+                    yaxis_title="Sectors",
                     bargap=0.1
                 )
                 st.plotly_chart(fig, use_container_width=True)
@@ -3984,7 +3984,7 @@ with main:
                     color="highlight",
                     color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order},
-                    labels={"sector_short": "", "StdLang": "Standardized language per 500 words"}
+                    labels={"sector_short": "", "StdLang": "Tetragrams per Norm Page"}
                 )
         
                 # 6) Linie für den Durchschnitt aller Sektoren
@@ -4016,13 +4016,13 @@ with main:
                     text="StdLang",
                     color="Group",
                     color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
-                    labels={"StdLang": "Standardized language per 500 words", "Group": ""}
+                    labels={"StdLang": "Tetragrams per Norm Page", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
             elif plot_type == "Histogram":
@@ -4032,7 +4032,7 @@ with main:
                     x="boiler_500",
                     nbins=20,
                     opacity=0.8,
-                    labels={"boiler_500":"Standardized Language","count":"Number of Companies"}
+                    labels={"boiler_500":"Standardized Language","":"Companies"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
                 # Peer-Average (schwarz) und Focal (rot)
@@ -4063,7 +4063,7 @@ with main:
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={
-                        "boiler_500": "Frequently used telegrams",
+                        "boiler_500": "Tetragrams per Norm Page",
                         "company_short": "Company",
                         "highlight_label": ""
                     },
@@ -4102,14 +4102,14 @@ with main:
                     text="boiler_500",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"boiler_500": "Frequently used telegrams", "Group": ""}
+                    labels={"boiler_500": "Tetragrams per Norm Page", "Group": ""}
                 )
                 # rote Firma links anzeigen
                 fig_avg.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
                 )
-                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                fig_avg.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
             
                 st.plotly_chart(fig_avg, use_container_width=True)
 
