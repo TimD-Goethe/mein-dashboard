@@ -9,7 +9,7 @@ from urllib.parse import unquote, quote
 #-------------------------------------------------------------------------
 # 1. Page config
 #-------------------------------------------------------------------------
-st.set_page_config(page_title="CSRD Dashboard", layout="wide")
+st.set_page_config(page_title="CSRD Benchmarking Dashboard", layout="wide")
 
 # 1a. Globales CSS – direkt nach set_page_config, vor allen st.columns(...)
 st.markdown(
@@ -396,38 +396,46 @@ with right:
 # --------------------------------------------------------------------
 # 6. Build `benchmark_df`
 # --------------------------------------------------------------------
-if benchmark_type == "Sector Peers":
-    supersec      = df.loc[df["company"] == company, "supersector"].iat[0]
-    benchmark_df  = df[df["supersector"] == supersec]
-    benchmark_label = f"Sector Peers: {supersec}"
+# 1) Bestimme benchmark_df & benchmark_label anhand des Modes und ggf. peer_group
+if mode == "Company vs. Peer Group":
+    # Unter-Mode: Sector / Country / Market Cap / All CSRD / Choose specific
+    if peer_group == "Sector Peers":
+        supersec      = df.loc[df["company"] == company, "supersector"].iat[0]
+        benchmark_df  = df[df["supersector"] == supersec]
+        benchmark_label = f"Sector Peers: {supersec}"
 
-elif benchmark_type == "Country Peers":
-    country       = df.loc[df["company"] == company, "country"].iat[0]
-    benchmark_df  = df[df["country"] == country]
-    benchmark_label = f"Country Peers: {country}"
+    elif peer_group == "Country Peers":
+        country       = df.loc[df["company"] == company, "country"].iat[0]
+        benchmark_df  = df[df["country"] == country]
+        benchmark_label = f"Country Peers: {country}"
 
-elif benchmark_type == "Market Cap Peers":
-    terc          = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
-    lbl           = (
-        "Very Small" if terc == 1 else
-        "Small"      if terc == 2 else
-        "Medium"     if terc == 3 else
-        "Large"      if terc == 4 else
-        "Huge"
-    )
-    benchmark_df  = df[df["Market_Cap_Cat"] == terc]
-    benchmark_label = f"Market Cap Peers: {lbl}"
+    elif peer_group == "Market Cap Peers":
+        terc          = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
+        lbl           = (
+            "Very Small" if terc == 1 else
+            "Small"      if terc == 2 else
+            "Medium"     if terc == 3 else
+            "Large"      if terc == 4 else
+            "Huge"
+        )
+        benchmark_df  = df[df["Market_Cap_Cat"] == terc]
+        benchmark_label = f"Market Cap Peers: {lbl}"
 
-elif benchmark_type == "All CSRD First Wave":
-    benchmark_df    = df.copy()
-    benchmark_label = "All CSRD First Wave"
+    elif peer_group == "All CSRD First Wave":
+        benchmark_df    = df.copy()
+        benchmark_label = "All CSRD First Wave"
 
-elif benchmark_type == "Choose specific peers":
-    sel = set(peer_selection) | {company} if peer_selection else {company}
-    benchmark_df    = df[df["company"].isin(sel)]
-    benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
+    elif peer_group == "Choose specific peers":
+        sel = set(peer_selection) | {company} if peer_selection else {company}
+        benchmark_df    = df[df["company"].isin(sel)]
+        benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
 
-elif benchmark_type == "Company Country vs Other Countries":
+    else:
+        # Fallback, falls peer_group mal None ist
+        benchmark_df    = df.copy()
+        benchmark_label = "All CSRD First Wave"
+
+elif mode == "Company Country vs Other Countries":
     focal_country = df.loc[df["company"] == company, "country"].iat[0]
     country_df    = df[df["country"] == focal_country]
     others_df     = df[df["country"] != focal_country]
@@ -437,7 +445,7 @@ elif benchmark_type == "Company Country vs Other Countries":
     ], ignore_index=True)
     benchmark_label = f"{focal_country} vs Others"
 
-elif benchmark_type == "Company Sector vs Other Sectors":
+elif mode == "Company Sector vs Other Sectors":
     focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
     super_df    = df[df["supersector"] == focal_super]
     others_df   = df[df["supersector"] != focal_super]
@@ -447,10 +455,9 @@ elif benchmark_type == "Company Sector vs Other Sectors":
     ], ignore_index=True)
     benchmark_label = f"{focal_super} vs Other sectors"
 
-# focal values (bleiben unverändert)
+# 2) Focal‐Werte bleiben gleich
 focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
 focal_words = df.loc[df["company"] == company, "words"].iat[0]
-
 # --------------------------------------------------------------------
 # 8. Main-Bereich: Header + Trennstrich + erste Content-Spalte
 # --------------------------------------------------------------------
@@ -506,7 +513,7 @@ with main:
     
     
     
-            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -569,7 +576,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
     
     
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+            elif mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -665,7 +672,7 @@ with main:
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 # 1) Durchschnittliche Seitenzahl pro Supersector
                 sector_avg = (
                     df
@@ -706,7 +713,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
 
 
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 import textwrap
             
                 # 1) Focal Supersector ermitteln
