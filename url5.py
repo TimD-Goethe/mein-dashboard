@@ -1520,14 +1520,14 @@ with main:
                     }
                 )
                 # 3) Namen IN die Bars platzieren und style
-                figB.update_traces(
+                fig_firmen.update_traces(
                     textposition='inside',      # oder 'auto' / 'outside'
                     insidetextanchor='start',   # linksbündig in jedem Segment
                     textfont=dict(size=12, color='white')
                 )
                 
                 # 4) Höhe & Margin vergrößern
-                figB.update_layout(
+                fig_firmen.update_layout(
                     barmode='stack',
                     xaxis_tickformat=',.0%',
                     legend=dict(title='ESRS Topic', itemsizing='constant'),
