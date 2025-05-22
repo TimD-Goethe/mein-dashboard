@@ -3738,94 +3738,138 @@ with main:
             # —————————————————————————————————————————————————————————————————————————————————
         
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+                # 1) Durchschnittliche FOG-Werte pro Supersector
                 sector_avg = (
                     df
                     .groupby("supersector")["fog_avg"]
                     .mean()
-                    .reset_index(name="Fog-Index")
+                    .reset_index(name="FogAvg")
                 )
+                # 2) Plot
                 fig = px.histogram(
                     sector_avg,
-                    x="Fog-Index",
+                    x="FogAvg",
                     nbins=20,
                     opacity=0.8,
-                    labels={"Fog-Index": "Fog-Index"}
+                    labels={"FogAvg": "FOG Average"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
-                overall_avg = sector_avg["Fog-Index"].mean()
+            
+                # 3) Linien für All vs. Focal Supersector
+                overall_avg = sector_avg["FogAvg"].mean()
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-                focal_avg_sec = sector_avg.loc[sector_avg["supersector"] == focal_super, "Fog-Index"].iat[0]
-                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
-                              annotation_text="<b>All Sectors Avg</b>", 
-                              annotation_position="top right",
-                              annotation_font_color="black",
-                              annotation_font_size=16
-                             )
-                fig.add_vline(x=focal_avg_sec, line_dash="dash", line_color="red",
-                              annotation_text=f"<b>{focal_super} Avg</b>",
-                              annotation_position="bottom left",
-                              annotation_font_color="red",
-                              annotation_font_size=16
-                             )
-                fig.update_layout(showlegend=False, xaxis_title="Fog-Index", yaxis_title="Number of Sectors")
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "FogAvg"].iat[0]
+            
+                fig.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_avg,
+                    line_dash="dash",
+                    line_color="red",
+                    annotation_text=f"<b>{focal_super} Avg</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16
+                )
+            
+                fig.update_layout(
+                    showlegend=False,
+                    xaxis_title="FOG Average",
+                    yaxis_title="Number of Sectors",
+                    bargap=0.1
+                )
                 st.plotly_chart(fig, use_container_width=True)
-        
+            
+            
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+                import textwrap
+            
+                # 1) Focal Supersector ermitteln
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+            
+                # 2) Durchschnittliche FOG-Werte pro Supersector, absteigend sortiert
                 sector_avg = (
                     df
                     .groupby("supersector")["fog_avg"]
                     .mean()
-                    .reset_index(name="Fog-Index")
-                ).sort_values("Fog-Index", ascending=False)
-                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0,15)
-                y_order = sector_avg["sector_short"].tolist()
-                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                    .reset_index(name="FogAvg")
+                    .sort_values("FogAvg", ascending=False)
+                )
+            
+                # 3) Mehrzeilige Labels mit "<br>" (wrap bei 20 Zeichen)
+                sector_avg["sector_short"] = sector_avg["supersector"].apply(
+                    lambda s: "<br>".join(textwrap.wrap(s, width=20))
+                )
+            
+                # 4) Reihenfolge für category_orders: niedrigste FOG-Werte zuerst
+                y_order = sector_avg["sector_short"].tolist()[::-1]
+            
+                # 5) Highlight fürs eigene Supersector
+                focal_label = "<br>".join(textwrap.wrap(focal_super, width=20))
                 sector_avg["highlight"] = np.where(
                     sector_avg["supersector"] == focal_super,
-                    sector_avg["sector_short"],
+                    focal_label,
                     "Other sectors"
                 )
+            
+                # 6) Horizontaler Bar-Chart
                 fig_s = px.bar(
                     sector_avg,
-                    x="Fog-Index",
+                    x="FogAvg",
                     y="sector_short",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
+                    color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
                     category_orders={"sector_short": y_order},
-                    labels={"sector_short": "", "Fog-Index": "Fog-Index"}
+                    labels={"FogAvg": "FOG Average", "sector_short": ""},
+                    hover_data={"FogAvg": ":.2f"}
                 )
-                fig_s.add_vline(x=sector_avg["Fog-Index"].mean(), line_dash="dash",
-                                line_color="black", annotation_text="<b>All Sectors Avg</b>",
-                                annotation_position="bottom right",
-                                annotation_font_color="black",
-                                anotation_font_size=16
-                               )
-                fig_s.update_traces(texttemplate="%{x:.1f}", textposition="outside", cliponaxis=False)
-                fig_s.update_layout(showlegend=False, xaxis_title="Fog-Index")
+            
+                # 7) Linie für den Durchschnitt aller Sektoren
+                avg_all = sector_avg["FogAvg"].mean()
+                fig_s.add_vline(
+                    x=avg_all,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+            
+                # 8) Styling & Layout
+                fig_s = smart_layout(fig_s, len(sector_avg))
+                fig_s.update_layout(showlegend=False)
                 st.plotly_chart(fig_s, use_container_width=True)
-        
-                # Kompakter Vergleich: Focal Supersector vs. andere Sektoren avg
-                focal_avg_sec = sector_avg.loc[sector_avg["supersector"] == focal_super, "Fog-Index"].iat[0]
-                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "Fog-Index"].mean()
+            
+                # — Optional: Vergleichs-Chart Supersector vs Rest —
+                focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "FogAvg"].iat[0]
+                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "FogAvg"].mean()
                 comp_df = pd.DataFrame({
                     "Group": [focal_super, "Other sectors avg"],
-                    "Fog-Index": [focal_avg_sec, others_avg]
+                    "FogAvg": [focal_avg, others_avg]
                 })
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
-                    y="Fog-Index",
-                    text="Fog-Index",
+                    y="FogAvg",
+                    text="FogAvg",
                     color="Group",
                     color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
-                    labels={"Fog-Index": "Fog-Index", "Group": ""}
+                    labels={"FogAvg": "FOG Average", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
                     
                     
