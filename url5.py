@@ -1323,7 +1323,7 @@ with main:
                     on='company',
                     how='left'
                 )
-        
+            
                 # b) Durchschnitt pro Land & Topic
                 country_topic = (
                     plot_long
@@ -1342,14 +1342,14 @@ with main:
                 # Focal Country
                 focal = df.loc[df['company']==company, 'country'].iat[0]
                 focal_df = country_topic[country_topic['country']==focal].copy()
-        
+            
                 # Chart A: Focal vs. All countries
                 combo = pd.concat([focal_df, total], ignore_index=True)
                 combo['country_short'] = combo['country'].str.slice(0,15)
                 catA = [focal[:15], 'All countries']
                 combo['country_short'] = pd.Categorical(combo['country_short'],
                                                        categories=catA, ordered=True)
-        
+            
                 figA = px.bar(
                     combo,
                     x='pct', y='country_short', color='topic_label',
@@ -1360,16 +1360,23 @@ with main:
                     category_orders={'country_short':catA,'topic_label':legend_order}
                 )
                 figA.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
-                figA.update_layout(barmode='stack', xaxis_tickformat=',.0%',
-                                   legend=dict(title='ESRS Topic', itemsizing='constant'))
+                figA.update_layout(
+                    barmode='stack',
+                    xaxis_tickformat=',.0%',
+                    legend=dict(title='ESRS Topic', itemsizing='constant')
+                )
                 st.plotly_chart(figA, use_container_width=True)
-        
+            
+            
                 # Chart B: Alle Länder (focal zuerst)
-                orderB = [focal[:15]] + sorted(set(country_topic['country'].str.slice(0,15)) - {focal[:15]})
+                orderB = [focal[:15]] + sorted(
+                    set(country_topic['country'].str.slice(0,15)) - {focal[:15]}
+                )
                 country_topic['country_short'] = pd.Categorical(
                     country_topic['country'].str.slice(0,15),
                     categories=orderB, ordered=True
                 )
+            
                 figB = px.bar(
                     country_topic,
                     x='pct', y='country_short', color='topic_label',
@@ -1379,23 +1386,24 @@ with main:
                     color_discrete_map=my_colors,
                     category_orders={'country_short':orderB,'topic_label':legend_order}
                 )
-
+            
                 # 3) Namen IN die Bars platzieren und style
                 figB.update_traces(
                     textposition='inside',      # oder 'auto' / 'outside'
                     insidetextanchor='start',   # linksbündig in jedem Segment
                     textfont=dict(size=12, color='white')
                 )
-                
+            
                 # 4) Höhe & Margin vergrößern
                 figB.update_layout(
                     barmode='stack',
                     xaxis_tickformat=',.0%',
                     legend=dict(title='ESRS Topic', itemsizing='constant'),
-                    height=600,                  # erhöhe die Höhe für dickere Bars
+                    height=600,
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
-                
+            
+                # Hier Chart B korrekt rendern
                 st.plotly_chart(figB, use_container_width=True)
         
             elif benchmark_type == "Company Sector vs Other Sectors":
