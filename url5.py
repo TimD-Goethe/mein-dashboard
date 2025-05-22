@@ -3196,9 +3196,9 @@ with main:
                 
                 # Jetzt pro Trace (0 = Positive, 1 = Negative) die Farben für Peer vs. Company setzen
                 # Trace 0 = "Positive": [Peer, Company]
-                fig_cmp.data[0].marker.color = ["#1f77b4", "#E10600"]
+                fig_cmp.data[0].marker.color = ["#E10600", "#E10600"]
                 # Trace 1 = "Negative": [Peer, Company]
-                fig_cmp.data[1].marker.color = ["#1f77b4", "#E10600"]
+                fig_cmp.data[1].marker.color = ["#1f77b4", "#1f77b4"]
                 fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
