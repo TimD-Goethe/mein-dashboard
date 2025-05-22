@@ -1734,7 +1734,7 @@ with main:
                     x='pct', y='country_short', color='topic_label',
                     orientation='h',
                     text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'country_short':'','pct':'Share'},
+                    labels={'country_short':'','pct':''},
                     color_discrete_map=my_colors,
                     category_orders={'country_short':catA,'topic_label':legend_order}
                 )
@@ -1761,7 +1761,7 @@ with main:
                     x='pct', y='country_short', color='topic_label',
                     orientation='h',
                     text=country_topic['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'country_short':'','pct':'Share'},
+                    labels={'country_short':'','pct':''},
                     color_discrete_map=my_colors,
                     category_orders={'country_short':orderB,'topic_label':legend_order}
                 )
@@ -1815,7 +1815,7 @@ with main:
                     x='pct', y='sector_wrapped', color='topic_label',
                     orientation='h',
                     text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'sector_wrapped':'','pct':'Share'},
+                    labels={'sector_wrapped':'','pct':''},
                     color_discrete_map=my_colors,
                     category_orders={'sector_wrapped':catA,'topic_label':legend_order}
                 )
@@ -1841,7 +1841,7 @@ with main:
                     x='pct', y='sector_wrapped', color='topic_label',
                     orientation='h',
                     text=sector_topic['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'sector_wrapped':'','pct':'Share'},
+                    labels={'sector_wrapped':'','pct':''},
                     color_discrete_map=my_colors,
                     category_orders={'sector_wrapped':orderB,'topic_label':legend_order}
                 )
@@ -1888,7 +1888,7 @@ with main:
                     x='pct', y='company_short', color='topic_label',
                     orientation='h',
                     text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'company_short':'','pct':'Share'},
+                    labels={'company_short':'','pct':''},
                     color_discrete_map=my_colors,
                     category_orders={
                         'company_short': [sel_short, 'Peer group average'[:15]],
@@ -1912,7 +1912,7 @@ with main:
                     x='pct', y='company_short', color='topic_label',
                     orientation='h',
                     text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'company_short':'','pct':'Share'},
+                    labels={'company_short':'','pct':''},
                     color_discrete_map=my_colors,
                     category_orders={
                         'company_short': [sel_short] + others,
