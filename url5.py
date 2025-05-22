@@ -4032,7 +4032,7 @@ with main:
                     x="boiler_500",
                     nbins=20,
                     opacity=0.8,
-                    labels={"boiler_500":"Standardized Language","":"Companies"}
+                    labels={"boiler_500":"Standardized Language","":""}
                 )
                 fig.update_traces(marker_color="#1f77b4")
                 # Peer-Average (schwarz) und Focal (rot)
