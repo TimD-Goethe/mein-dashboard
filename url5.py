@@ -2806,7 +2806,7 @@ with main:
                     line_color="red",
                     line_width=2,
                     annotation_text=f"<b>{focal_country} Avg</b>",
-                    annotation_position="bottom left",
+                    annotation_position="bottom right",
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
