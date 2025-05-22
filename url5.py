@@ -3915,15 +3915,15 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
             
             elif plot_type == "Bar Chart":
-                # 1) Peers nach FOG-Wert sortieren (absteigend)
+                # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken nach Wert absteigend sortieren
                 peers_df = plot_df.sort_values("fog_avg", ascending=False)
-                mean_pages = benchmark_df["fog_avg"].mean()
+                mean_fog = benchmark_df["fog_avg"].mean()
             
-                # 2) Kurz-Namen für Y-Achse
+                # 2) Kurz-Namen für die Y-Achse, damit sie nicht zu lang werden
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
                 y_order_short = peers_df["company_short"].tolist()[::-1]
             
-                # 3) Horizontaler Bar-Chart
+                # 3) Horizontales Balkendiagramm erstellen
                 fig2 = px.bar(
                     peers_df,
                     x="fog_avg",
@@ -3936,42 +3936,48 @@ with main:
                         "company_short": "Company",
                         "highlight_label": ""
                     },
-                    category_orders={"company_short": y_order_short}
+                    category_orders={"company_short": y_order_short},
                 )
-                # 4) Peer Average Linie
+            
+                # 4) Peer-Average-Linie hinzufügen
                 fig2.add_vline(
-                    x=mean_pages,
+                    x=mean_fog,
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="bottom right",
                     annotation_font_color="black",
-                    annotation_font_size=16
+                    annotation_font_size=16,
                 )
-                # 5) Styling & Layout
+            
+                # 5) Einheitliches Styling direkt hier anwenden
                 fig2 = smart_layout(fig2, len(peers_df))
+            
+                # 6) Chart ausgeben
                 st.plotly_chart(fig2, use_container_width=True)
             
-                # — Vertikaler Vergleich Peer vs. Focal —
+                # — Vertikaler Vergleich Peer Average vs. Focal Company —
+                avg_fog = mean_fog
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "FogAvg": [mean_pages, focal_pages]
+                    "fog_avg": [avg_fog, focal_fog]
                 })
                 fig_avg = px.bar(
                     comp_df,
                     x="Group",
-                    y="FogAvg",
-                    text="FogAvg",
+                    y="fog_avg",
+                    text="fog_avg",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"FogAvg": "FOG Average", "Group": ""}
+                    labels={"fog_avg": "FOG Average", "Group": ""}
                 )
-                # Rote Firma links anzeigen
+                # rote Firma links anzeigen
                 fig_avg.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
                 )
-                fig_avg.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
+                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+            
                 st.plotly_chart(fig_avg, use_container_width=True)
             
                 st.caption("Fog index (Gunning’s language complexity measure).")
