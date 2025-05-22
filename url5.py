@@ -1348,7 +1348,7 @@ with main:
                 fig.update_layout(
                     showlegend=False,
                     xaxis_title="Norm Pages",
-                    yaxis_title="Number of Countries",
+                    yaxis_title="Countries",
                     bargap=0.1
                 )
                 st.plotly_chart(fig, use_container_width=True)
@@ -1465,7 +1465,7 @@ with main:
                 fig.update_layout(
                     showlegend=False,
                     xaxis_title="Norm Pages",
-                    yaxis_title="Number of Sectors",
+                    yaxis_title="Sectors",
                     bargap=0.1
                 )
                 st.plotly_chart(fig, use_container_width=True)
@@ -1576,7 +1576,7 @@ with main:
                 )
                 fig.update_layout(
                     xaxis_title="Norm Pages",
-                    yaxis_title="Number of Companies"
+                    yaxis_title="Companies"
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
