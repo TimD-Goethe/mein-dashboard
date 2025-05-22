@@ -3540,6 +3540,7 @@ with main:
                         "company_short": "Company",
                         "highlight_label": ""
                     },
+                    showlegend=False,
                     category_orders={"company_short": y_order_short},
                 )
             
@@ -3936,6 +3937,7 @@ with main:
                         "company_short": "Company",
                         "highlight_label": ""
                     },
+                    showlegend=False,
                     category_orders={"company_short": y_order_short},
                 )
             
