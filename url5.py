@@ -269,7 +269,7 @@ with left:
     selected = company
 
     # 3) Peer-Group Titel
-    st.subheader("Company vs. Peer Group")
+    st.subheader("Choose Benchmarking Mode")
 
     options = [
     "Sector Peers",
@@ -285,8 +285,8 @@ with left:
         "",     # Country Peers
         "",     # Market Cap Peers
         "",     # All CSRD First Wave
-        "-------------------------",     # blank above Choose specific peers
-        "_________________________",     # actual Choose specific peers–Caption
+        r"\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-",     # blank above Choose specific peers
+        r"\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ ",     # actual Choose specific peers–Caption
         "",     # blank below Choose specific peers
         
     ]
