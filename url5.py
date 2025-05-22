@@ -947,7 +947,7 @@ with main:
                 fig.update_layout(
                     showlegend=False,
                     xaxis_title="Words",
-                    yaxis_title="Number of Countries",
+                    yaxis_title="Countries",
                     bargap=0.1,
                 )
             
@@ -1085,7 +1085,7 @@ with main:
         
                 fig.update_layout(showlegend=False,
                                   xaxis_title="words",
-                                  yaxis_title="Number of Sectors",
+                                  yaxis_title="Sectors",
                                   bargap=0.1)
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -1219,7 +1219,7 @@ with main:
                 # 4) Achsentitel anpassen
                 fig.update_layout(
                     xaxis_title="Words",
-                    yaxis_title="Number of Companies"
+                    yaxis_title="Companies"
                 )
             
                 st.plotly_chart(fig, use_container_width=True)
