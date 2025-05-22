@@ -4439,7 +4439,7 @@ with main:
                 )
                 fig.update_layout(
                     xaxis_title="FOG Average",
-                    yaxis_title="Number of Companies"
+                    yaxis_title="Companies"
                 )
                 st.plotly_chart(fig, use_container_width=True)
             
