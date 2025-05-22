@@ -3506,57 +3506,57 @@ with main:
                     fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
                     st.plotly_chart(fig_cmp, use_container_width=True)
 
-            elif plot_type == "Histogram":
-                # Einfach alle Companies im Benchmark_df
-                fig = px.histogram(
-                    benchmark_df,
-                    x="boiler_500",
-                    nbins=20,
-                    opacity=0.8,
-                    labels={"boiler_500":"Standardized Language","count":"Number of Companies"}
-                )
-                fig.update_traces(marker_color="#1f77b4")
-                # Peer-Average (schwarz) und Focal (rot)
-                fig.add_vline(x=mean_boiler,  line_dash="dash", line_color="black",
-                             annotation_text="<b>Peer Avg</b>", annotation_position="top right")
-                fig.add_vline(x=focal_boiler, line_dash="dash", line_color="red",
-                             annotation_text=f"<b>{company}</b>", annotation_position="bottom left",
-                             annotation_font_color="red")
-                fig.update_layout(showlegend=False)
-                st.plotly_chart(fig, use_container_width=True)
-        
-            # — **Alle Peers**: Bar Chart über boiler_500 —
-            elif plot_type == "Bar Chart":
-                peers_df = benchmark_df.sort_values("boiler_500", ascending=False).copy()
-                peers_df["company_short"] = peers_df["company"].str.slice(0,15)
-                order_short = peers_df["company_short"].tolist()
-                peers_df["highlight"] = np.where(
-                    peers_df["company"] == company,
-                    peers_df["company_short"],
-                    "Peers"
-                )
-        
-                fig2 = px.bar(
-                    peers_df,
-                    x="boiler_500",
-                    y="company_short",
-                    orientation="h",
-                    color="highlight",
-                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    category_orders={"company_short": order_short},
-                    labels={"boiler_500":"Standardized Language","company_short":""}
-                )
-                # Peer-Average Linie
-                fig2.add_vline(x=mean_boiler,
-                               line_dash="dash", line_color="black",
-                               annotation_text="<b>Peer Avg</b>",
-                               annotation_position="bottom right")
-                fig2.update_traces(texttemplate="%{x:.2f}", textposition="outside", cliponaxis=False)
-                fig2.update_layout(showlegend=False)
-                st.plotly_chart(fig2, use_container_width=True)
-        
-            # Fußnote
-            st.caption("Standardized Language (boilergrams per 500 words)")
+                elif plot_type == "Histogram":
+                    # Einfach alle Companies im Benchmark_df
+                    fig = px.histogram(
+                        benchmark_df,
+                        x="boiler_500",
+                        nbins=20,
+                        opacity=0.8,
+                        labels={"boiler_500":"Standardized Language","count":"Number of Companies"}
+                    )
+                    fig.update_traces(marker_color="#1f77b4")
+                    # Peer-Average (schwarz) und Focal (rot)
+                    fig.add_vline(x=mean_boiler,  line_dash="dash", line_color="black",
+                                 annotation_text="<b>Peer Avg</b>", annotation_position="top right")
+                    fig.add_vline(x=focal_boiler, line_dash="dash", line_color="red",
+                                 annotation_text=f"<b>{company}</b>", annotation_position="bottom left",
+                                 annotation_font_color="red")
+                    fig.update_layout(showlegend=False)
+                    st.plotly_chart(fig, use_container_width=True)
+            
+                # — **Alle Peers**: Bar Chart über boiler_500 —
+                elif plot_type == "Bar Chart":
+                    peers_df = benchmark_df.sort_values("boiler_500", ascending=False).copy()
+                    peers_df["company_short"] = peers_df["company"].str.slice(0,15)
+                    order_short = peers_df["company_short"].tolist()
+                    peers_df["highlight"] = np.where(
+                        peers_df["company"] == company,
+                        peers_df["company_short"],
+                        "Peers"
+                    )
+            
+                    fig2 = px.bar(
+                        peers_df,
+                        x="boiler_500",
+                        y="company_short",
+                        orientation="h",
+                        color="highlight",
+                        color_discrete_map={company: "red", "Peers": "#1f77b4"},
+                        category_orders={"company_short": order_short},
+                        labels={"boiler_500":"Standardized Language","company_short":""}
+                    )
+                    # Peer-Average Linie
+                    fig2.add_vline(x=mean_boiler,
+                                   line_dash="dash", line_color="black",
+                                   annotation_text="<b>Peer Avg</b>",
+                                   annotation_position="bottom right")
+                    fig2.update_traces(texttemplate="%{x:.2f}", textposition="outside", cliponaxis=False)
+                    fig2.update_layout(showlegend=False)
+                    st.plotly_chart(fig2, use_container_width=True)
+            
+                # Fußnote
+                st.caption("Standardized Language (boilergrams per 500 words)")
 
         
         elif view == "Language Complexity":
