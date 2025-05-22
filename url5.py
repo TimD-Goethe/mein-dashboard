@@ -1379,10 +1379,24 @@ with main:
                     color_discrete_map=my_colors,
                     category_orders={'country_short':orderB,'topic_label':legend_order}
                 )
-                figB.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
-                figB.update_layout(barmode='stack', xaxis_tickformat=',.0%',
-                                   legend=dict(title='ESRS Topic', itemsizing='constant'))
-                st.plotly_chart(figB, use_container_width=True)
+
+                # 3) Namen IN die Bars platzieren und style
+                figB.update_traces(
+                    textposition='inside',      # oder 'auto' / 'outside'
+                    insidetextanchor='start',   # linksbündig in jedem Segment
+                    textfont=dict(size=12, color='white')
+                )
+                
+                # 4) Höhe & Margin vergrößern
+                figB.update_layout(
+                    barmode='stack',
+                    xaxis_tickformat=',.0%',
+                    legend=dict(title='ESRS Topic', itemsizing='constant'),
+                    height=600,                  # erhöhe die Höhe für dickere Bars
+                    margin=dict(l=150, r=20, t=20, b=20)
+                )
+                
+                st.plotly_chart(fig_firmen, use_container_width=True)
         
             elif benchmark_type == "Company Sector vs Other Sectors":
                 sector_topic = (
@@ -1433,10 +1447,21 @@ with main:
                     color_discrete_map=my_colors,
                     category_orders={'sector_short':orderB,'topic_label':legend_order}
                 )
-                figB.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
-                figB.update_layout(barmode='stack', xaxis_tickformat=',.0%',
-                                   legend=dict(title='ESRS Topic', itemsizing='constant'))
-                st.plotly_chart(figB, use_container_width=True)
+                # 3) Namen IN die Bars platzieren und style
+                figB.update_traces(
+                    textposition='inside',      # oder 'auto' / 'outside'
+                    insidetextanchor='start',   # linksbündig in jedem Segment
+                    textfont=dict(size=12, color='white')
+                )
+                
+                # 4) Höhe & Margin vergrößern
+                figB.update_layout(
+                    barmode='stack',
+                    xaxis_tickformat=',.0%',
+                    legend=dict(title='ESRS Topic', itemsizing='constant'),
+                    height=600,                  # erhöhe die Höhe für dickere Bars
+                    margin=dict(l=150, r=20, t=20, b=20)
+                )
         
             else:
                 # Chart A: Peer group average vs. selected company
@@ -1494,10 +1519,21 @@ with main:
                         'topic_label': legend_order
                     }
                 )
-                fig_firmen.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
-                fig_firmen.update_layout(barmode='stack', xaxis_tickformat=',.0%',
-                                         legend=dict(title='ESRS Topic', itemsizing='constant'))
-                st.plotly_chart(fig_firmen, use_container_width=True)
+                # 3) Namen IN die Bars platzieren und style
+                figB.update_traces(
+                    textposition='inside',      # oder 'auto' / 'outside'
+                    insidetextanchor='start',   # linksbündig in jedem Segment
+                    textfont=dict(size=12, color='white')
+                )
+                
+                # 4) Höhe & Margin vergrößern
+                figB.update_layout(
+                    barmode='stack',
+                    xaxis_tickformat=',.0%',
+                    legend=dict(title='ESRS Topic', itemsizing='constant'),
+                    height=600,                  # erhöhe die Höhe für dickere Bars
+                    margin=dict(l=150, r=20, t=20, b=20)
+                )
 
 
         
