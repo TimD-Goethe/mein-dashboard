@@ -271,7 +271,7 @@ with left:
     # 3) Peer-Group Titel
     st.subheader("Company vs. Peer Group")
 
-    options  = [
+    options = [
     "Sector Peers",
     "Country Peers",
     "Market Cap Peers",
@@ -281,21 +281,16 @@ with left:
     "🌍 Company Country vs Other Countries"
     ]
     captions = [
-        "",
-        "",
-        "",
-        "\n\n\n ",
-        "",
-        "\n",
-        ""
+        "",   # Sector Peers
+        "",   # Country Peers
+        "",   # Market Cap Peers
+        "",   # All CSRD First Wave
+        "",   # hier blank unter Choose specific peers
+        "",   # blank über Company Sector…
+        "Your sector vs all other sectors",  # Caption unter Company Sector…
     ]
-    
-    raw_choice = st.radio(
-        "",                # kein Label oberhalb
-        options,
-        captions=captions, # hier kommen die Untertitel hin
-        key="benchmark_type"
-    )
+    # (Len=7, genau wie options)
+    raw_choice = st.radio("", options, captions=captions, key="benchmark_type")
     
     # Entferne die Icons wieder aus dem tatsächlichen Wert
     benchmark_type = raw_choice.replace("⭐ ", "").replace("🌍 ", "")
