@@ -1469,7 +1469,8 @@ with main:
                     xaxis_tickformat=',.0%',
                     legend=dict(title='ESRS Topic', itemsizing='constant'),
                     height=600,                  # erhöhe die Höhe für dickere Bars
-                    margin=dict(l=150, r=20, t=20, b=20)
+                    margin=dict(l=150, r=20, t=20, b=20),
+                    showlegend=False
                 )
 
                 
@@ -1544,7 +1545,8 @@ with main:
                     xaxis_tickformat=',.0%',
                     legend=dict(title='ESRS Topic', itemsizing='constant'),
                     height=600,                  # erhöhe die Höhe für dickere Bars
-                    margin=dict(l=150, r=20, t=20, b=20)
+                    margin=dict(l=150, r=20, t=20, b=20),
+                    showlegend=False
                 )
 
                 st.plotly_chart(fig_firmen, use_container_width=True)
