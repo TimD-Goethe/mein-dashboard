@@ -288,43 +288,51 @@ with left:
         
     selected = company
 
-    # 3) Peer-Group Titel
+    # 3) Wahl des Benchmark-Modes
     st.subheader("Choose Benchmarking Mode")
-
-    options = [
-    "Sector Peers",
-    "Country Peers",
-    "Market Cap Peers",
-    "All CSRD First Wave",
-    "Choose specific peers",
-    "⭐ Company Sector vs Other Sectors",
-    "🌍 Company Country vs Other Countries"
-    ]
-    captions = [
-        "",     # Sector Peers
-        "",     # Country Peers
-        "",     # Market Cap Peers
-        "",     # All CSRD First Wave
-        r"\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ ",     # blank above Choose specific peers
-        r"\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ ",     # actual Choose specific peers–Caption
-        "",     # blank below Choose specific peers
-        
-    ]
-    # (Len=7, genau wie options)
-    raw_choice = st.radio("", options, captions=captions, key="benchmark_type")
+    mode = st.radio(
+        "", 
+        [
+            "Company vs. Peer Group",
+            "Company Sector vs Other Sectors",
+            "Company Country vs Other Countries"
+        ],
+        key="benchmark_mode"
+    )
     
-    # Entferne die Icons wieder aus dem tatsächlichen Wert
-    benchmark_type = raw_choice.replace("⭐ ", "").replace("🌍 ", "")
-
-    # 4) Wenn „Choose specific peers" gewählt, Multiselect anzeigen
-    if benchmark_type == "Choose specific peers":
-        peer_selection = st.multiselect(
-            "Choose specific peer companies:",
-            options=company_list,
-            default=[]
+    # 4) Je nach Mode eine zweite Auswahl einblenden
+    if mode == "Company vs. Peer Group":
+        st.markdown("**Select your peer group:**")
+        peer_group = st.radio(
+            "",
+            [
+                "Sector Peers",
+                "Country Peers",
+                "Market Cap Peers",
+                "All CSRD First Wave",
+                "Choose specific peers"
+            ],
+            key="peer_group"
         )
-    else:
-        peer_selection = []
+    
+        if peer_group == "Choose specific peers":
+            peer_selection = st.multiselect(
+                "Choose specific peer companies:",
+                options=company_list,
+                default=[]
+            )
+        else:
+            peer_selection = []
+    
+    elif mode == "Company Sector vs Other Sectors":
+        st.markdown("**Company Sector vs Other Sectors**")
+        # hier könntest du z.B. einen simplen Radio mit nur einer Option anzeigen
+        _ = st.radio("", ["Company Sector vs Other Sectors"], key="sector_mode")
+    
+    elif mode == "Company Country vs Other Countries":
+        st.markdown("**Company Country vs Other Countries**")
+        _ = st.radio("", ["Company Country vs Other Countries"], key="country_mode")
+
 
 # 4b. Rechte Spalte: View & Chart Type
 with right:
