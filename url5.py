@@ -302,6 +302,7 @@ with right:
     view_options = [
         "Number of Pages",
         "Number of Words",
+        "Number of Norm Pages",
         "Words per ESRS standard",
         "Numbers",
         "Tables",
@@ -320,6 +321,7 @@ with right:
     help_texts = {
         "Number of Pages": "The total number of pages of the sustainability report.",
         "Number of Words": "The total number of words of the sustainability report.",
+        "Number of Norm Pages": "Number of Norm Pages converts each text’s total word count into standardized 500-word pages. A value of 2.5 means the document contains the equivalent of 2½ standard pages."
         "Words per ESRS standard": "This method utilizes word2vec (Mikolov et al. 2013), an algorithm that “learns” the meaning of words in a text using a neural networks. We use the resulting textual embeddings to generate a dictionary of keywords for each ESRS. Based on general “seed words” (e.g., greenhouse gas emissions for E1 climate change), we pick the 500 most similar words based on the embeddings. The resulting list of keywords allows us to broadly capture ESG-related discussions in reporting even before ESRS-specific terminology has been introduced. The main measure shown in this presentation is the number of words from sentences that contain a keyword from one of the 11 ESRS standards.",
         "Numbers": "Count of Numbers per 500 words",
         "Tables": "Count of tables per 500 words",
@@ -1253,6 +1255,349 @@ with main:
             
                 st.plotly_chart(fig_avg, use_container_width=True)
 
+
+        elif view == "Number of Norm Pages":
+            st.subheader(f"Number of Norm Pages ({benchmark_label})")
+        
+            # 0) Norm Pages berechnen (500 Wörter = 1 Norm-Page)
+            df["norm_pages"]         = df["words"] / 500
+            benchmark_df["norm_pages"] = benchmark_df["words"] / 500
+            plot_df["norm_pages"]    = plot_df["words"] / 500
+        
+            # 1) Peer-Average berechnen
+            mean_norm_pages = benchmark_df["norm_pages"].mean()
+        
+            # Company Country vs Other Countries
+            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+                # 1a) Focal Country ermitteln
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+        
+                # 1b) Länder-Durchschnitt der Norm-Pages vorbereiten
+                country_avg = (
+                    df
+                    .groupby("country")["norm_pages"]
+                    .mean()
+                    .reset_index(name="NormPages")
+                )
+                overall_avg = country_avg["NormPages"].mean()
+                focal_avg   = country_avg.loc[country_avg["country"] == focal_country, "NormPages"].iat[0]
+        
+                # 1c) Histogramm aller Länder-Durchschnitte
+                fig = px.histogram(
+                    country_avg,
+                    x="NormPages",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"NormPages": "Norm Pages"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+                # 1d) V-Lines
+                fig.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>All Countries Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_avg,
+                    line_dash="dash",
+                    line_color="red",
+                    line_width=2,
+                    annotation_text=f"<b>{focal_country} Avg</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16
+                )
+                fig.update_layout(
+                    showlegend=False,
+                    xaxis_title="Norm Pages",
+                    yaxis_title="Number of Countries",
+                    bargap=0.1
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+                # 2a) Focal Country ermitteln
+                focal_country = df.loc[df["company"] == company, "country"].iat[0]
+        
+                # 2b) Durchschnitt pro Country und Sortierung
+                country_avg = (
+                    df
+                    .groupby("country")["norm_pages"]
+                    .mean()
+                    .reset_index(name="NormPages")
+                    .sort_values("NormPages", ascending=False)
+                )
+                country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
+                y_order = country_avg["country_short"].tolist()
+                country_avg["highlight"] = np.where(
+                    country_avg["country"] == focal_country,
+                    country_avg["country_short"],
+                    "Other Countries"
+                )
+        
+                # 2c) Bar-Chart zeichnen
+                fig_ctry = px.bar(
+                    country_avg,
+                    x="NormPages",
+                    y="country_short",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
+                    category_orders={"country_short": y_order},
+                    labels={"NormPages": "Norm Pages", "country_short": ""}
+                )
+                overall_avg = mean_norm_pages
+                fig_ctry.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=2,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig_ctry = smart_layout(fig_ctry, len(country_avg))
+                fig_ctry.update_layout(showlegend=False)
+                fig_ctry.update_yaxes(categoryorder="array", categoryarray=y_order)
+                st.plotly_chart(fig_ctry, use_container_width=True)
+        
+                # 2d) Optional: Vergleich Focal vs Other Countries Avg
+                comp_df = pd.DataFrame({
+                    "Group":   [focal_country, "Other countries average"],
+                    "NormPages": [
+                        country_avg.loc[country_avg["country"] == focal_country, "NormPages"].iat[0],
+                        country_avg.loc[country_avg["country"] != focal_country, "NormPages"].mean()
+                    ]
+                })
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="NormPages",
+                    text="NormPages",
+                    color="Group",
+                    color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
+                    labels={"NormPages": "Norm Pages", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries average"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_cmp, use_container_width=True)
+        
+            # Company Sector vs Other Sectors
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+                sector_avg = (
+                    df
+                    .groupby("supersector")["norm_pages"]
+                    .mean()
+                    .reset_index(name="NormPages")
+                )
+                overall_avg = sector_avg["NormPages"].mean()
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                focal_avg   = sector_avg.loc[sector_avg["supersector"] == focal_super, "NormPages"].iat[0]
+        
+                fig = px.histogram(
+                    sector_avg,
+                    x="NormPages",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"NormPages": "Norm Pages"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+                fig.add_vline(
+                    x=overall_avg,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_avg,
+                    line_dash="dash",
+                    line_color="red",
+                    annotation_text=f"<b>{focal_super} Avg</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16
+                )
+                fig.update_layout(
+                    showlegend=False,
+                    xaxis_title="Norm Pages",
+                    yaxis_title="Number of Sectors",
+                    bargap=0.1
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+                import textwrap
+        
+                focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
+                sector_avg = (
+                    df
+                    .groupby("supersector")["norm_pages"]
+                    .mean()
+                    .reset_index(name="NormPages")
+                    .sort_values("NormPages", ascending=False)
+                )
+                sector_avg["sector_short"] = sector_avg["supersector"].apply(
+                    lambda s: "<br>".join(textwrap.wrap(s, width=20))
+                )
+                y_order = sector_avg["sector_short"].tolist()[::-1]
+                focal_label = "<br>".join(textwrap.wrap(focal_super, width=20))
+                sector_avg["highlight"] = np.where(
+                    sector_avg["supersector"] == focal_super,
+                    focal_label,
+                    "Other sectors"
+                )
+        
+                fig_s = px.bar(
+                    sector_avg,
+                    x="NormPages",
+                    y="sector_short",
+                    orientation="h",
+                    color="highlight",
+                    color_discrete_map={focal_label: "red", "Other sectors": "#1f77b4"},
+                    category_orders={"sector_short": y_order},
+                    labels={"sector_short": "", "NormPages": "Norm Pages"},
+                    hover_data={"NormPages": ":.2f"}
+                )
+                avg_all = sector_avg["NormPages"].mean()
+                fig_s.add_vline(
+                    x=avg_all,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>All Sectors Avg</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig_s = smart_layout(fig_s, len(sector_avg))
+                fig_s.update_layout(showlegend=False)
+                st.plotly_chart(fig_s, use_container_width=True)
+        
+                focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "NormPages"].iat[0]
+                others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "NormPages"].mean()
+                comp_df = pd.DataFrame({
+                    "Group":     [focal_super, "Other sectors avg"],
+                    "NormPages": [focal_avg,    others_avg]
+                })
+                fig_cmp = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="NormPages",
+                    text="NormPages",
+                    color="Group",
+                    color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
+                    labels={"NormPages": "Norm Pages", "Group": ""}
+                )
+                fig_cmp.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
+                    showlegend=False
+                )
+                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_cmp, use_container_width=True)
+        
+            # Peers Gesamt-Histogramm
+            elif plot_type == "Histogram":
+                # Gesamt- und Focal-Norm-Pages berechnen
+                mean_np  = benchmark_df["norm_pages"].mean()
+                focal_np = df.loc[df["company"] == company, "norm_pages"].iat[0]
+        
+                fig = px.histogram(
+                    plot_df,
+                    x="norm_pages",
+                    nbins=20,
+                    opacity=0.8,
+                    labels={"norm_pages": "Norm Pages", "_group": "Group"}
+                )
+                fig.update_traces(marker_color="#1f77b4")
+                fig.add_vline(
+                    x=mean_np,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=1,
+                    opacity=0.6,
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="top right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig.add_vline(
+                    x=focal_np,
+                    line_dash="dash",
+                    line_color="red",
+                    opacity=0.8,
+                    annotation_text=f"<b>{company}</b>",
+                    annotation_position="bottom left",
+                    annotation_font_color="red",
+                    annotation_font_size=16
+                )
+                fig.update_layout(
+                    xaxis_title="Norm Pages",
+                    yaxis_title="Number of Companies"
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+            # Peers Detail-Bar-Chart
+            elif plot_type == "Bar Chart":
+                peers_df    = plot_df.sort_values("norm_pages", ascending=False)
+                mean_np     = benchmark_df["norm_pages"].mean()
+                focal_np    = df.loc[df["company"] == company, "norm_pages"].iat[0]
+        
+                peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
+                y_order_short            = peers_df["company_short"].tolist()[::-1]
+        
+                fig2 = px.bar(
+                    peers_df,
+                    x="norm_pages",
+                    y="company_short",
+                    orientation="h",
+                    color="highlight_label",
+                    color_discrete_map={company: "red", "Peers": "#1f77b4"},
+                    labels={"norm_pages": "Norm Pages", "company_short": "Company", "highlight_label": ""},
+                    category_orders={"company_short": y_order_short}
+                )
+                fig2.add_vline(
+                    x=mean_np,
+                    line_dash="dash",
+                    line_color="black",
+                    annotation_text="<b>Peer Average</b>",
+                    annotation_position="bottom right",
+                    annotation_font_color="black",
+                    annotation_font_size=16
+                )
+                fig2 = smart_layout(fig2, len(peers_df))
+                fig2.update_layout(showlegend=False)
+                st.plotly_chart(fig2, use_container_width=True)
+        
+                comp_df = pd.DataFrame({
+                    "Group":     ["Peer Average", company],
+                    "NormPages": [mean_np, focal_np]
+                })
+                fig_avg = px.bar(
+                    comp_df,
+                    x="Group",
+                    y="NormPages",
+                    text="NormPages",
+                    color="Group",
+                    color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
+                    labels={"NormPages": "Norm Pages", "Group": ""}
+                )
+                fig_avg.update_layout(
+                    xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                    showlegend=False
+                )
+                fig_avg.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_avg, use_container_width=True)
 
 
         elif view == "Words per ESRS standard":
