@@ -2721,6 +2721,14 @@ with main:
             if benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
 
+                # 1) Länder-Durchschnitte berechnen
+                country_avg = (
+                    df
+                    .groupby("country")[["words_pos_500", "words_neg_500"]]
+                    .mean()
+                    .reset_index()
+                )
+
                 # 5) Kompaktvergleich: focal country vs alle anderen
                 focal_pos = country_avg.loc[country_avg["country"] == focal_country, "words_pos_500"].iat[0]
                 focal_neg = country_avg.loc[country_avg["country"] == focal_country, "words_neg_500"].iat[0]
@@ -2751,14 +2759,7 @@ with main:
                 st.subheader("Peer vs. Country Sentiment")
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
-                # 1) Länder-Durchschnitte berechnen
-                country_avg = (
-                    df
-                    .groupby("country")[["words_pos_500", "words_neg_500"]]
-                    .mean()
-                    .reset_index()
-                )
-            
+                            
                 # 2) Für positive Wörter: sortieren & highlight-Spalte
                 pos_ctry = country_avg.sort_values("words_pos_500", ascending=False)
                 pos_ctry["highlight"] = np.where(
