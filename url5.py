@@ -4396,7 +4396,7 @@ with main:
                 fig.update_traces(marker_color="#1f77b4")
                 # Vertikale Linien für Peer und Focal
                 fig.add_vline(
-                    x=mean_pages,
+                    x=mean_fog,
                     line_dash="dash",
                     line_color="black",
                     line_width=1,
@@ -4407,7 +4407,7 @@ with main:
                     annotation_font_size=16
                 )
                 fig.add_vline(
-                    x=focal_pages,
+                    x=focal_pfog,
                     line_dash="dash",
                     line_color="red",
                     opacity=0.8,
