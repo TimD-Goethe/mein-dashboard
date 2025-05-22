@@ -1260,6 +1260,7 @@ with main:
             
                 # 5) Styling & automatische Höhen- und Reihenfolge-Logik
                 fig2 = smart_layout(fig2, len(peers_df))
+                fig2.update_layout(showlegend=False)
             
                 # 6) Chart ausgeben
                 st.plotly_chart(fig2, use_container_width=True)
@@ -2317,6 +2318,7 @@ with main:
             
                 # 5) Styling & Automatische Höhe/Reihenfolge
                 fig2 = smart_layout(fig2, len(peers_df))
+                fig2.update_layout(showlegend=False)
             
                 # 6) Chart ausgeben
                 st.plotly_chart(fig2, use_container_width=True)
