@@ -3210,7 +3210,7 @@ with main:
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
                 
-                st.subheader("Positive Words by Country")
+                st.subheader("Positive Words per Norm Page")
                 st.plotly_chart(fig_pos, use_container_width=True)
                           
             
@@ -3264,7 +3264,7 @@ with main:
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
                 
-                st.subheader("Positive Words by Country")
+                st.subheader("Negative Words per Norm Page")
                 st.plotly_chart(fig_neg, use_container_width=True)
     
     
@@ -3323,7 +3323,7 @@ with main:
                     yaxis_title="Number of Countries",
                     bargap=0.1,
                 )
-                st.subheader("Positive Words Distribution by Country")
+                st.subheader("Positive Words per Norm Page")
                 st.plotly_chart(fig_hist, use_container_width=True)
             
                 # 4) Dasselbe noch für negative Wörter
@@ -3359,7 +3359,7 @@ with main:
                     yaxis_title="Number of Countries",
                     bargap=0.1,
                 )
-                st.subheader("Negative Words Distribution by Country")
+                st.subheader("Negative Words per Norm Page")
                 st.plotly_chart(fig_hist2, use_container_width=True)
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
@@ -3455,7 +3455,7 @@ with main:
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
                 
-                st.subheader("Positive Words by Country")
+                st.subheader("Positive Words per Norm Page")
                 st.plotly_chart(fig_pos, use_container_width=True)
             
             
@@ -3508,7 +3508,7 @@ with main:
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
                 
-                st.subheader("Negative Words by Country")
+                st.subheader("Negative Words per Norm Page")
                 st.plotly_chart(fig_neg, use_container_width=True)
             
             
@@ -3636,7 +3636,7 @@ with main:
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
                 
-                st.subheader("Positive Words by Company")
+                st.subheader("Positive Words per Norm Page")
                 st.plotly_chart(fig_pos, use_container_width=True)
             
             
@@ -3676,7 +3676,7 @@ with main:
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
                 
-                st.subheader("Negative Words by Company")
+                st.subheader("Negative Words per Norm Page")
                 st.plotly_chart(fig_neg, use_container_width=True)
 
     
