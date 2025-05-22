@@ -3192,7 +3192,7 @@ with main:
                     y=["Positive", "Negative"],
                     barmode="group",
                     color_discrete_sequence=["#E10600", "#1f77b4"],
-                    labels={"value": "Count", "variable": "Sentiment", "Group": ""}
+                    labels={"value": "", "variable": "Sentiment", "Group": ""}
                 )
                 # focal country links anzeigen
                 fig_cmp.update_layout(
@@ -3200,8 +3200,8 @@ with main:
                     showlegend=True,
                     legend_title_text=""
                 )
-                fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
-                st.subheader("Peer vs. Country Sentiment")
+                fig_cmp.update_traces(texttemplate="%{y:.2f}", textposition="outside")
+                st.subheader("Pos./Neg. Words per Norm Page")
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
                             
@@ -3229,7 +3229,7 @@ with main:
                         "Other Countries": "#1f77b4"
                     },
                     category_orders={"country": y_order_pos},
-                    labels={"words_pos_500": "# Positive Words", "country": ""}
+                    labels={"words_pos_500": "Positive Words", "country": ""}
                 )
                 # Peer-Average (aller Länder) als schwarze Linie
                 overall_pos = country_avg["words_pos_500"].mean()
@@ -3285,7 +3285,7 @@ with main:
                         "Other Countries": "#1f77b4"
                     },
                     category_orders={"country": y_order_neg},
-                    labels={"words_neg_500": "# Negative Words", "country": ""}
+                    labels={"words_neg_500": "Negative Words", "country": ""}
                 )
                 overall_neg = country_avg["words_neg_500"].mean()
                 fig_neg.add_vline(
@@ -3307,7 +3307,7 @@ with main:
                 # Layout anpassen (Höhe+Margin)
                 fig_neg.update_layout(
                     showlegend=False,
-                    xaxis_title="# Negative Words",
+                    xaxis_title="Negative Words",
                     height=600,
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
@@ -3340,7 +3340,7 @@ with main:
                     x="words_pos_500",
                     nbins=20,
                     opacity=0.8,
-                    labels={"words_pos_500": "# Positive Words"},
+                    labels={"words_pos_500": "Positive Words"},
                 )
                 fig_hist.update_traces(marker_color="#1f77b4")
                 # Fokus-Land als rote Linie
@@ -3367,8 +3367,8 @@ with main:
                 )
                 fig_hist.update_layout(
                     showlegend=False,
-                    xaxis_title="# Positive Words",
-                    yaxis_title="Number of Countries",
+                    xaxis_title="Positive Words",
+                    yaxis_title="Countries",
                     bargap=0.1,
                 )
                 st.subheader("Positive Words per Norm Page")
@@ -3380,7 +3380,7 @@ with main:
                     x="words_neg_500",
                     nbins=20,
                     opacity=0.8,
-                    labels={"words_neg_500": "# Negative Words"},
+                    labels={"words_neg_500": "Negative Words"},
                 )
                 fig_hist2.update_traces(marker_color="#1f77b4")
                 fig_hist2.add_vline(
@@ -3405,33 +3405,41 @@ with main:
                 )
                 fig_hist2.update_layout(
                     showlegend=False,
-                    xaxis_title="# Negative Words",
-                    yaxis_title="Number of Countries",
+                    xaxis_title="Negative Words",
+                    yaxis_title="Countries",
                     bargap=0.1,
                 )
                 st.subheader("Negative Words per Norm Page")
                 st.plotly_chart(fig_hist2, use_container_width=True)
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
-                # Focal-Supersector ermitteln
+                # 1) Focal‐Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-
-                # 1) Durchschnitt pro Supersector
+            
+                # 2) Durchschnitt pro Supersector
                 sector_avg = (
                     df
                     .groupby("supersector")[["words_pos_500", "words_neg_500"]]
                     .mean()
                     .reset_index()
                 )
-
-                # 4) Kompaktvergleich: focal_super vs. alle anderen
+            
+                # Hilfsfunktion: wrappt lange Labels und trennt mit <br>
+                def wrap_label(s, width=20):
+                    return "<br>".join(textwrap.wrap(s, width=width))
+            
+                # 3) „Wrapped“ Sektor‐Bezeichnung anlegen
+                wrapped_focal = wrap_label(focal_super)
+                sector_avg["sector_wrapped"] = sector_avg["supersector"].apply(wrap_label)
+            
+                # 4a) Kompaktvergleich: focal vs. others
                 focal_pos = sector_avg.loc[sector_avg["supersector"] == focal_super, "words_pos_500"].iat[0]
                 focal_neg = sector_avg.loc[sector_avg["supersector"] == focal_super, "words_neg_500"].iat[0]
                 other_pos = sector_avg.loc[sector_avg["supersector"] != focal_super, "words_pos_500"].mean()
                 other_neg = sector_avg.loc[sector_avg["supersector"] != focal_super, "words_neg_500"].mean()
             
                 comp_df = pd.DataFrame({
-                    "Group":    [focal_super, "Other Sectors"],
+                    "Group":    [wrapped_focal, "Other Sectors"],
                     "Positive": [focal_pos,   other_pos],
                     "Negative": [focal_neg,   other_neg]
                 })
@@ -3445,41 +3453,33 @@ with main:
                     labels={"value": "Count", "variable": "Sentiment", "Group": ""}
                 )
                 fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other Sectors"]},
-                    showlegend=True, legend_title_text=""
+                    xaxis={"categoryorder": "array", "categoryarray": [wrapped_focal, "Other Sectors"]},
+                    showlegend=True,
+                    legend_title_text=""
                 )
                 fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
-                st.subheader("Peer vs. Sector Sentiment")
+                st.subheader("Pos./Neg. Words per Norm Page")
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
-                # gekürzte Sektor-Namen
-                sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0, 15)
-            
-                # 2a) Reihenfolge für positive Wörter
-                pos_sec = sector_avg.sort_values("words_pos_500", ascending=False)
+                # 4b) Positive Words per Sector
+                pos_sec = sector_avg.sort_values("words_pos_500", ascending=False).copy()
                 pos_sec["highlight"] = np.where(
                     pos_sec["supersector"] == focal_super,
-                    focal_super,
+                    wrapped_focal,
                     "Other Sectors"
                 )
-                # korrekte Kurz-Orderliste
-                y_order_pos_short = pos_sec["sector_short"].tolist()
+                y_order_pos = pos_sec["sector_wrapped"].tolist()
             
-                # 3a) Bar Chart positive Wörter
                 fig_pos = px.bar(
                     pos_sec,
                     x="words_pos_500",
-                    y="sector_short",                        # Kurzspalte verwenden
+                    y="sector_wrapped",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={focal_super: "red", "Other Sectors": "#1f77b4"},
-                    category_orders={"sector_short": y_order_pos_short},
-                    labels={
-                        "words_pos_500": "# Positive Words",
-                        "sector_short": ""
-                    }
+                    color_discrete_map={wrapped_focal: "red", "Other Sectors": "#1f77b4"},
+                    category_orders={"sector_wrapped": y_order_pos},
+                    labels={"words_pos_500": "Positive Words", "sector_wrapped": ""}
                 )
-                # Linie Peer-Average
                 overall_pos = sector_avg["words_pos_500"].mean()
                 fig_pos.add_vline(
                     x=overall_pos,
@@ -3490,48 +3490,38 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
-                # Texte in die Balken hinein platzieren
                 fig_pos.update_traces(
-                    textposition="inside",  # inside, outside etc.
-                    insidetextanchor="middle",  # zentriert
+                    textposition="inside",
+                    insidetextanchor="middle",
                     textfont=dict(size=12, color="white")
                 )
-                
-                # Layout anpassen (Höhe+Margin)
                 fig_pos.update_layout(
                     showlegend=False,
-                    xaxis_title="# Positive Words",
+                    xaxis_title="Positive Words",
                     height=600,
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
-                
                 st.subheader("Positive Words per Norm Page")
                 st.plotly_chart(fig_pos, use_container_width=True)
             
-            
-                # 2b) Reihenfolge für negative Wörter
-                neg_sec = sector_avg.sort_values("words_neg_500", ascending=False)
+                # 4c) Negative Words per Sector
+                neg_sec = sector_avg.sort_values("words_neg_500", ascending=False).copy()
                 neg_sec["highlight"] = np.where(
                     neg_sec["supersector"] == focal_super,
-                    focal_super,
+                    wrapped_focal,
                     "Other Sectors"
                 )
-                # korrekte Kurz-Orderliste
-                y_order_neg_short = neg_sec["sector_short"].tolist()
+                y_order_neg = neg_sec["sector_wrapped"].tolist()
             
-                # 3b) Bar Chart negative Wörter
                 fig_neg = px.bar(
                     neg_sec,
                     x="words_neg_500",
-                    y="sector_short",
+                    y="sector_wrapped",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={focal_super: "red", "Other Sectors": "#1f77b4"},
-                    category_orders={"sector_short": y_order_neg_short},
-                    labels={
-                        "words_neg_500": "# Negative Words",
-                        "sector_short": ""
-                    }
+                    color_discrete_map={wrapped_focal: "red", "Other Sectors": "#1f77b4"},
+                    category_orders={"sector_wrapped": y_order_neg},
+                    labels={"words_neg_500": "Negative Words", "sector_wrapped": ""}
                 )
                 overall_neg = sector_avg["words_neg_500"].mean()
                 fig_neg.add_vline(
@@ -3543,21 +3533,17 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
-                # Texte in die Balken hinein platzieren
                 fig_neg.update_traces(
-                    textposition="inside",  # inside, outside etc.
-                    insidetextanchor="middle",  # zentriert
+                    textposition="inside",
+                    insidetextanchor="middle",
                     textfont=dict(size=12, color="white")
                 )
-                
-                # Layout anpassen (Höhe+Margin)
                 fig_neg.update_layout(
                     showlegend=False,
-                    xaxis_title="# Negative Words",
+                    xaxis_title="Negative Words",
                     height=600,
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
-                
                 st.subheader("Negative Words per Norm Page")
                 st.plotly_chart(fig_neg, use_container_width=True)
             
@@ -3581,7 +3567,7 @@ with main:
                     x="words_pos_500",
                     nbins=20,
                     opacity=0.8,
-                    labels={"words_pos_500": "# Positive Words"}
+                    labels={"words_pos_500": "Positive Words"}
                 )
                 fig_h1.update_traces(marker_color="#1f77b4")
                 overall_pos = sector_avg["words_pos_500"].mean()
@@ -3591,7 +3577,7 @@ with main:
                 fig_h1.add_vline(x=focal_pos,   line_dash="dash", line_color="red",
                                  annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left", annotation_font_color="red", annotation_font_size=16)
                 fig_h1.update_layout(showlegend=False, xaxis_title="# Positive Words", yaxis_title="Number of Sectors")
-                st.subheader("Positive Words Distribution by Sector")
+                st.subheader("Pos. Words per Norm Page")
                 st.plotly_chart(fig_h1, use_container_width=True)
             
                 # Negative Words Distribution
@@ -3600,7 +3586,7 @@ with main:
                     x="words_neg_500",
                     nbins=20,
                     opacity=0.8,
-                    labels={"words_neg_500": "# Negative Words"}
+                    labels={"words_neg_500": "Negative Words"}
                 )
                 fig_h2.update_traces(marker_color="#1f77b4")
                 overall_neg = sector_avg["words_neg_500"].mean()
@@ -3610,7 +3596,7 @@ with main:
                 fig_h2.add_vline(x=focal_neg,   line_dash="dash", line_color="red",
                                  annotation_text=f"<b>{focal_super} Avg</b>", annotation_position="bottom left")
                 fig_h2.update_layout(showlegend=False, xaxis_title="# Negative Words", yaxis_title="Number of Sectors")
-                st.subheader("Negative Words Distribution by Sector")
+                st.subheader("Neg. Words per Norm Page")
                 st.plotly_chart(fig_h2, use_container_width=True)
                       
             
@@ -3662,7 +3648,7 @@ with main:
                     color="highlight",
                     color_discrete_map={company: "#E10600", "Peers": "#1f77b4"},  # Focal=Rot, Peers=Hellblau
                     category_orders={"company_short": pos_df["company_short"].tolist()},
-                    labels={"words_pos_500": "# Positive Words", "company_short": ""}
+                    labels={"words_pos_500": "Positive Words", "company_short": ""}
                 )
                 fig_pos.add_vline(
                     x=mean_pos,
@@ -3683,7 +3669,7 @@ with main:
                 # Layout anpassen (Höhe+Margin)
                 fig_pos.update_layout(
                     showlegend=False,
-                    xaxis_title="# Positive Words",
+                    xaxis_title="Positive Words",
                     height=600,
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
@@ -3704,7 +3690,7 @@ with main:
                     color="highlight",
                     color_discrete_map={company: "#E10600", "Peers": "#1f77b4"},  # Focal=Rot, Peers=Dunkelblau
                     category_orders={"company_short": neg_df["company_short"].tolist()},
-                    labels={"words_neg_500": "# Negative Words", "company_short": ""}
+                    labels={"words_neg_500": "Negative Words", "company_short": ""}
                 )
                 fig_neg.add_vline(
                     x=mean_neg,
@@ -3725,7 +3711,7 @@ with main:
                 # Layout anpassen (Höhe+Margin)
                 fig_neg.update_layout(
                     showlegend=False,
-                    xaxis_title="# Negative Words",
+                    xaxis_title="Negative Words",
                     height=600,
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
@@ -3741,7 +3727,7 @@ with main:
                 mean_neg  = benchmark_df["words_neg_500"].mean()
                 focal_neg = df.loc[df["company"] == company, "words_neg_500"].iat[0]
                                 
-                st.write("Histogram of positive words")
+                st.subheader("Pos. Words per norm page")
                 fig_h1 = px.histogram(benchmark_df, x="words_pos_500", nbins=20,
                                      )
     
@@ -3767,7 +3753,7 @@ with main:
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
-                fig_h1.update_layout(xaxis_title="Number of positive Words", yaxis_title="Number of Companies")
+                fig_h1.update_layout(xaxis_title="Positive Words", yaxis_title="Companies")
                 st.plotly_chart(fig_h1, use_container_width=True)
                 
                 st.write("Histogram of negative words")
@@ -3795,7 +3781,7 @@ with main:
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
-                fig_h2.update_layout(xaxis_title="Number of negative Words", yaxis_title="Number of Companies")
+                fig_h2.update_layout(xaxis_title="Negative Words", yaxis_title="Companies")
                 st.plotly_chart(fig_h2, use_container_width=True)
     
         elif view == "Standardized Language":
