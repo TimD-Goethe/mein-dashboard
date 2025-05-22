@@ -2140,7 +2140,7 @@ with main:
                 fig2.update_layout(
                     showlegend=False,
                     xaxis_title="Numbers per Norm Page",
-                    yaxis_title="Number of Sectors",
+                    yaxis_title="Sectors",
                     bargap=0.1
                 )
                 st.plotly_chart(fig2, use_container_width=True)
@@ -2285,7 +2285,7 @@ with main:
                 # 4) Achsentitel anpassen
                 fig.update_layout(
                     xaxis_title="Numbers per Norm Page",
-                    yaxis_title="Number of Companies"
+                    yaxis_title="Companies"
                 )
             
                 st.plotly_chart(fig, use_container_width=True)
@@ -2385,7 +2385,7 @@ with main:
                     x="Tables",
                     nbins=20,
                     opacity=0.8,
-                    labels={"Tables": "Tables per 500 words", "_group": "Group"}
+                    labels={"Tables": "Tables per Norm Page", "_group": "Group"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
             
@@ -2414,8 +2414,8 @@ with main:
                 # 5) Layout anpassen
                 fig.update_layout(
                     showlegend=False,
-                    xaxis_title="Tables per 500 words",
-                    yaxis_title="Number of Countries",
+                    xaxis_title="Tables per Norm Page",
+                    yaxis_title="Countries",
                     bargap=0.1,
                 )
                 st.plotly_chart(fig, use_container_width=True)
@@ -2456,7 +2456,7 @@ with main:
                     color="highlight",
                     color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
                     category_orders={"country_short": y_order},
-                    labels={"Tables": "Tables per 500 words", "country_short": ""},
+                    labels={"Tables": "Tables per Norm Page", "country_short": ""},
                 )
             
                 # 7) Linien & Styling
@@ -2500,13 +2500,13 @@ with main:
                     text="Tables",
                     color="Group",
                     color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
-                    labels={"Tables": "Tables per 500 words", "Group": ""}
+                    labels={"Tables": "Tables per Norm Page", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries average"]},
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
             elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
@@ -2523,7 +2523,7 @@ with main:
                     x="Tables",
                     nbins=20,
                     opacity=0.8,
-                    labels={"Tables": "Tables per 500 words"}
+                    labels={"Tables": "Tables per Norm Page"}
                 )
                 fig2.update_traces(marker_color="#1f77b4")
             
@@ -2548,8 +2548,8 @@ with main:
                 # 4) Layout anpassen
                 fig2.update_layout(
                     showlegend=False,
-                    xaxis_title="Tables per 500 words",
-                    yaxis_title="Number of Sectors",
+                    xaxis_title="Tables per Norm Page",
+                    yaxis_title="Sectors",
                     bargap=0.1
                 )
                 st.plotly_chart(fig2, use_container_width=True)
@@ -2568,16 +2568,21 @@ with main:
                     .sort_values("Tables", ascending=False)
                 )
             
-                # 3) Labels kürzen (max. 15 Zeichen)
-                super_avg["super_short"] = super_avg["supersector"].str.slice(0, 15)
+                # Hilfsfunktion: wrappt lange Strings und verbindet mit <br>
+                def wrap_label(s, width=20):
+                    return "<br>".join(textwrap.wrap(s, width=width))
+            
+                # 3) Labels umbrechen statt abschneiden
+                super_avg["super_short"] = super_avg["supersector"].apply(wrap_label)
             
                 # 4) Reihenfolge nach sort_values (absteigend)
                 y_order = super_avg["super_short"].tolist()
             
-                # 5) Highlight fürs eigene Supersector
+                # 5) Highlight fürs eigene Supersector, ebenfalls gewrappt
+                wrapped_focal = wrap_label(focal_super)
                 super_avg["highlight"] = np.where(
-                    super_avg["supersector"] == focal_super,
-                    super_avg["super_short"],
+                    super_avg["super_short"] == wrapped_focal,
+                    wrapped_focal,
                     "Other Sectors"
                 )
             
@@ -2588,9 +2593,9 @@ with main:
                     y="super_short",
                     orientation="h",
                     color="highlight",
-                    color_discrete_map={focal_super: "red", "Other Sectors": "#1f77b4"},
+                    color_discrete_map={wrapped_focal: "red", "Other Sectors": "#1f77b4"},
                     category_orders={"super_short": y_order},
-                    labels={"Tables": "Tables per 500 words", "super_short": ""},
+                    labels={"Tables": "Tables per Norm Page", "super_short": ""}
                 )
             
                 # 7) Peer‐Average‐Linie
@@ -2634,15 +2639,14 @@ with main:
                     text="Tables",
                     color="Group",
                     color_discrete_map={focal_super: "red", "Other sectors average": "#1f77b4"},
-                    labels={"Tables": "Tables per 500 words", "Group": ""}
+                    labels={"Tables": "Tables per Norm Page", "Group": ""}
                 )
                 fig_s_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors average"]},
                     showlegend=False
                 )
-                fig_s_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                fig_s_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_s_cmp, use_container_width=True)
-
 
             elif plot_type == "Histogram":
                 # Einfaches Histogramm aller Unternehmen
@@ -2650,7 +2654,7 @@ with main:
                     plot_df,
                     x="tables_500",
                     nbins=20,
-                    labels={"tables_500": "Tables per 500 Words", "_group": "Group"}
+                    labels={"tables_500": "Tables per Norm Page", "_group": "Group"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
             
@@ -2682,8 +2686,8 @@ with main:
                 )
             
                 fig.update_layout(
-                    xaxis_title="Tables per 500 Words",
-                    yaxis_title="Number of Companies"
+                    xaxis_title="Tables per Norm Page",
+                    yaxis_title="Companies"
                 )
                 st.plotly_chart(fig, use_container_width=True)
             
@@ -2705,7 +2709,7 @@ with main:
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={
-                        "tables_500": "Tables per 500 Words",
+                        "tables_500": "Tables per Norm Page",
                         "company_short": "Company",
                         "highlight_label": ""
                     },
@@ -2741,19 +2745,17 @@ with main:
                     text="Tables",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"Tables": "Tables per 500 Words", "Group": ""}
+                    labels={"Tables": "Tables per Norm Page", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
             
-                st.subheader("Peer vs. Company Tables per 500 Words")
+                st.subheader("Peer vs. Company Tables per Norm Page")
                 st.plotly_chart(fig_cmp, use_container_width=True)
-            
-            # Fußnote
-            st.caption("Number of tables per 500 words in companies' sustainability reports.")
+
 
         elif view == "Images":
             st.subheader(f"Image Size per Norm Page ({benchmark_label})")
