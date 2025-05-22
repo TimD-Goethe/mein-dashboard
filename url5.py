@@ -553,7 +553,7 @@ with main:
                 fig.update_layout(
                     showlegend=False,
                     xaxis_title="Pages",
-                    yaxis_title="Number of Countries",
+                    yaxis_title="Countries",
                     bargap=0.1,
                 )
                 
@@ -691,8 +691,8 @@ with main:
                               annotation_font_size=16)
         
                 fig.update_layout(showlegend=False,
-                                  xaxis_title="Sustainability_Page_Count",
-                                  yaxis_title="Number of Sectors",
+                                  xaxis_title="Pages",
+                                  yaxis_title="Sectors",
                                   bargap=0.1)
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -816,7 +816,7 @@ with main:
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
-                fig.update_layout(xaxis_title="Pages", yaxis_title="Number of Companies")
+                fig.update_layout(xaxis_title="Pages", yaxis_title="Companies")
                 st.plotly_chart(fig, use_container_width=True)
                             
     
