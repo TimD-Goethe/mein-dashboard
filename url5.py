@@ -2160,7 +2160,7 @@ with main:
                 )
             
                 # 3) Labels umbrechen statt abschneiden
-                def wrap_label(s, width=15):
+                def wrap_label(s, width=20):
                     return "<br>".join(textwrap.wrap(s, width=width))
             
                 super_avg["super_short"] = super_avg["supersector"].apply(lambda s: wrap_label(s))
