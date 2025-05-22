@@ -3204,7 +3204,6 @@ with main:
             
             
                 # — 2) Positive Words by Company —
-                st.subheader("Positive Words by Company")
                 pos_df = benchmark_df.sort_values("words_pos_500", ascending=False).copy()
                 pos_df["highlight"] = np.where(pos_df["company"] == company, company, "Peers")
                 pos_df["company_short"] = pos_df["company"].str.slice(0, 15)
@@ -3245,7 +3244,6 @@ with main:
             
             
                 # — 3) Negative Words by Company —
-                st.subheader("Negative Words by Company")
                 neg_df = benchmark_df.sort_values("words_neg_500", ascending=False).copy()
                 neg_df["highlight"] = np.where(neg_df["company"] == company, company, "Peers")
                 neg_df["company_short"] = neg_df["company"].str.slice(0, 15)
