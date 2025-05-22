@@ -278,6 +278,7 @@ with left:
         "Market Cap Peers",
         "All CSRD First Wave",
         "Choose specific peers",
+        "",
         "⭐ Company Sector vs Other Sectors",
         "🌍 Company Country vs Other Countries"
     ]
