@@ -3514,7 +3514,7 @@ with main:
                 )
                 
                 # Layout anpassen (Höhe+Margin)
-                fig_pos.update_layout(
+                fig_neg.update_layout(
                     showlegend=False,
                     xaxis_title="# Negative Words",
                     height=600,
