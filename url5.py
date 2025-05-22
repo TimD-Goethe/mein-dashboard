@@ -3564,7 +3564,7 @@ with main:
                 avg_boiler = mean_boiler
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "Pages": [avg_boiler, focal_boiler]
+                    "boiler_500": [avg_boiler, focal_boiler]
                 })
                 fig_avg = px.bar(
                     comp_df,
