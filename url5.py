@@ -2848,7 +2848,7 @@ with main:
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>All Countries Avg</b>",
-                    annotation_position="top right",
+                    annotation_position="bottom right",
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
@@ -2969,6 +2969,14 @@ with main:
                 # Focal-Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
 
+                # 1) Durchschnitt pro Supersector
+                sector_avg = (
+                    df
+                    .groupby("supersector")[["words_pos_500", "words_neg_500"]]
+                    .mean()
+                    .reset_index()
+                )
+
                 # 4) Kompaktvergleich: focal_super vs. alle anderen
                 focal_pos = sector_avg.loc[sector_avg["supersector"] == focal_super, "words_pos_500"].iat[0]
                 focal_neg = sector_avg.loc[sector_avg["supersector"] == focal_super, "words_neg_500"].iat[0]
@@ -2996,14 +3004,6 @@ with main:
                 fig_cmp.update_traces(texttemplate="%{y:.0f}", textposition="outside")
                 st.subheader("Peer vs. Sector Sentiment")
                 st.plotly_chart(fig_cmp, use_container_width=True)
-            
-                # 1) Durchschnitt pro Supersector
-                sector_avg = (
-                    df
-                    .groupby("supersector")[["words_pos_500", "words_neg_500"]]
-                    .mean()
-                    .reset_index()
-                )
             
                 # gekürzte Sektor-Namen
                 sector_avg["sector_short"] = sector_avg["supersector"].str.slice(0, 15)
@@ -3042,8 +3042,22 @@ with main:
                     annotation_position="bottom right",
                     annotation_font_size=16
                 )
-                fig_pos.update_layout(showlegend=False, xaxis_title="# Positive Words")
-                st.subheader("Positive Words by Sector")
+                # Texte in die Balken hinein platzieren
+                fig_pos.update_traces(
+                    textposition="inside",  # inside, outside etc.
+                    insidetextanchor="middle",  # zentriert
+                    textfont=dict(size=12, color="white")
+                )
+                
+                # Layout anpassen (Höhe+Margin)
+                fig_pos.update_layout(
+                    showlegend=False,
+                    xaxis_title="# Positive Words",
+                    height=600,
+                    margin=dict(l=150, r=20, t=20, b=20)
+                )
+                
+                st.subheader("Positive Words by Country")
                 st.plotly_chart(fig_pos, use_container_width=True)
             
             
@@ -3080,8 +3094,22 @@ with main:
                     annotation_position="bottom right",
                     annotation_font_size=16
                 )
-                fig_neg.update_layout(showlegend=False, xaxis_title="# Negative Words")
-                st.subheader("Negative Words by Sector")
+                # Texte in die Balken hinein platzieren
+                fig_neg.update_traces(
+                    textposition="inside",  # inside, outside etc.
+                    insidetextanchor="middle",  # zentriert
+                    textfont=dict(size=12, color="white")
+                )
+                
+                # Layout anpassen (Höhe+Margin)
+                fig_pos.update_layout(
+                    showlegend=False,
+                    xaxis_title="# Negative Words",
+                    height=600,
+                    margin=dict(l=150, r=20, t=20, b=20)
+                )
+                
+                st.subheader("Negative Words by Country")
                 st.plotly_chart(fig_neg, use_container_width=True)
             
             
@@ -3195,6 +3223,22 @@ with main:
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="bottom right"
                 )
+                # Texte in die Balken hinein platzieren
+                fig_pos.update_traces(
+                    textposition="inside",  # inside, outside etc.
+                    insidetextanchor="middle",  # zentriert
+                    textfont=dict(size=12, color="white")
+                )
+                
+                # Layout anpassen (Höhe+Margin)
+                fig_pos.update_layout(
+                    showlegend=False,
+                    xaxis_title="# Positive Words",
+                    height=600,
+                    margin=dict(l=150, r=20, t=20, b=20)
+                )
+                
+                st.subheader("Positive Words by Country")
                 st.plotly_chart(fig_pos, use_container_width=True)
             
             
@@ -3220,7 +3264,23 @@ with main:
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="bottom right"
                 )
-                st.plotly_chart(fig_neg, use_container_width=True)
+                # Texte in die Balken hinein platzieren
+                fig_neg.update_traces(
+                    textposition="inside",  # inside, outside etc.
+                    insidetextanchor="middle",  # zentriert
+                    textfont=dict(size=12, color="white")
+                )
+                
+                # Layout anpassen (Höhe+Margin)
+                fig_neg.update_layout(
+                    showlegend=False,
+                    xaxis_title="# Negative Words",
+                    height=600,
+                    margin=dict(l=150, r=20, t=20, b=20)
+                )
+                
+                st.subheader("Negative Words by Country")
+                st.plotly_chart(fig_pos, use_container_width=True)
 
     
             elif plot_type == "Histogram":
