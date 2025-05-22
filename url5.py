@@ -3272,7 +3272,7 @@ with main:
                 # Layout anpassen (Höhe+Margin)
                 fig_neg.update_layout(
                     showlegend=False,
-                    xaxis_title="# Positive Words",
+                    xaxis_title="# Negative Words",
                     height=600,
                     margin=dict(l=150, r=20, t=20, b=20)
                 )
