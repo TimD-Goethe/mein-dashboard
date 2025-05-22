@@ -1899,7 +1899,7 @@ with main:
 
         
         elif view == "Numbers":
-            st.subheader(f"Numbers per 500 Words ({benchmark_label})")
+            st.subheader(f"Numbers per Norm Page ({benchmark_label})")
         
             # Peer- und Focal-Werte berechnen
             mean_nums   = benchmark_df["num_o_seit_500"].mean()
@@ -2312,7 +2312,7 @@ with main:
                 st.plotly_chart(fig_avg, use_container_width=True)
 
         elif view == "Tables":
-            st.subheader(f"Tables per 500 Words ({benchmark_label})")
+            st.subheader(f"Tables per Norm Page ({benchmark_label})")
         
             # Peer- und Focal-Werte berechnen
             mean_tables = benchmark_df["tables_500"].mean()
@@ -2710,7 +2710,7 @@ with main:
             st.caption("Number of tables per 500 words in companies’ sustainability reports.")
 
         elif view == "Images":
-            st.subheader(f"Image Size per 500 Words ({benchmark_label})")
+            st.subheader(f"Image Size per Norm Page ({benchmark_label})")
         
             # Peer- und Focal-Werte berechnen
             mean_img = benchmark_df["imgsize_pages"].mean()
