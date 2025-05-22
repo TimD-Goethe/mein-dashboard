@@ -335,12 +335,12 @@ with right:
         "Number of Words": "The total number of words of the sustainability report.",
         "Number of Norm Pages": "Number of Norm Pages converts each text’s total word count into standardized 500-word pages. A value of 2.5 means the document contains the equivalent of 2½ standard pages.",
         "Words in Sentences with ESRS Standard Keywords": "This method utilizes word2vec (Mikolov et al. 2013), an algorithm that learns the meaning of words in a text using a neural networks. We use the resulting textual embeddings to generate a dictionary of keywords for each ESRS. Based on general seed words (e.g., greenhouse gas emissions for E1 climate change), we pick the 500 most similar words based on the embeddings. The resulting list of keywords allows us to broadly capture ESG-related discussions in reporting even before ESRS-specific terminology has been introduced. The main measure shown in this presentation is the number of words from sentences that contain a keyword from one of the 11 ESRS standards.",
-        "Numbers": "Count of Numbers per 500 words",
-        "Tables": "Count of tables per 500 words",
-        "Images": "Average image area per 500 words",
+        "Numbers": "Count of Numbers per Norm Page. A norm page is a standardized 500-word page.",
+        "Tables": "Count of tables per Norm Page. A norm page is a standardized 500-word page.",
+        "Images": "Average image area per Norm Page. A norm page is a standardized 500-word page.",
         "Standardized Language": "Average count of frequently used tetragrams" ,
         "Language Complexity": "Fog-Index, an aggregate measure of readability where higher values suggest more complex and technical language - which may be appropriate in professional sustainability disclosures.",
-        "Sentiment": "Average number of positive and negative words per 500 words",
+        "Sentiment": "Average number of positive and negative words per Norm Page. A norm page is a standardized 500-word page.",
         "Peer Company List": "List of companies included in the peer group based on your choice.",
     }
 
