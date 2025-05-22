@@ -279,22 +279,22 @@ with left:
     "Choose specific peers",
     "⭐ Company Sector vs Other Sectors",
     "🌍 Company Country vs Other Countries"
-]
-captions = [
-    "",     # Sector Peers
-    "",     # Country Peers
-    "",     # Market Cap Peers
-    "",     # All CSRD First Wave
-    "",     # blank above Choose specific peers
-    "",     # actual Choose specific peers–Caption
-    "",     # blank below Choose specific peers
-    "",     # blank above Company Sector vs Other Sectors
-    "Pick exactly which companies you want to compare",  # Caption unter Choose …
-    "",     # blank unter dieser Caption
-    "",     # blank vor Company Sector…
-    "Your sector vs all other sectors",                # Caption unter Company Sector…
-    ""      # blank unter dieser Caption
-]
+    ]
+    captions = [
+        "",     # Sector Peers
+        "",     # Country Peers
+        "",     # Market Cap Peers
+        "",     # All CSRD First Wave
+        "",     # blank above Choose specific peers
+        "",     # actual Choose specific peers–Caption
+        "",     # blank below Choose specific peers
+        "",     # blank above Company Sector vs Other Sectors
+        "Pick exactly which companies you want to compare",  # Caption unter Choose …
+        "",     # blank unter dieser Caption
+        "",     # blank vor Company Sector…
+        "Your sector vs all other sectors",                # Caption unter Company Sector…
+        ""      # blank unter dieser Caption
+    ]
     # (Len=7, genau wie options)
     raw_choice = st.radio("", options, captions=captions, key="benchmark_type")
     
