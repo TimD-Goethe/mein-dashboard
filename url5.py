@@ -2785,7 +2785,7 @@ with main:
                     x="ImageArea",
                     nbins=20,
                     opacity=0.8,
-                    labels={"ImageArea": "Image area per 500 words", "_group": "Group"}
+                    labels={"ImageArea": "Image per Page", "_group": "Group"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
             
@@ -2814,8 +2814,8 @@ with main:
                 # 5) Layout anpassen
                 fig.update_layout(
                     showlegend=False,
-                    xaxis_title="Image area per 500 words",
-                    yaxis_title="Number of Countries",
+                    xaxis_title="Image per Page",
+                    yaxis_title="Countries",
                     bargap=0.1,
                 )
                 st.plotly_chart(fig, use_container_width=True)
@@ -2859,7 +2859,7 @@ with main:
                         "Other Countries": "#1f77b4"
                     },
                     category_orders={"country_short": y_order},
-                    labels={"ImageArea": "Image area per 500 words", "country_short": ""},
+                    labels={"ImageArea": "Image per Page", "country_short": ""},
                 )
             
                 # 7) Linien & Styling
@@ -2903,13 +2903,13 @@ with main:
                     text="ImageArea",
                     color="Group",
                     color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
-                    labels={"ImageArea": "Image area per 500 words", "Group": ""}
+                    labels={"ImageArea": "Image per Page", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_country, "Other countries average"]},
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                fig_cmp.update_traces(texttemplate="%{text:.3f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
             # 1) Histogramm aller Supersector-Durchschnitte
@@ -2927,7 +2927,7 @@ with main:
                     x="ImageArea",
                     nbins=20,
                     opacity=0.8,
-                    labels={"ImageArea": "Image area per 500 words"}
+                    labels={"ImageArea": "Image per Page"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
             
@@ -2945,15 +2945,15 @@ with main:
                 fig.add_vline(
                     x=focal_avg, line_dash="dash", line_color="red",
                     annotation_text=f"<b>{focal_super} Avg</b>",
-                    annotation_position="bottom left",
+                    annotation_position="bottom right",
                     annotation_font_color="red", annotation_font_size=16
                 )
             
                 # 4) Layout anpassen
                 fig.update_layout(
                     showlegend=False,
-                    xaxis_title="Image area per 500 words",
-                    yaxis_title="Number of Sectors",
+                    xaxis_title="Image per Page",
+                    yaxis_title="Sectors",
                     bargap=0.1
                 )
                 st.plotly_chart(fig, use_container_width=True)
@@ -2999,7 +2999,7 @@ with main:
                     color="highlight",
                     color_discrete_map={focal_super: "red", "Other sectors": "#1f77b4"},
                     category_orders={"super_short": y_order},
-                    labels={"super_short": "", "ImageArea": "Image area per 500 words"},
+                    labels={"super_short": "", "ImageArea": "Image per Page"},
                     hover_data={"ImageArea": ":.1f"}
                 )
             
@@ -3043,13 +3043,13 @@ with main:
                     text="ImageArea",
                     color="Group",
                     color_discrete_map={focal_super: "red", "Other sectors average": "#1f77b4"},
-                    labels={"ImageArea": "Image area per 500 words", "Group": ""}
+                    labels={"ImageArea": "Image per Page", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors average"]},
                     showlegend=False
                 )
-                fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
+                fig_cmp.update_traces(texttemplate="%{text:.3f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
 
@@ -3063,7 +3063,7 @@ with main:
                     plot_df,
                     x="imgsize_pages",
                     nbins=20,
-                    labels={"imgsize_pages": "Image area per 500 words", "_group": "Group"}
+                    labels={"imgsize_pages": "Image per Page", "_group": "Group"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
             
@@ -3086,14 +3086,14 @@ with main:
                     line_color="red",
                     opacity=0.8,
                     annotation_text=f"<b>{company}</b>",
-                    annotation_position="bottom left",
+                    annotation_position="bottom right",
                     annotation_font_color="red",
                     annotation_font_size=16,
                 )
             
                 fig.update_layout(
-                    xaxis_title="Image area per 500 words",
-                    yaxis_title="Number of Companies"
+                    xaxis_title="Image per Page",
+                    yaxis_title="Companies"
                 )
                 st.plotly_chart(fig, use_container_width=True)
             
@@ -3115,7 +3115,7 @@ with main:
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={
-                        "imgsize_pages": "Image area per 500 words",
+                        "imgsize_pages": "Image per Page",
                         "company_short": "Company",
                         "highlight_label": ""
                     },
@@ -3151,13 +3151,13 @@ with main:
                     text="ImageArea",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"ImageArea": "Image area per 500 words", "Group": ""}
+                    labels={"ImageArea": "Image per Page", "Group": ""}
                 )
                 fig_avg.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
                 )
-                fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                fig_avg.update_traces(texttemplate="%{text:.3f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_avg, use_container_width=True)
         
     
