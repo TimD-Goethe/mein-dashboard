@@ -910,7 +910,7 @@ with main:
             # 1) Peer-Average berechnen
             mean_words = benchmark_df["words"].mean()
     
-            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -970,7 +970,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
             
             
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+            elif mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -1065,7 +1065,7 @@ with main:
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
              # Histogramm aller Supersector‐Durchschnitte
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 # 1) Durchschnittliche Seitenzahl pro Supersector
                 sector_avg = (
                     df
@@ -1106,7 +1106,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
 
 
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 import textwrap
             
                 # 1) Focal Supersector ermitteln
@@ -1317,7 +1317,7 @@ with main:
             mean_norm_pages = benchmark_df["norm_pages"].mean()
         
             # Company Country vs Other Countries
-            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1a) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
@@ -1369,7 +1369,7 @@ with main:
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+            elif mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 2a) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
@@ -1441,7 +1441,7 @@ with main:
                 st.plotly_chart(fig_cmp, use_container_width=True)
         
             # Company Sector vs Other Sectors
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 sector_avg = (
                     df
                     .groupby("supersector")["norm_pages"]
@@ -1486,7 +1486,7 @@ with main:
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 import textwrap
         
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
@@ -1710,7 +1710,7 @@ with main:
             }
         
             # — 5) Darstellung je nach Benchmark-Typ —
-            if benchmark_type == "Company Country vs Other Countries":
+            if mode == "Company Country vs Other Countries":
                 # a) country ins Long-DF einfügen
                 plot_long = plot_long.merge(
                     benchmark_df[['company','country']],
@@ -1801,7 +1801,7 @@ with main:
                 # Hier Chart B korrekt rendern
                 st.plotly_chart(figB, use_container_width=True)
         
-            elif benchmark_type == "Company Sector vs Other Sectors":
+            elif mode == "Company Sector vs Other Sectors":
                 sector_topic = (
                     plot_long
                     .merge(df[['company','supersector']], on='company')
@@ -1962,7 +1962,7 @@ with main:
             mean_nums   = benchmark_df["num_o_seit_500"].mean()
             focal_nums  = df.loc[df["company"] == company, "num_o_seit_500"].iat[0]
             
-            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
         
@@ -2019,7 +2019,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
     
     
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+            elif mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -2113,7 +2113,7 @@ with main:
                 fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 # 1) Durchschnittliche Numbers pro Supersector
                 sector_avg = (
                     df
@@ -2161,7 +2161,7 @@ with main:
                 st.plotly_chart(fig2, use_container_width=True)
             
             
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 # 1) Focal Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
@@ -2379,7 +2379,7 @@ with main:
             mean_tables = benchmark_df["tables_500"].mean()
             focal_tables = df.loc[df["company"] == company, "tables_500"].iat[0]
         
-            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -2436,7 +2436,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
             
             
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+            elif mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -2524,7 +2524,7 @@ with main:
                 fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 # 1) Durchschnittliche Tabellen-Zahl pro Supersector
                 sector_avg = (
                     df
@@ -2570,7 +2570,7 @@ with main:
                 st.plotly_chart(fig2, use_container_width=True)
             
             
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 # 1) Focal Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
@@ -2779,7 +2779,7 @@ with main:
             mean_img = benchmark_df["imgsize_pages"].mean()
             focal_img = df.loc[df["company"] == company, "imgsize_pages"].iat[0]
         
-            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -2836,7 +2836,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
             
             
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+            elif mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Focal Country ermitteln
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -2928,7 +2928,7 @@ with main:
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
             # 1) Histogramm aller Supersector-Durchschnitte
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 # 1) Durchschnittliche Bildfläche pro Supersector
                 sector_avg = (
                     df
@@ -2974,7 +2974,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
             
             
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 import textwrap
             
                 # 1) Focal Supersector ermitteln
@@ -3178,7 +3178,7 @@ with main:
     
         elif view == "Sentiment":
             
-            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+            if mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
 
                 # 1) Länder-Durchschnitte berechnen
@@ -3331,7 +3331,7 @@ with main:
                 st.plotly_chart(fig_neg, use_container_width=True)
     
     
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            elif mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Fokus-Land
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
             
@@ -3427,7 +3427,7 @@ with main:
                 st.subheader("Negative Words per Norm Page")
                 st.plotly_chart(fig_hist2, use_container_width=True)
 
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 # 1) Focal‐Supersector ermitteln
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
@@ -3564,7 +3564,7 @@ with main:
             
             
             # Histogram: Verteilung der Supersector-Durchschnitte
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
             
                 sector_avg = (
@@ -3807,7 +3807,7 @@ with main:
             focal_boiler  = df.loc[df["company"] == company, "boiler_500"].iat[0]
         
             
-            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Länder-Durchschnitt vorbereiten
                 country_avg = (
                     df
@@ -3850,7 +3850,7 @@ with main:
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+            elif mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
                 # 1) Länder-Durchschnitt sortieren
                 country_avg = (
@@ -3919,7 +3919,7 @@ with main:
                 fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
             
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 # 1) Durchschnittliche Standardized Language pro Supersector
                 sector_avg = (
                     df
@@ -3961,7 +3961,7 @@ with main:
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 import textwrap
         
                 # 1) Durchschnitt pro Supersector, absteigend sortiert
@@ -4137,7 +4137,7 @@ with main:
             focal_fog = df.loc[df["company"] == company, "fog_avg"].iat[0]
     
     
-            if benchmark_type == "Company Country vs Other Countries" and plot_type == "Histogram":
+            if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Länder-Durchschnitt der Fog-Avg vorbereiten
                 country_avg = (
                     df
@@ -4189,7 +4189,7 @@ with main:
                 )
                 st.plotly_chart(fig, use_container_width=True)
         
-            elif benchmark_type == "Company Country vs Other Countries" and plot_type == "Bar Chart":
+            elif mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 # 1) Durchschnitt pro Country (fog_avg) und Sortierung
                 country_avg = (
                     df
@@ -4281,7 +4281,7 @@ with main:
             # Between Sector Comparison für Fog-Index
             # —————————————————————————————————————————————————————————————————————————————————
         
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                 # 1) Durchschnittliche FOG-Werte pro Supersector
                 sector_avg = (
                     df
@@ -4332,7 +4332,7 @@ with main:
                 st.plotly_chart(fig, use_container_width=True)
             
             
-            elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
+            elif mode == "Company Sector vs Other Sectors" and plot_type == "Bar Chart":
                 import textwrap
             
                 # 1) Focal Supersector ermitteln
