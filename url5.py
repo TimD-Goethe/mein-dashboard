@@ -285,7 +285,7 @@ with left:
         "",     # Country Peers
         "",     # Market Cap Peers
         "",     # All CSRD First Wave
-        "Hallo",     # blank above Choose specific peers
+        "-------------------------",     # blank above Choose specific peers
         "_________________________",     # actual Choose specific peers–Caption
         "",     # blank below Choose specific peers
         
