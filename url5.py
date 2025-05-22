@@ -1400,7 +1400,8 @@ with main:
                     xaxis_tickformat=',.0%',
                     legend=dict(title='ESRS Topic', itemsizing='constant'),
                     height=600,
-                    margin=dict(l=150, r=20, t=20, b=20)
+                    margin=dict(l=150, r=20, t=20, b=20),
+                    showlegend=False
                 )
             
                 # Hier Chart B korrekt rendern
