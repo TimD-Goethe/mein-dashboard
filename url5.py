@@ -299,7 +299,7 @@ with left:
     # 4) Wenn „Choose specific peers“ gewählt, Multiselect anzeigen
     if benchmark_type == "Choose specific peers":
         peer_selection = st.multiselect(
-            "Or choose specific peer companies:",
+            "Choose specific peer companies:",
             options=company_list,
             default=[]
         )
