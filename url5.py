@@ -2796,10 +2796,25 @@ with main:
                     annotation_font_color="black",
                     annotation_font_size=16
                 )
-                fig_pos.update_layout(showlegend=False, xaxis_title="# Positive Words")
+
+                # Texte in die Balken hinein platzieren
+                fig_pos.update_traces(
+                    textposition="inside",  # inside, outside etc.
+                    insidetextanchor="middle",  # zentriert
+                    textfont=dict(size=12, color="white")
+                )
+                
+                # Layout anpassen (Höhe+Margin)
+                fig_pos.update_layout(
+                    showlegend=False,
+                    xaxis_title="# Positive Words",
+                    height=600,
+                    margin=dict(l=150, r=20, t=20, b=20)
+                )
+                
                 st.subheader("Positive Words by Country")
                 st.plotly_chart(fig_pos, use_container_width=True)
-            
+                          
             
                 # 4) Dasselbe für negative Wörter
                 neg_ctry = country_avg.sort_values("words_neg_500", ascending=False)
