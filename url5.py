@@ -3376,16 +3376,8 @@ with main:
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.1f}", textposition="outside", width=0.5)
                 st.plotly_chart(fig_cmp, use_container_width=True)
-        
-        
-            elif view == "Standardized Language":
-                st.subheader(f"Standardized Language per 500 Words ({benchmark_label})")
             
-                # Peer‐ und Focal‐Werte berechnen
-                mean_stdlang  = benchmark_df["boiler_500"].mean()
-                focal_stdlang = df.loc[df["company"] == company, "boiler_500"].iat[0]
-            
-                if benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
+                elif benchmark_type == "Company Sector vs Other Sectors" and plot_type == "Histogram":
                     # 1) Durchschnittliche Standardized Language pro Supersector
                     sector_avg = (
                         df
@@ -3527,36 +3519,70 @@ with main:
             
                 # — **Alle Peers**: Bar Chart über boiler_500 —
                 elif plot_type == "Bar Chart":
-                    peers_df = benchmark_df.sort_values("boiler_500", ascending=False).copy()
-                    peers_df["company_short"] = peers_df["company"].str.slice(0,15)
-                    order_short = peers_df["company_short"].tolist()
-                    peers_df["highlight"] = np.where(
-                        peers_df["company"] == company,
-                        peers_df["company_short"],
-                        "Peers"
-                    )
-            
+                    # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken nach Wert absteigend sortieren
+                    peers_df = plot_df.sort_values("boiler_500", ascending=False)
+                    mean_boiler = benchmark_df["boiler_500"].mean()
+                
+                    # 2) Kurz-Namen für die Y-Achse, damit sie nicht zu lang werden
+                    peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
+                    y_order_short = peers_df["company_short"].tolist()[::-1]
+                
+                    # 3) Horizontales Balkendiagramm erstellen
                     fig2 = px.bar(
                         peers_df,
                         x="boiler_500",
                         y="company_short",
                         orientation="h",
-                        color="highlight",
+                        color="highlight_label",
                         color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                        category_orders={"company_short": order_short},
-                        labels={"boiler_500":"Standardized Language","company_short":""}
+                        labels={
+                            "boiler_500": "Frequently used telegrams",
+                            "company_short": "Company",
+                            "highlight_label": ""
+                        },
+                        category_orders={"company_short": y_order_short},
                     )
-                    # Peer-Average Linie
-                    fig2.add_vline(x=mean_boiler,
-                                   line_dash="dash", line_color="black",
-                                   annotation_text="<b>Peer Avg</b>",
-                                   annotation_position="bottom right")
-                    fig2.update_traces(texttemplate="%{x:.2f}", textposition="outside", cliponaxis=False)
-                    fig2.update_layout(showlegend=False)
+                
+                    # 4) Peer-Average-Linie hinzufügen
+                    fig2.add_vline(
+                        x=mean_boiler,
+                        line_dash="dash",
+                        line_color="black",
+                        annotation_text="<b>Peer Average</b>",
+                        annotation_position="bottom right",
+                        annotation_font_color="black",
+                        annotation_font_size=16,
+                    )
+                
+                    # 5) Einheitliches Styling direkt hier anwenden
+                    fig2 = smart_layout(fig2, len(peers_df))
+                
+                    # 6) Chart ausgeben
                     st.plotly_chart(fig2, use_container_width=True)
-            
-                # Fußnote
-                st.caption("Standardized Language (boilergrams per 500 words)")
+                
+                    # — Vertikaler Vergleich Peer Average vs. Focal Company —
+                    avg_pages = mean_pages
+                    comp_df = pd.DataFrame({
+                        "Group": ["Peer Average", company],
+                        "Pages": [avg_boiler, focal_boiler]
+                    })
+                    fig_avg = px.bar(
+                        comp_df,
+                        x="Group",
+                        y="boiler_500",
+                        text="boiler_500",
+                        color="Group",
+                        color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
+                        labels={"boiler_500": "Frequently used telegrams", "Group": ""}
+                    )
+                    # rote Firma links anzeigen
+                    fig_avg.update_layout(
+                        xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
+                        showlegend=False
+                    )
+                    fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                
+                    st.plotly_chart(fig_avg, use_container_width=True)
 
         
         elif view == "Language Complexity":
