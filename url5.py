@@ -3540,9 +3540,10 @@ with main:
                         "company_short": "Company",
                         "highlight_label": ""
                     },
-                    showlegend=False,
                     category_orders={"company_short": y_order_short},
                 )
+
+                fig2.update_layout(showlegend=False)
             
                 # 4) Peer-Average-Linie hinzufügen
                 fig2.add_vline(
@@ -3937,9 +3938,10 @@ with main:
                         "company_short": "Company",
                         "highlight_label": ""
                     },
-                    showlegend=False,
                     category_orders={"company_short": y_order_short},
                 )
+
+                fig2.update_layout(showlegend=False)
             
                 # 4) Peer-Average-Linie hinzufügen
                 fig2.add_vline(
