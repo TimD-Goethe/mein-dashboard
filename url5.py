@@ -285,7 +285,7 @@ with left:
         "",     # Country Peers
         "",     # Market Cap Peers
         "",     # All CSRD First Wave
-        r"\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-",     # blank above Choose specific peers
+        r"\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ ",     # blank above Choose specific peers
         r"\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ ",     # actual Choose specific peers–Caption
         "",     # blank below Choose specific peers
         
