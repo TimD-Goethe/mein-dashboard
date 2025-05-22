@@ -303,7 +303,7 @@ with right:
         "Number of Pages",
         "Number of Words",
         "Number of Norm Pages",
-        "Words per ESRS standard",
+        "Words in Sentences with ESRS Standard Keywords",
         "Numbers",
         "Tables",
         "Images",
