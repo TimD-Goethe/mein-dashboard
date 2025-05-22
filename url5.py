@@ -3874,111 +3874,105 @@ with main:
                     
                     
             elif plot_type == "Histogram":
-                fig_fog = px.histogram(
-                    plot_df, x="fog_avg", nbins=20,
-                    labels={"fog": "Fog Index"}
+                # Histogramm der FOG-Werte aller Unternehmen
+                fig = px.histogram(
+                    plot_df,
+                    x="fog_avg",
+                    nbins=20,
+                    labels={
+                        "fog_avg": "FOG Average",
+                        "_group": "Group"
+                    }
                 )
-                # Peer Average
-                fig_fog.add_vline(
-                    x=mean_fog,
-                    line_dash="dash", line_color="black", line_width=1, opacity=0.6,
+                # 4) Alle Balken in Dunkelblau
+                fig.update_traces(marker_color="#1f77b4")
+                # Vertikale Linien für Peer und Focal
+                fig.add_vline(
+                    x=mean_pages,
+                    line_dash="dash",
+                    line_color="black",
+                    line_width=1,
+                    opacity=0.6,
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="top right",
                     annotation_font_color="black",
-                    annotation_font_size=16,
+                    annotation_font_size=16
                 )
-                # Focal Company
-                fig_fog.add_vline(
-                    x=focal_fog,
-                    line_dash="dash", line_color="red", opacity=0.8,
+                fig.add_vline(
+                    x=focal_pages,
+                    line_dash="dash",
+                    line_color="red",
+                    opacity=0.8,
                     annotation_text=f"<b>{company}</b>",
                     annotation_position="bottom left",
                     annotation_font_color="red",
-                    annotation_font_size=16,
+                    annotation_font_size=16
                 )
-                fig_fog.update_layout(
-                    xaxis_title="Fog Index",
-                    yaxis_title="Number of Companies",
+                fig.update_layout(
+                    xaxis_title="FOG Average",
+                    yaxis_title="Number of Companies"
                 )
-                st.plotly_chart(fig_fog, use_container_width=True)
-        
+                st.plotly_chart(fig, use_container_width=True)
+            
             elif plot_type == "Bar Chart":
-                # 1) sortieren und Highlight-Spalte
-                peers_fog = plot_df.sort_values("fog_avg", ascending=False)
-                peers_fog["highlight_label"] = np.where(
-                    peers_fog["company"] == company, company, "Peers"
-                )
+                # 1) Peers nach FOG-Wert sortieren (absteigend)
+                peers_df = plot_df.sort_values("fog_avg", ascending=False)
+                mean_pages = benchmark_df["fog_avg"].mean()
             
-                # 2) Kurzspalte anlegen (max. 15 Zeichen)
-                peers_fog["company_short"] = peers_fog["company"].str.slice(0, 15)
+                # 2) Kurz-Namen für Y-Achse
+                peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
+                y_order_short = peers_df["company_short"].tolist()[::-1]
             
-                # 3) Reihenfolge für die Kurzspalte umdrehen
-                y_order_short = peers_fog["company_short"].tolist()[::-1]
-            
-                # 4) Bar Chart gegen company_short zeichnen
-                fig_fog_bar = px.bar(
-                    peers_fog,
+                # 3) Horizontaler Bar-Chart
+                fig2 = px.bar(
+                    peers_df,
                     x="fog_avg",
-                    y="company_short",                   # <<< Kurzspalte verwenden
+                    y="company_short",
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={
-                        "fog":           "Fog Index",
+                        "fog_avg": "FOG Average",
                         "company_short": "Company",
                         "highlight_label": ""
                     },
-                    category_orders={"company_short": y_order_short},
-                    hover_data=["company"]               # <<< Voller Name im Tooltip
+                    category_orders={"company_short": y_order_short}
                 )
-            
-                # 5) Peer‐Average Linie
-                fig_fog_bar.add_vline(
-                    x=mean_fog,
+                # 4) Peer Average Linie
+                fig2.add_vline(
+                    x=mean_pages,
                     line_dash="dash",
                     line_color="black",
                     annotation_text="<b>Peer Average</b>",
                     annotation_position="bottom right",
                     annotation_font_color="black",
-                    annotation_font_size=16,
+                    annotation_font_size=16
                 )
+                # 5) Styling & Layout
+                fig2 = smart_layout(fig2, len(peers_df))
+                st.plotly_chart(fig2, use_container_width=True)
             
-                # 6) Layout anpassen
-                fig_fog_bar.update_layout(
-                    showlegend=True,
-                    legend_title_text="",
-                    yaxis={
-                        "categoryorder": "array",
-                        "categoryarray": y_order_short
-                    },
-                )
-            
-                st.plotly_chart(fig_fog_bar, use_container_width=True)
-            
-                # --- Vergleichsbalken bleibt unverändert ---
-                comp_fog = pd.DataFrame({
+                # — Vertikaler Vergleich Peer vs. Focal —
+                comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "Fog":   [mean_fog,      focal_fog],
+                    "FogAvg": [mean_pages, focal_pages]
                 })
-                fig_fog_cmp = px.bar(
-                    comp_fog,
+                fig_avg = px.bar(
+                    comp_df,
                     x="Group",
-                    y="Fog",
-                    text="Fog",
+                    y="FogAvg",
+                    text="FogAvg",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"Fog": "Fog Index", "Group": ""}
+                    labels={"FogAvg": "FOG Average", "Group": ""}
                 )
-                fig_fog_cmp.update_layout(
+                # Rote Firma links anzeigen
+                fig_avg.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
                     showlegend=False
                 )
-                fig_fog_cmp.update_traces(
-                    texttemplate="%{text:.1f}",
-                    textposition="outside",
-                    width=0.5
-                )
-                st.plotly_chart(fig_fog_cmp, use_container_width=True)
+                fig_avg.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
+                st.plotly_chart(fig_avg, use_container_width=True)
             
                 st.caption("Fog index (Gunning’s language complexity measure).")
         
