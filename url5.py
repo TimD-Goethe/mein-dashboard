@@ -369,7 +369,7 @@ with right:
 
     st.header("Chart Type")
 
-    if view == "Words per ESRS standard":
+    if view == "Words in Sentences with ESRS Standard Keywords":
         # bei ESRS only Bar Chart erlauben
         plot_type = st.radio(
             "",
