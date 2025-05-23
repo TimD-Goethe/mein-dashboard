@@ -2695,8 +2695,8 @@ with main:
             st.subheader(f"Image Size per Norm Page ({benchmark_label})")
         
             # Peer- und Focal-Werte berechnen
-            mean_img = benchmark_df["imgsize_pages"].mean()
-            focal_img = df.loc[df["company"] == company, "imgsize_pages"].iat[0]
+            mean_img = benchmark_df["imgsize"].mean()
+            focal_img = df.loc[df["company"] == company, "imgsize"].iat[0]
         
             if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
@@ -2705,7 +2705,7 @@ with main:
                 # 2) Länder-Durchschnitt vorbereiten, Spalte in "ImageArea" umbenennen
                 country_avg = (
                     df
-                    .groupby("country")["imgsize_pages"]
+                    .groupby("country")["imgsize"]
                     .mean()
                     .reset_index(name="ImageArea")
                 )
@@ -2762,7 +2762,7 @@ with main:
                 # 2) Durchschnitt pro Country und Sortierung (absteigend)
                 country_avg = (
                     df
-                    .groupby("country")["imgsize_pages"]
+                    .groupby("country")["imgsize"]
                     .mean()
                     .reset_index(name="ImageArea")
                     .sort_values("ImageArea", ascending=False)
@@ -2797,7 +2797,7 @@ with main:
                 )
             
                 # 7) Linien & Styling
-                overall_avg = df["imgsize_pages"].mean()
+                overall_avg = df["imgsize"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -2851,7 +2851,7 @@ with main:
                 # 1) Durchschnittliche Bildfläche pro Supersector
                 sector_avg = (
                     df
-                    .groupby("supersector")["imgsize_pages"]
+                    .groupby("supersector")["imgsize"]
                     .mean()
                     .reset_index(name="ImageArea")
                 )
@@ -2902,7 +2902,7 @@ with main:
                 # 2) Durchschnittliche Bildfläche pro Supersector, absteigend sortiert
                 super_avg = (
                     df
-                    .groupby("supersector")["imgsize_pages"]
+                    .groupby("supersector")["imgsize"]
                     .mean()
                     .reset_index(name="ImageArea")
                     .sort_values("ImageArea", ascending=False)
@@ -2989,15 +2989,15 @@ with main:
 
             elif plot_type == "Histogram":
                 # Peer- und Focal-Werte berechnen
-                mean_images  = benchmark_df["imgsize_pages"].mean()
-                focal_images = df.loc[df["company"] == company, "imgsize_pages"].iat[0]
+                mean_images  = benchmark_df["imgsize"].mean()
+                focal_images = df.loc[df["company"] == company, "imgsize"].iat[0]
             
                 # Histogramm aller Peer-Unternehmen nach Bildfläche
                 fig = px.histogram(
                     plot_df,
-                    x="imgsize_pages",
+                    x="imgsize",
                     nbins=20,
-                    labels={"imgsize_pages": "Image per Page", "_group": "Group"}
+                    labels={"imgsize": "Image per Page", "_group": "Group"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
             
@@ -3034,22 +3034,22 @@ with main:
             
             elif plot_type == "Bar Chart":
                 # 1) Peer-Detail-Chart nach Bildfläche absteigend sortieren
-                peers_df     = plot_df.sort_values("imgsize_pages", ascending=False)
+                peers_df     = plot_df.sort_values("imgsize", ascending=False)
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
                 y_order_short           = peers_df["company_short"].tolist()[::-1]
             
-                mean_images  = benchmark_df["imgsize_pages"].mean()
-                focal_images = df.loc[df["company"] == company, "imgsize_pages"].iat[0]
+                mean_images  = benchmark_df["imgsize"].mean()
+                focal_images = df.loc[df["company"] == company, "imgsize"].iat[0]
             
                 fig2 = px.bar(
                     peers_df,
-                    x="imgsize_pages",
+                    x="imgsize",
                     y="company_short",
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={
-                        "imgsize_pages": "Image per Page",
+                        "imgsize": "Image per Page",
                         "company_short": "Company",
                         "highlight_label": ""
                     },
