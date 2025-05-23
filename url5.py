@@ -464,7 +464,7 @@ focal_words = df.loc[df["company"] == company, "words"].iat[0]
 with main:
     header_col, _ = st.columns([3, 1], gap="large")
     with header_col:
-        st.header("CSRD Dashboard")
+        st.header("CSRD Benchmarking Dashboard")
         st.markdown(
             """
             <p style="
