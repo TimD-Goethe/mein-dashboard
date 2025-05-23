@@ -1677,7 +1677,7 @@ with main:
             benchmark_df = benchmark_df.loc[mask].copy() 
 
             # 3) Wenn keine Firma übrig ist, Warnung ausgeben und zurück
-            if filtered_df.empty:
+            if benchmark_df.empty:
                 st.warning("Unfortunately, no data available for that benchmarking type.")
             else:
         
