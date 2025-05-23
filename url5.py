@@ -4052,7 +4052,7 @@ with main:
             st.subheader(f"Language Complexity ({benchmark_label})")
         
             # 1) Peer-Average und Focal-Wert holen
-            mean_fog  = benchmark_df["fog_"].mean()
+            mean_fog  = benchmark_df["fog"].mean()
             focal_fog = df.loc[df["company"] == company, "fog"].iat[0]
     
     
