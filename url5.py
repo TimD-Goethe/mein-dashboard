@@ -4545,7 +4545,7 @@ with main:
             # 1) DataFrame ohne echten Index
             df_display = (
                 benchmark_df
-                [["company","country","SASB_industry","Sustainability_Page_Count","words"]]
+                [["company","country","SASB industry","Sustainability_Page_Count","words"]]
                 .sort_values(by="Sustainability_Page_Count")
                 .reset_index(drop=True)
             )
