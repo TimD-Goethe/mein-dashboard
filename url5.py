@@ -3722,15 +3722,15 @@ with main:
             st.subheader(f"Standardized Language ({benchmark_label})")
             
             # Mittelwert und Focal-Wert ermitteln
-            mean_boiler   = benchmark_df["boiler_500"].mean()
-            focal_boiler  = df.loc[df["company"] == company, "boiler_500"].iat[0]
+            mean_boiler   = benchmark_df["boilergrams_500"].mean()
+            focal_boiler  = df.loc[df["company"] == company, "boilergrams_500"].iat[0]
         
             
             if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Länder-Durchschnitt vorbereiten
                 country_avg = (
                     df
-                    .groupby("country")["boiler_500"]
+                    .groupby("country")["boilergrams_500"]
                     .mean()
                     .reset_index(name="StdLang")
                 )
@@ -3774,7 +3774,7 @@ with main:
                 # 1) Länder-Durchschnitt sortieren
                 country_avg = (
                     df
-                    .groupby("country")["boiler_500"]
+                    .groupby("country")["boilergrams_500"]
                     .mean()
                     .reset_index(name="StdLang")
                     .sort_values("StdLang", ascending=False)
@@ -3800,7 +3800,7 @@ with main:
                 )
         
                 # 3) Peer-Average-Linie
-                overall_avg = df["boiler_500"].mean()
+                overall_avg = df["boilergrams_500"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg, line_dash="dash", line_color="black", line_width=2,
                     annotation_text="<b>Peer Average</b>", annotation_position="bottom right",
@@ -3842,7 +3842,7 @@ with main:
                 # 1) Durchschnittliche Standardized Language pro Supersector
                 sector_avg = (
                     df
-                    .groupby("supersector")["boiler_500"]
+                    .groupby("supersector")["boilergrams_500"]
                     .mean()
                     .reset_index(name="StdLang")
                 )
@@ -3886,7 +3886,7 @@ with main:
                 # 1) Durchschnitt pro Supersector, absteigend sortiert
                 sector_avg = (
                     df
-                    .groupby("supersector")["boiler_500"]
+                    .groupby("supersector")["boilergrams_500"]
                     .mean()
                     .reset_index(name="StdLang")
                     .sort_values("StdLang", ascending=False)
@@ -3963,10 +3963,10 @@ with main:
                 # Einfach alle Companies im Benchmark_df
                 fig = px.histogram(
                     benchmark_df,
-                    x="boiler_500",
+                    x="boilergrams_500",
                     nbins=20,
                     opacity=0.8,
-                    labels={"boiler_500":"Standardized Language","":""}
+                    labels={"boilergrams_500":"Standardized Language","":""}
                 )
                 fig.update_traces(marker_color="#1f77b4")
                 # Peer-Average (schwarz) und Focal (rot)
@@ -3981,8 +3981,8 @@ with main:
             # — **Alle Peers**: Bar Chart über boiler_500 —
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken nach Wert absteigend sortieren
-                peers_df = plot_df.sort_values("boiler_500", ascending=False)
-                mean_boiler = benchmark_df["boiler_500"].mean()
+                peers_df = plot_df.sort_values("boilergrams_500", ascending=False)
+                mean_boiler = benchmark_df["boilergrams_500"].mean()
             
                 # 2) Kurz-Namen für die Y-Achse, damit sie nicht zu lang werden
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
@@ -3991,7 +3991,7 @@ with main:
                 # 3) Horizontales Balkendiagramm erstellen
                 fig2 = px.bar(
                     peers_df,
-                    x="boiler_500",
+                    x="boilergrams_500",
                     y="company_short",
                     orientation="h",
                     color="highlight_label",
@@ -4027,16 +4027,16 @@ with main:
                 avg_boiler = mean_boiler
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "boiler_500": [avg_boiler, focal_boiler]
+                    "boilergrams_500": [avg_boiler, focal_boiler]
                 })
                 fig_avg = px.bar(
                     comp_df,
                     x="Group",
-                    y="boiler_500",
-                    text="boiler_500",
+                    y="boilergrams_500",
+                    text="boilergrams_500",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"boiler_500": "Tetragrams per Norm Page", "Group": ""}
+                    labels={"boilergrams_500": "Tetragrams per Norm Page", "Group": ""}
                 )
                 # rote Firma links anzeigen
                 fig_avg.update_layout(
