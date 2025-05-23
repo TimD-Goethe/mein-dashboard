@@ -1878,8 +1878,8 @@ with main:
             st.subheader(f"Numbers per Norm Page ({benchmark_label})")
         
             # Peer- und Focal-Werte berechnen
-            mean_nums   = benchmark_df["num_o_seit_500"].mean()
-            focal_nums  = df.loc[df["company"] == company, "num_o_seit_500"].iat[0]
+            mean_nums   = benchmark_df["nums_500"].mean()
+            focal_nums  = df.loc[df["company"] == company, "nums_500"].iat[0]
             
             if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
@@ -1888,7 +1888,7 @@ with main:
                 # 2) Länder‐Durchschnitt vorbereiten, Spalte in "Numbers" umbenennen
                 country_avg = (
                     df
-                    .groupby("country")["num_o_seit_500"]
+                    .groupby("country")["nums_500"]
                     .mean()
                     .reset_index(name="Numbers")
                 )
@@ -1945,10 +1945,10 @@ with main:
                 # 2) Durchschnitt pro Country und Sortierung (absteigend)
                 country_avg = (
                     df
-                    .groupby("country")["num_o_seit_500"]
+                    .groupby("country")["nums_500"]
                     .mean()
-                    .reset_index(name="num_o_seit_500")
-                    .sort_values("num_o_seit_500", ascending=False)
+                    .reset_index(name="nums_500")
+                    .sort_values("nums_500", ascending=False)
                 )
             
                 # 3) Labels kürzen (max. 15 Zeichen)
@@ -1967,7 +1967,7 @@ with main:
                 # 6) Bar-Chart erzeugen mit category_orders
                 fig_ctry = px.bar(
                     country_avg,
-                    x="num_o_seit_500",
+                    x="nums_500",
                     y="country_short",
                     orientation="h",
                     color="highlight",
@@ -1976,11 +1976,11 @@ with main:
                         "Other Countries": "#1f77b4"
                     },
                     category_orders={"country_short": y_order},
-                    labels={"num_o_seit_500": "Numbers per Norm Page", "country_short": ""},
+                    labels={"nums_500": "Numbers per Norm Page", "country_short": ""},
                 )
             
                 # 7) Linien & Styling
-                overall_avg = df["num_o_seit_500"].mean()
+                overall_avg = df["nums_500"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -2009,18 +2009,18 @@ with main:
                 comp_df = pd.DataFrame({
                     "Group": [focal_country, "Other countries average"],
                     "num_o_seit_500": [
-                        country_avg.loc[country_avg["country"] == focal_country, "num_o_seit_500"].iat[0],
-                        country_avg.loc[country_avg["country"] != focal_country, "num_o_seit_500"].mean()
+                        country_avg.loc[country_avg["country"] == focal_country, "nums_500"].iat[0],
+                        country_avg.loc[country_avg["country"] != focal_country, "nums_500"].mean()
                     ]
                 })
                 fig_cmp = px.bar(
                     comp_df,
                     x="Group",
-                    y="num_o_seit_500",
-                    text="num_o_seit_500",
+                    y="nums_500",
+                    text="nums_500",
                     color="Group",
                     color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
-                    labels={"num_o_seit_500": "Numbers per Norm Page", "Group": ""}
+                    labels={"nums_500": "Numbers per Norm Page", "Group": ""}
                 )
                 fig_cmp.update_layout(
                     xaxis={
@@ -2036,7 +2036,7 @@ with main:
                 # 1) Durchschnittliche Numbers pro Supersector
                 sector_avg = (
                     df
-                    .groupby("supersector")["num_o_seit_500"]
+                    .groupby("supersector")["nums_500"]
                     .mean()
                     .reset_index(name="Numbers")
                 )
@@ -2087,7 +2087,7 @@ with main:
                 # 2) Durchschnitt pro Supersector und Sortierung (absteigend)
                 super_avg = (
                     df
-                    .groupby("supersector")["num_o_seit_500"]
+                    .groupby("supersector")["nums_500"]
                     .mean()
                     .reset_index(name="Numbers")
                     .sort_values("Numbers", ascending=False)
@@ -2180,16 +2180,16 @@ with main:
             
             elif plot_type == "Histogram":
                 # 1) Peer- und Focal-Werte berechnen
-                mean_numbers  = benchmark_df["num_o_seit_500"].mean()
-                focal_numbers = df.loc[df["company"] == company, "num_o_seit_500"].iat[0]
+                mean_numbers  = benchmark_df["nums_500"].mean()
+                focal_numbers = df.loc[df["company"] == company, "nums_500"].iat[0]
             
                 # 2) Histogramm aller Peer-Unternehmen nach Numbers
                 fig = px.histogram(
                     plot_df,
-                    x="num_o_seit_500",
+                    x="nums_500",
                     nbins=20,
                     opacity=0.8,
-                    labels={"num_o_seit_500": "Numbers per Norm Page", "_group": "Group"}
+                    labels={"nums_500": "Numbers per Norm Page", "_group": "Group"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
             
@@ -2227,9 +2227,9 @@ with main:
             
             elif plot_type == "Bar Chart":
                 # 1) Sortieren nach Numbers
-                peers_df     = plot_df.sort_values("num_o_seit_500", ascending=False)
-                mean_numbers = benchmark_df["num_o_seit_500"].mean()
-                focal_numbers = df.loc[df["company"] == company, "num_o_seit_500"].iat[0]
+                peers_df     = plot_df.sort_values("nums_500", ascending=False)
+                mean_numbers = benchmark_df["nums_500"].mean()
+                focal_numbers = df.loc[df["company"] == company, "nums_500"].iat[0]
             
                 # 2) Kurz-Namen für die Y-Achse
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
@@ -2238,13 +2238,13 @@ with main:
                 # 3) Horizontalen Bar‐Chart erzeugen
                 fig2 = px.bar(
                     peers_df,
-                    x="num_o_seit_500",
+                    x="nums_500",
                     y="company_short",
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
                     labels={
-                        "num_o_seit_500": "Numbers per Norm Page",
+                        "nums_500": "Numbers per Norm Page",
                         "company_short": "Company",
                         "highlight_label": ""
                     },
@@ -2272,16 +2272,16 @@ with main:
                 # — Vertikaler Vergleich Peer Average vs. Focal Company —
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "num_o_seit_500": [mean_numbers, focal_numbers]
+                    "nums_500": [mean_numbers, focal_numbers]
                 })
                 fig_avg = px.bar(
                     comp_df,
                     x="Group",
-                    y="num_o_seit_500",
-                    text="num_o_seit_500",
+                    y="nums_500",
+                    text="nums_500",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"num_o_seit_500": "Numbers per Norm Page", "Group": ""}
+                    labels={"nums_500": "Numbers per Norm Page", "Group": ""}
                 )
                 fig_avg.update_layout(
                     xaxis={"categoryorder": "array", "categoryarray": [company, "Peer Average"]},
