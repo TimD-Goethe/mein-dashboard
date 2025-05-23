@@ -1692,6 +1692,10 @@ with main:
                 .mean()
                 .reset_index()
             )
+
+            # — 3b) Nur Firmen behalten, die irgendwo pct > 0 haben —
+            companies_with_data = avg_df.loc[avg_df['pct'] > 0, 'company'].unique()
+            avg_df = avg_df[avg_df['company'].isin(companies_with_data)].copy()
         
             # — 4) Legenden-Reihenfolge & Farben —
             legend_order = [
