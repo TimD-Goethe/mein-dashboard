@@ -69,7 +69,7 @@ st.markdown(
 #-------------------------------------------------------------------------------------
 # 2. Daten laden
 #--------------------------------------------------------------------------------------
-df = pd.read_csv("summary_final_version.csv")
+df = pd.read_csv("450_final_version.csv")
 
 # direkt nach dem Einlesen
 df['SASB_industry'] = (
