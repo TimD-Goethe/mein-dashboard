@@ -4052,15 +4052,15 @@ with main:
             st.subheader(f"Language Complexity ({benchmark_label})")
         
             # 1) Peer-Average und Focal-Wert holen
-            mean_fog  = benchmark_df["fog_avg"].mean()
-            focal_fog = df.loc[df["company"] == company, "fog_avg"].iat[0]
+            mean_fog  = benchmark_df["fog_"].mean()
+            focal_fog = df.loc[df["company"] == company, "fog"].iat[0]
     
     
             if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Länder-Durchschnitt der Fog-Avg vorbereiten
                 country_avg = (
                     df
-                    .groupby("country")["fog_avg"]
+                    .groupby("country")["fog"]
                     .mean()
                     .reset_index(name="FogAvg")
                 )
@@ -4112,7 +4112,7 @@ with main:
                 # 1) Durchschnitt pro Country (fog_avg) und Sortierung
                 country_avg = (
                     df
-                    .groupby("country")["fog_avg"]
+                    .groupby("country")["fog"]
                     .mean()
                     .reset_index(name="FogAvg")
                     .sort_values("FogAvg", ascending=False)
@@ -4145,7 +4145,7 @@ with main:
                     labels={"FogAvg": "FOG Average", "country_short": ""}
                 )
                 # 5) Peer Average Linie
-                overall_avg = df["fog_avg"].mean()
+                overall_avg = df["fog"].mean()
                 fig_ctry.add_vline(
                     x=overall_avg,
                     line_dash="dash",
@@ -4204,7 +4204,7 @@ with main:
                 # 1) Durchschnittliche FOG-Werte pro Supersector
                 sector_avg = (
                     df
-                    .groupby("supersector")["fog_avg"]
+                    .groupby("supersector")["fog"]
                     .mean()
                     .reset_index(name="FogAvg")
                 )
@@ -4260,7 +4260,7 @@ with main:
                 # 2) Durchschnittliche FOG-Werte pro Supersector, absteigend sortiert
                 sector_avg = (
                     df
-                    .groupby("supersector")["fog_avg"]
+                    .groupby("supersector")["fog"]
                     .mean()
                     .reset_index(name="FogAvg")
                     .sort_values("FogAvg", ascending=False)
@@ -4340,10 +4340,10 @@ with main:
                 # Histogramm der FOG-Werte aller Unternehmen
                 fig = px.histogram(
                     plot_df,
-                    x="fog_avg",
+                    x="fog",
                     nbins=20,
                     labels={
-                        "fog_avg": "FOG Average",
+                        "fog": "FOG Average",
                         "_group": "Group"
                     }
                 )
@@ -4389,7 +4389,7 @@ with main:
                 # 3) Horizontales Balkendiagramm erstellen
                 fig2 = px.bar(
                     peers_df,
-                    x="fog_avg",
+                    x="fog",
                     y="company_short",
                     orientation="h",
                     color="highlight_label",
@@ -4425,16 +4425,16 @@ with main:
                 avg_fog = mean_fog
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "fog_avg": [avg_fog, focal_fog]
+                    "fog": [avg_fog, focal_fog]
                 })
                 fig_avg = px.bar(
                     comp_df,
                     x="Group",
-                    y="fog_avg",
+                    y="fog",
                     text="fog_avg",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"fog_avg": "FOG Average", "Group": ""}
+                    labels={"fog": "FOG Average", "Group": ""}
                 )
                 # rote Firma links anzeigen
                 fig_avg.update_layout(
