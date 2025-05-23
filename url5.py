@@ -4444,8 +4444,6 @@ with main:
                 fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
             
                 st.plotly_chart(fig_avg, use_container_width=True)
-            
-                st.caption("Fog index (Gunning's language complexity measure).")
         
         
         else:
