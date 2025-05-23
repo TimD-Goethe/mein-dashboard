@@ -1672,14 +1672,13 @@ with main:
             pct_cols = [c for c in benchmark_df.columns if c.endswith('_pct')]
             rel_cols = [f'rel_{t}' for t in topic_map]
         
-            # 2) Prüfen, ob die FIRMEN-Daten für das selektierte Unternehmen vorhanden sind
+            # 2) Prüfen, ob das selektierte Unternehmen Daten hat
             focal_vals     = df.loc[df['company'] == company, rel_cols].fillna(0)
             focal_has_data = focal_vals.gt(0).any(axis=1).iat[0]
             if not focal_has_data:
-                # Infobox oben anzeigen – die App fährt aber trotzdem mit dem Peer-Plot fort
                 st.info("Unfortunately, no data available for that benchmarking type.")
         
-            # 3) Peer-Gruppe filtern: nur Unternehmen mit mindestens einem rel_*>0
+            # 3) Peer-Gruppe filtern (nur Firmen mit mindestens einem rel_*>0)
             peer_mask   = (benchmark_df[rel_cols].fillna(0) > 0).any(axis=1)
             filtered_df = benchmark_df.loc[peer_mask].copy()
         
@@ -1704,7 +1703,7 @@ with main:
                 .reset_index()
             )
         
-            # 6) Farben & Legend-Order definieren
+            # 6) Farben & Reihenfolge
             legend_order = [
                 'E1: Climate change','E2: Pollution','E3: Water','E4: Biodiversity',
                 'E5: Circular economy','S1: Own workforce','S2: Value chain workers',
@@ -1719,9 +1718,9 @@ with main:
                 'ESRS 2: Governance':'#5A9BD5','G1: Business conduct':'#1F4E79'
             }
         
-            # 7) Je nach Benchmark-Mode rendern
+            # 7) Company vs. Peer Group
             if mode == "Company vs. Peer Group":
-                # a) Peer-Durchschnitt berechnen (ohne focal selbst)
+                # Peer-Durchschnitt (ohne das Focal selbst)
                 peer_avg = (
                     avg_df[avg_df['company'] != company]
                     .groupby('topic_label')['pct']
@@ -1729,9 +1728,11 @@ with main:
                     .reset_index(name='pct')
                     .assign(company='Peer group average')
                 )
+        
+                # Korrekte Categorical-Zuweisung
                 peer_avg['company_short'] = 'Peer group avg'
                 peer_avg['company_short'] = pd.Categorical(
-                    ['Peer group avg'],
+                    peer_avg['company_short'],
                     categories=['Peer group avg'],
                     ordered=True
                 )
@@ -1743,14 +1744,14 @@ with main:
                     text=peer_avg['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
                     labels={'company_short':'','pct':''},
                     color_discrete_map=my_colors,
-                    category_orders={'company_short':['Peer group avg'],'topic_label':legend_order}
+                    category_orders={'company_short':['Peer group avg'], 'topic_label':legend_order}
                 )
                 fig.update_layout(barmode='stack', xaxis_tickformat=',.0%')
                 fig.update_traces(marker_line_color='black', marker_line_width=0.5)
                 st.plotly_chart(fig, use_container_width=True)
         
+            # 8) Company Country vs Other Countries
             elif mode == "Company Country vs Other Countries":
-                # a) Länder-Durchschnitt
                 country_topic = (
                     filtered_df
                     .merge(df[['company','country']], on='company')
@@ -1764,7 +1765,7 @@ with main:
                     .assign(country='All countries')
                 )
                 focal_country = df.loc[df['company']==company,'country'].iat[0]
-                focal_ct = country_topic[country_topic['country']==focal_country]
+                focal_ct      = country_topic[country_topic['country']==focal_country]
         
                 combo = pd.concat([focal_ct, total], ignore_index=True)
                 combo['country_short'] = combo['country'].str.slice(0,15)
@@ -1777,14 +1778,14 @@ with main:
                     text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
                     labels={'country_short':'','pct':''},
                     color_discrete_map=my_colors,
-                    category_orders={'country_short':order,'topic_label':legend_order}
+                    category_orders={'country_short':order, 'topic_label':legend_order}
                 )
                 figC.update_layout(barmode='stack', xaxis_tickformat=',.0%')
                 figC.update_traces(marker_line_color='black', marker_line_width=0.5)
                 st.plotly_chart(figC, use_container_width=True)
         
+            # 9) Company Sector vs Other Sectors
             elif mode == "Company Sector vs Other Sectors":
-                # a) Sektor-Durchschnitt
                 sector_topic = (
                     filtered_df
                     .merge(df[['company','supersector']], on='company')
@@ -1798,7 +1799,7 @@ with main:
                     .assign(supersector='All sectors')
                 )
                 focal_sup = df.loc[df['company']==company,'supersector'].iat[0]
-                focal_st = sector_topic[sector_topic['supersector']==focal_sup]
+                focal_st  = sector_topic[sector_topic['supersector']==focal_sup]
         
                 combo = pd.concat([focal_st, total], ignore_index=True)
                 def wrap(s, w=20): return "<br>".join(textwrap.wrap(s,w))
@@ -1812,7 +1813,7 @@ with main:
                     text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
                     labels={'sec_wrapped':'','pct':''},
                     color_discrete_map=my_colors,
-                    category_orders={'sec_wrapped':order,'topic_label':legend_order}
+                    category_orders={'sec_wrapped':order, 'topic_label':legend_order}
                 )
                 figS.update_layout(barmode='stack', xaxis_tickformat=',.0%')
                 figS.update_traces(marker_line_color='black', marker_line_width=0.5)
