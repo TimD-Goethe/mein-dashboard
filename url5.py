@@ -1678,7 +1678,7 @@ with main:
 
             # 3) Wenn keine Firma übrig ist, Warnung ausgeben und zurück
             if benchmark_df.empty:
-                st.warning("Unfortunately, no data available for that benchmarking type.")
+                st.subheader("Unfortunately, no data available for that benchmarking type.")
             else:
         
                 # — 2) Wide → Long & Mapping —
