@@ -72,8 +72,8 @@ st.markdown(
 df = pd.read_csv("450_final_version.csv")
 
 # direkt nach dem Einlesen
-df['SASB_industry'] = (
-    df['SASB_industry']
+df['SASB industry'] = (
+    df['SASB industry']
       .str.replace(r'\s+', ' ', regex=True)  # alle mehrfachen spaces → 1 space
       .str.strip()
 )
