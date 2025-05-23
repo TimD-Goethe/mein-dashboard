@@ -4380,7 +4380,7 @@ with main:
             elif plot_type == "Bar Chart":
                 # 1) Detail-Bar-Chart aller Peer-Unternehmen, horizontale Balken nach Wert absteigend sortieren
                 peers_df = plot_df.sort_values("fog", ascending=False)
-                mean_fog = benchmark_df["fog_avg"].mean()
+                mean_fog = benchmark_df["fog"].mean()
             
                 # 2) Kurz-Namen für die Y-Achse, damit sie nicht zu lang werden
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
