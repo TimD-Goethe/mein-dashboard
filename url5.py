@@ -1676,7 +1676,7 @@ with main:
             focal_vals     = df.loc[df['company'] == company, rel_cols].fillna(0)
             focal_has_data = focal_vals.gt(0).any(axis=1).iat[0]
             if not focal_has_data:
-                st.info("Unfortunately, no data available for that benchmarking type.")
+                st.info("Unfortunately, no data available for that benchmarking type for your company.")
         
             # 3) Peer-Gruppe filtern (nur Firmen mit mindestens einem rel_*>0)
             peer_mask   = (benchmark_df[rel_cols].fillna(0) > 0).any(axis=1)
