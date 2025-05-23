@@ -1896,61 +1896,119 @@ with main:
                     categories=[sel_short, 'Peer group average'[:15]],
                     ordered=True
                 )
-        
-                fig_benchmark = px.bar(
-                    combo,
-                    x='pct', y='company_short', color='topic_label',
-                    orientation='h',
-                    text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'company_short':'','pct':''},
-                    color_discrete_map=my_colors,
-                    category_orders={
-                        'company_short': [sel_short, 'Peer group average'[:15]],
-                        'topic_label': legend_order
-                    }
-                )
-                fig_benchmark.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
-                fig_benchmark.update_layout(barmode='stack', xaxis_tickformat=',.0%',
-                                            legend=dict(title='ESRS Topic', itemsizing='constant'))
-                st.plotly_chart(fig_benchmark, use_container_width=True)
-        
-                # Chart B: alle Firmen (selected ganz oben)
-                avg_df['company_short'] = avg_df['company'].str.slice(0,15)
-                sel_short = selected[:15]
-                others = sorted(set(avg_df['company_short']) - {sel_short})
-                avg_df['company_short'] = pd.Categorical(
-                    avg_df['company_short'], categories=[sel_short] + others, ordered=True
-                )
-                fig_firmen = px.bar(
-                    avg_df,
-                    x='pct', y='company_short', color='topic_label',
-                    orientation='h',
-                    text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'company_short':'','pct':''},
-                    color_discrete_map=my_colors,
-                    category_orders={
-                        'company_short': [sel_short] + others,
-                        'topic_label': legend_order
-                    }
-                )
-                # 3) Namen IN die Bars platzieren und style
-                fig_firmen.update_traces(
-                    textposition='inside',      # oder 'auto' / 'outside'
-                    insidetextanchor='start',   # linksbündig in jedem Segment
-                    textfont=dict(size=12, color='white')
-                )
-                
-                # 4) Höhe & Margin vergrößern
-                fig_firmen.update_layout(
-                    barmode='stack',
-                    xaxis_tickformat=',.0%',
-                    legend=dict(title='ESRS Topic', itemsizing='constant'),
-                    height=600,                  # erhöhe die Höhe für dickere Bars
-                    margin=dict(l=150, r=20, t=20, b=20),
-                    showlegend=False
-                )
 
-                st.plotly_chart(fig_firmen, use_container_width=True)
+
+                
+                if sel_df.empty:
+                    # keine Daten → nur Peer-Average und Warnung
+                    st.warning("Unfortunately, there are no data available for your company.")
+                    peer_avg = (
+                        avg_df
+                        .groupby('topic_label')['pct']
+                        .mean()
+                        .reset_index()
+                        .assign(company_short="Peer group average")
+                    )
+                    fig = px.bar(
+                        peer_avg,
+                        x='pct', y='company_short', color='topic_label',
+                        orientation='h',
+                        text=peer_avg['pct'].apply(lambda v: f"{v*100:.0f}%"),
+                        labels={'company_short':'','pct':''},
+                        color_discrete_map=my_colors,
+                        category_orders={
+                            'topic_label': legend_order,
+                            'company_short': ["Peer group average"]
+                        }
+                    )
+                    fig.update_layout(
+                        barmode='stack',
+                        xaxis_tickformat=',.0%',
+                        showlegend=True
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+                
+                else:
+                    # === EXISTIERENDER CODE FÜR CHART A + CHART B ===
+                
+                    # Chart A: Peer group average vs. selected company
+                    peer_avg = (
+                        avg_df[avg_df['company'] != selected]
+                        .groupby('topic_label')['pct']
+                        .mean()
+                        .reset_index()
+                    )
+                    peer_avg['company'] = 'Peer group average'
+                    sel_df = avg_df[avg_df['company'] == selected].copy()
+                
+                    combo = pd.concat([sel_df, peer_avg], ignore_index=True)
+                    combo['company_short'] = combo['company'].str.slice(0,15)
+                    sel_short = selected[:15]
+                    combo['company_short'] = pd.Categorical(
+                        combo['company_short'],
+                        categories=[sel_short, 'Peer group average'[:15]],
+                        ordered=True
+                    )
+                
+                    fig_benchmark = px.bar(
+                        combo,
+                        x='pct', y='company_short', color='topic_label',
+                        orientation='h',
+                        text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                        labels={'company_short':'','pct':''},
+                        color_discrete_map=my_colors,
+                        category_orders={
+                            'company_short': [sel_short, 'Peer group average'[:15]],
+                            'topic_label': legend_order
+                        }
+                    )
+                    fig_benchmark.update_traces(
+                        marker_line_color='black',
+                        marker_line_width=0.5,
+                        opacity=1
+                    )
+                    fig_benchmark.update_layout(
+                        barmode='stack',
+                        xaxis_tickformat=',.0%',
+                        legend=dict(title='ESRS Topic', itemsizing='constant')
+                    )
+                    st.plotly_chart(fig_benchmark, use_container_width=True)
+                
+                    # Chart B: alle Firmen (selected ganz oben)
+                    avg_df['company_short'] = avg_df['company'].str.slice(0,15)
+                    sel_short = selected[:15]
+                    others = sorted(set(avg_df['company_short']) - {sel_short})
+                    avg_df['company_short'] = pd.Categorical(
+                        avg_df['company_short'],
+                        categories=[sel_short] + others,
+                        ordered=True
+                    )
+                    fig_firmen = px.bar(
+                        avg_df,
+                        x='pct', y='company_short', color='topic_label',
+                        orientation='h',
+                        text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                        labels={'company_short':'','pct':''},
+                        color_discrete_map=my_colors,
+                        category_orders={
+                            'company_short': [sel_short] + others,
+                            'topic_label': legend_order
+                        }
+                    )
+                    fig_firmen.update_traces(
+                        textposition='inside',
+                        insidetextanchor='start',
+                        textfont=dict(size=12, color='white')
+                    )
+                    fig_firmen.update_layout(
+                        barmode='stack',
+                        xaxis_tickformat=',.0%',
+                        legend=dict(title='ESRS Topic', itemsizing='constant'),
+                        height=600,
+                        margin=dict(l=150, r=20, t=20, b=20),
+                        showlegend=False
+                    )
+                    st.plotly_chart(fig_firmen, use_container_width=True)
         
         elif view == "Numbers":
             st.subheader(f"Numbers per Norm Page ({benchmark_label})")
