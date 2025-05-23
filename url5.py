@@ -412,11 +412,10 @@ if mode == "Company vs. Peer Group":
     elif peer_group == "Market Cap Peers":
         terc          = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
         lbl           = (
-            "Very Small" if terc == 1 else
-            "Small"      if terc == 2 else
-            "Medium"     if terc == 3 else
-            "Large"      if terc == 4 else
-            "Huge"
+            "Small-Cap" if 1 <= terc <= 3 else
+            "Mid-Cap"   if 4 <= terc <= 7 else
+            "Large-Cap" if 8 <= terc <= 10 else
+            "Unknown"
         )
         benchmark_df  = df[df["Market_Cap_Cat"] == terc]
         benchmark_label = f"Market Cap Peers: {lbl}"
