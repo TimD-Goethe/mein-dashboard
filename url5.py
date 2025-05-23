@@ -1904,8 +1904,9 @@ with main:
 
                 
                 if sel_df.empty:
-                    # keine Daten → nur Peer-Average und Warnung
                     st.warning("Unfortunately, there are no data available for your company.")
+                
+                    # — Chart A: Peer group average —
                     peer_avg = (
                         avg_df
                         .groupby('topic_label')['pct']
@@ -1913,7 +1914,7 @@ with main:
                         .reset_index()
                         .assign(company_short="Peer group average")
                     )
-                    fig = px.bar(
+                    fig_avg = px.bar(
                         peer_avg,
                         x='pct', y='company_short', color='topic_label',
                         orientation='h',
@@ -1925,12 +1926,49 @@ with main:
                             'company_short': ["Peer group average"]
                         }
                     )
-                    fig.update_layout(
+                    fig_avg.update_layout(
                         barmode='stack',
                         xaxis_tickformat=',.0%',
                         showlegend=True
                     )
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig_avg, use_container_width=True)
+                
+                    # — Chart B: Werte aller Peer-Unternehmen —
+                    df_peers = avg_df.copy()
+                    df_peers['company_short'] = df_peers['company'].str.slice(0,15)
+                    # nach Alphabet sortieren (oder nach Deinem Bedarf)
+                    peer_order = sorted(df_peers['company_short'].unique())
+                    df_peers['company_short'] = pd.Categorical(
+                        df_peers['company_short'],
+                        categories=peer_order,
+                        ordered=True
+                    )
+                    fig_peers = px.bar(
+                        df_peers,
+                        x='pct', y='company_short', color='topic_label',
+                        orientation='h',
+                        text=df_peers['pct'].apply(lambda v: f"{v*100:.0f}%"
+                                                   if v>=0.05 else ""),
+                        labels={'company_short':'','pct':''},
+                        color_discrete_map=my_colors,
+                        category_orders={
+                            'company_short': peer_order,
+                            'topic_label': legend_order
+                        }
+                    )
+                    fig_peers.update_traces(
+                        textposition='inside',
+                        insidetextanchor='start',
+                        textfont=dict(size=12, color='white')
+                    )
+                    fig_peers.update_layout(
+                        barmode='stack',
+                        xaxis_tickformat=',.0%',
+                        height=600,
+                        margin=dict(l=150, r=20, t=20, b=20),
+                        showlegend=False
+                    )
+                    st.plotly_chart(fig_peers, use_container_width=True)
                 
                 else:
                     # === EXISTIERENDER CODE FÜR CHART A + CHART B ===
