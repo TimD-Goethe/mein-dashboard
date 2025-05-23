@@ -1671,6 +1671,10 @@ with main:
                 if rc in benchmark_df.columns:
                     benchmark_df[pc] = benchmark_df[rc]
             pct_cols = [c for c in benchmark_df.columns if c.endswith('_pct')]
+
+            # 2) Filter: behalte nur Firmen, bei denen mind. eine rel_*-Spalte > 0
+            mask = (benchmark_df[rel_cols].fillna(0) > 0).any(axis=1)
+            benchmark_df = benchmark_df.loc[mask].copy() 
         
             # — 2) Wide → Long & Mapping —
             plot_long = (
