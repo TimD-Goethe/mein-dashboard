@@ -195,7 +195,7 @@ supersector_map = {
 }
 
 # 5. Mapping anwenden
-df['supersector'] = df['SASB_industry'] \
+df['supersector'] = df['SASB industry'] \
     .map(supersector_map) \
     .fillna('Other')
 
