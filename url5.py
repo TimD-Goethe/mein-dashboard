@@ -4431,7 +4431,7 @@ with main:
                     comp_df,
                     x="Group",
                     y="fog",
-                    text="fog_avg",
+                    text="fog",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
                     labels={"fog": "FOG Average", "Group": ""}
