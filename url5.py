@@ -1783,6 +1783,60 @@ with main:
                 figC.update_layout(barmode='stack', xaxis_tickformat=',.0%')
                 figC.update_traces(marker_line_color='black', marker_line_width=0.5)
                 st.plotly_chart(figC, use_container_width=True)
+
+                peers_detail = avg_df[avg_df['company'] != company].copy()
+
+                # Pivot in wide für Stacking
+                peer_wide = (
+                    peers_detail
+                    .pivot(index='company', columns='topic_label', values='pct')
+                    .fillna(0)
+                )
+                # Legenden-Reihenfolge sicherstellen
+                peer_wide = peer_wide[legend_order]
+            
+                # Sortiere nach Gesamtanteil (sollte 1 sein, aber um Reihenfolge nach 'Wichtigkeit' der Firma)
+                peer_wide['total'] = peer_wide.sum(axis=1)
+                peer_wide = peer_wide.sort_values('total', ascending=False).drop(columns='total')
+            
+                # Zurück ins long-Format, damit Plotly stacked bars versteht
+                peer_long = (
+                    peer_wide
+                    .reset_index()
+                    .melt(
+                        id_vars='company',
+                        value_vars=legend_order,
+                        var_name='topic_label',
+                        value_name='pct'
+                    )
+                )
+                peer_long['company_short'] = peer_long['company'].str.slice(0,15)
+            
+                # Reihenfolge der Firmen von oben nach unten (invertiert für horizontales Plotten)
+                company_order = peer_wide.index.str.slice(0,15).tolist()[::-1]
+            
+                fig2 = px.bar(
+                    peer_long,
+                    x='pct',
+                    y='company_short',
+                    color='topic_label',
+                    orientation='h',
+                    category_orders={
+                        'company_short': company_order,
+                        'topic_label': legend_order
+                    },
+                    color_discrete_map=my_colors,
+                    labels={'company_short':'Company', 'pct':''},
+                    text=peer_long['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else "")
+                )
+                fig2.update_layout(
+                    barmode='stack',
+                    xaxis_tickformat=',.0%',
+                    height=25 * len(company_order) + 200,  # automatische Höhe
+                    margin=dict(l=200, r=20, t=40, b=40)   # genug Platz für Namen
+                )
+                fig2.update_traces(marker_line_color='black', marker_line_width=0.5)
+                st.plotly_chart(fig2, use_container_width=True)
         
             # 9) Company Sector vs Other Sectors
             elif mode == "Company Sector vs Other Sectors":
