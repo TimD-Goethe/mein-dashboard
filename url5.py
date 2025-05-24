@@ -906,6 +906,90 @@ with main:
     
             # 1) Peer-Average berechnen
             mean_words = benchmark_df["words"].mean()
+
+            # --- 1) Fallback-Prüfung: gibt es überhaupt echte Peers? ---
+            peer_companies = benchmark_df["company"].unique()
+            if len(peer_companies) <= 1:
+                st.warning("Unfortunately, there are no data available for your company.")
+        
+                # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
+                if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
+                    # a) Label-Funktion
+                    def cap_label(terc):
+                        return ("Small-Cap" if 1 <= terc <= 3 else
+                                "Mid-Cap"   if 4 <= terc <= 7 else
+                                "Large-Cap" if 8 <= terc <= 10 else
+                                "Unknown")
+                
+                    # b) Cap-Gruppe in df anlegen
+                    df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
+                
+                    # c) Durchschnitt pro cap_group berechnen
+                    cap_avg = (
+                        df
+                        .groupby("cap_group")["words"]
+                        .mean()
+                        .reset_index(name="Words")
+                        .rename(columns={"cap_group": "Group"})
+                    )
+                
+                    # d) Unknown rausfiltern
+                    cap_avg = cap_avg[cap_avg["Group"] != "Unknown"]
+                
+                    # e) ausgewählte Firma anhängen
+                    sel_row = pd.DataFrame({
+                        "Group": [company],
+                        "Words": [focal_words]
+                    })
+                    plot_df = pd.concat([cap_avg, sel_row], ignore_index=True)
+                
+                    # f) Highlight-Spalte
+                    plot_df["highlight"] = np.where(
+                        plot_df["Group"] == company,
+                        "Your Company",
+                        "Market Cap Group"
+                    )
+                
+                    # g) Plot
+                    fig = px.bar(
+                        plot_df,
+                        x="Words", y="Group", orientation="h", text="Words",
+                        color="highlight",
+                        category_orders={
+                            "Group":     ["Small-Cap", "Mid-Cap", "Large-Cap", company],
+                            "highlight": ["Market Cap Group", "Your Company"]
+                        },
+                        color_discrete_map={
+                            "Market Cap Group": "#1f77b4",
+                            "Your Company":      "red"
+                        },
+                        labels={"Words":"Words","Group":""}
+                    )
+                    fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
+                    fig.update_layout(xaxis_title="Words", margin=dict(l=120), showlegend=False)
+                    st.plotly_chart(fig, use_container_width=True)
+        
+                # --- 1b) Für alle anderen Peer-Gruppen: nur Peer Average anzeigen ---
+                else:
+                    comp_df = pd.DataFrame({
+                        "Group": ["Peer Average"],
+                        "Words": [mean_words]
+                    })
+                    fig = px.bar(
+                        comp_df,
+                        x="Words",
+                        y="Group",
+                        orientation="h",
+                        text="Words",
+                        labels={"Words": "Words", "Group": ""}
+                    )
+                    fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
+                    st.plotly_chart(fig, use_container_width=True)
+        
+                # kein weiterer Code ausführen
+                st.stop()
+        
+            # --- 2) Normal-Fall: Es gibt echte Peers, jetzt der volle bestehende Plot-Code ---
     
             if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
