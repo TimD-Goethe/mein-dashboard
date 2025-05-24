@@ -518,63 +518,63 @@ with main:
                 # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
                 if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
                 # a) Funktion zum Labeln der Market_Cap_Cat
-                def cap_label(terc):
-                    return ("Small-Cap" if 1 <= terc <= 3 else
-                            "Mid-Cap"   if 4 <= terc <= 7 else
-                            "Large-Cap" if 8 <= terc <= 10 else
-                            "Unknown")
-            
-                # b) Cap-Gruppe in der DataFrame anlegen
-                df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
-            
-                # c) Durchschnittliche Seitenzahl pro Gruppe berechnen
-                cap_avg = (
-                    df
-                    .groupby("cap_group")["Sustainability_Page_Count"]
-                    .mean()
-                    .reset_index(name="Pages")
-                    .rename(columns={"cap_group": "Group"})
-                )
-            
-                # d) Ausgewählte Firma als eigene Zeile anhängen
-                sel_row = pd.DataFrame({
-                    "Group":          [company],
-                    "Pages":          [focal_pages]
-                })
-                plot_df = pd.concat([cap_avg, sel_row], ignore_index=True)
-            
-                # e) Highlight-Spalte für Farben
-                plot_df["highlight"] = np.where(
-                    plot_df["Group"] == company,
-                    "Your Company",
-                    "Market Cap Group"
-                )
-            
-                # f) Plot bauen
-                fig = px.bar(
-                    plot_df,
-                    x="Pages",
-                    y="Group",
-                    orientation="h",
-                    text="Pages",
-                    color="highlight",
-                    category_orders={
-                        "Group":     ["Small-Cap", "Mid-Cap", "Large-Cap", company],
-                        "highlight": ["Market Cap Group", "Your Company"]
-                    },
-                    color_discrete_map={
-                        "Market Cap Group": "#1f77b4",  # Blau für die Caps
-                        "Your Company":      "red"      # Rot für Dein Unternehmen
-                    },
-                    labels={"Pages": "Pages", "Group": ""}
-                )
-                fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
-                fig.update_layout(
-                    xaxis_title="Pages",
-                    margin=dict(l=120),
-                    showlegend=False
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                    def cap_label(terc):
+                        return ("Small-Cap" if 1 <= terc <= 3 else
+                                "Mid-Cap"   if 4 <= terc <= 7 else
+                                "Large-Cap" if 8 <= terc <= 10 else
+                                "Unknown")
+                
+                    # b) Cap-Gruppe in der DataFrame anlegen
+                    df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
+                
+                    # c) Durchschnittliche Seitenzahl pro Gruppe berechnen
+                    cap_avg = (
+                        df
+                        .groupby("cap_group")["Sustainability_Page_Count"]
+                        .mean()
+                        .reset_index(name="Pages")
+                        .rename(columns={"cap_group": "Group"})
+                    )
+                
+                    # d) Ausgewählte Firma als eigene Zeile anhängen
+                    sel_row = pd.DataFrame({
+                        "Group":          [company],
+                        "Pages":          [focal_pages]
+                    })
+                    plot_df = pd.concat([cap_avg, sel_row], ignore_index=True)
+                
+                    # e) Highlight-Spalte für Farben
+                    plot_df["highlight"] = np.where(
+                        plot_df["Group"] == company,
+                        "Your Company",
+                        "Market Cap Group"
+                    )
+                
+                    # f) Plot bauen
+                    fig = px.bar(
+                        plot_df,
+                        x="Pages",
+                        y="Group",
+                        orientation="h",
+                        text="Pages",
+                        color="highlight",
+                        category_orders={
+                            "Group":     ["Small-Cap", "Mid-Cap", "Large-Cap", company],
+                            "highlight": ["Market Cap Group", "Your Company"]
+                        },
+                        color_discrete_map={
+                            "Market Cap Group": "#1f77b4",  # Blau für die Caps
+                            "Your Company":      "red"      # Rot für Dein Unternehmen
+                        },
+                        labels={"Pages": "Pages", "Group": ""}
+                    )
+                    fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
+                    fig.update_layout(
+                        xaxis_title="Pages",
+                        margin=dict(l=120),
+                        showlegend=False
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
         
                 # --- 1b) Für alle anderen Peer-Gruppen: nur Peer Average anzeigen ---
                 else:
