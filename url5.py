@@ -517,10 +517,10 @@ with main:
         unsafe_allow_html=True,
     )
 
-# ----------------------------------------------------------------
-# 9. Content Rendering: zwei Unterspalten in Main
-# ----------------------------------------------------------------
-col_content, col_view = st.columns([5, 1])
+    # ----------------------------------------------------------------
+    ###9. Content Rendering: zwei Unterspalten in Main
+    # ----------------------------------------------------------------
+    col_content, col_view = st.columns([5, 1])
 
     with col_content:
         plot_df = benchmark_df.copy()
