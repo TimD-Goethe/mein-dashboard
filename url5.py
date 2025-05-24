@@ -568,7 +568,7 @@ with main:
                     st.plotly_chart(fig, use_container_width=True)
         
                 # kein weiterer Code ausführen
-                return
+                st.stop()
         
             # --- 2) Normal-Fall: Es gibt echte Peers, jetzt der volle bestehende Plot-Code ---
         
