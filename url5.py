@@ -11,6 +11,22 @@ from urllib.parse import unquote, quote
 #-------------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Benchmarking Dashboard", layout="wide")
 
+st.markdown(
+    """
+    <style>
+      /* Entfernt den Abstand unter jeder starken Überschrift in der Sidebar */
+      .sidebar .stMarkdown p {
+        margin-bottom: 0.25rem !important;
+      }
+      /* Verringert den Abstand über Radio-Gruppen in der Sidebar */
+      .sidebar [data-baseweb="radio"] {
+        margin-top: 0.25rem !important;
+      }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # 1a. Globales CSS – direkt nach set_page_config, vor allen st.columns(...)
 st.markdown(
     """
