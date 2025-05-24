@@ -1445,7 +1445,7 @@ with main:
                     # g) Plot
                     fig = px.bar(
                         plot_df,
-                        x="Pages", y="Group", orientation="h", text="Norm Pages",
+                        x="Norm Pages", y="Group", orientation="h", text="Norm Pages",
                         color="highlight",
                         category_orders={
                             "Group":     ["Small-Cap", "Mid-Cap", "Large-Cap", company],
