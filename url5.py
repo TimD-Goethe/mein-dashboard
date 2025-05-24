@@ -510,7 +510,58 @@ with main:
             mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
             focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
     
-    
+            if pd.isna(focal_pages):
+                st.warning("Unfortunately, there are no data available for your company.")
+        
+                # --- Fallback für Market Cap Peers: drei Gruppen vergleichen ---
+                if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
+                    # a) Market Cap Group Label-Funktion
+                    def cap_label(terc):
+                        return ("Small-Cap" if 1 <= terc <= 3 else
+                                "Mid-Cap"   if 4 <= terc <= 7 else
+                                "Large-Cap" if 8 <= terc <= 10 else
+                                "Unknown")
+        
+                    # b) Durchschnitt pro Market Cap Gruppe
+                    cap_avg = (
+                        benchmark_df
+                        .groupby("Market_Cap_Cat")["Sustainability_Page_Count"]
+                        .mean()
+                        .reset_index(name="Pages")
+                    )
+                    cap_avg["Group"] = cap_avg["Market_Cap_Cat"].apply(cap_label)
+        
+                    # c) Bar Chart
+                    fig = px.bar(
+                        cap_avg,
+                        x="Pages",
+                        y="Group",
+                        orientation="h",
+                        text="Pages",
+                        labels={"Pages":"Pages", "Group":""}
+                    )
+                    fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
+                    fig.update_layout(yaxis={"categoryorder":"array",
+                                             "categoryarray":["Small-Cap","Mid-Cap","Large-Cap"]})
+                    st.plotly_chart(fig, use_container_width=True)
+        
+                # --- Fallback für alle anderen Peer‐Gruppen: nur Peer‐Average zeigen ---
+                else:
+                    comp_df = pd.DataFrame({
+                        "Group": ["Peer Average"],
+                        "Pages": [mean_pages]
+                    })
+                    fig = px.bar(
+                        comp_df,
+                        x="Pages",
+                        y="Group",
+                        orientation="h",
+                        text="Pages",
+                        labels={"Pages":"Pages","Group":""}
+                    )
+                    fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
+                    st.plotly_chart(fig, use_container_width=True)
+
     
             if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
                 # 1) Focal Country ermitteln
