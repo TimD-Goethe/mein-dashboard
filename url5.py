@@ -517,6 +517,9 @@ with main:
         unsafe_allow_html=True,
     )
 
+    # ----------------------------------------------------------------
+    # 9. Content Rendering: zwei Unterspalten in Main
+    # ----------------------------------------------------------------
     col_content, col_view = st.columns([5, 1])
 
     with col_content:
@@ -534,7 +537,7 @@ with main:
         
             # --- 1) Fallback-Prüfung: gibt es überhaupt echte Peers? ---
             peer_companies = benchmark_df["company"].unique()
-            if len(peer_companies) = 0:
+            if len(peer_companies) <= 1:
                 st.warning("Unfortunately, there are no data available for your company.")
         
                 # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
@@ -921,6 +924,7 @@ with main:
                 fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
             
                 st.plotly_chart(fig_avg, use_container_width=True)
+    
     
         
         elif view == "Number of Words":
