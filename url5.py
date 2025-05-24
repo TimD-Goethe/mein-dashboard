@@ -14,19 +14,19 @@ st.set_page_config(page_title="CSRD Benchmarking Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* Entfernt den Abstand unter jeder starken Überschrift in der Sidebar */
-      .sidebar .stMarkdown p {
-        margin-bottom: 0.25rem !important;
+      /* Ganz links in der Sidebar alle Markdown-Paragraphen enger machen */
+      [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+        margin: 0.1rem 0 !important;
       }
-      /* Verringert den Abstand über Radio-Gruppen in der Sidebar */
-      .sidebar [data-baseweb="radio"] {
-        margin-top: 0.25rem !important;
+
+      /* Abstand vor und nach jeder Radio-Group in der Sidebar verkleinern */
+      [data-testid="stSidebar"] [data-baseweb="radio"] {
+        margin: 0.2rem 0 !important;
       }
     </style>
     """,
     unsafe_allow_html=True,
 )
-
 # 1a. Globales CSS – direkt nach set_page_config, vor allen st.columns(...)
 st.markdown(
     """
