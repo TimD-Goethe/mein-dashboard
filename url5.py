@@ -427,6 +427,12 @@ if mode == "Company vs. Peer Group":
         benchmark_df   = df[df.supersector == supersec]
         benchmark_label = f"Sector Peers ({benchmark_df.company.nunique()} firms)"
 
+    elif peer_group == "Choose specific peers":
+        # Hier sind mindestens eins + ggf. Deine Firma
+        sel_list       = peer_selection + [company]
+        benchmark_df   = df[df.company.isin(sel_list)]
+        benchmark_label = f"Selected Peers ({benchmark_df.company.nunique()} firms)"
+
     elif peer_group == "Country Peers":
         country        = df.loc[df.company == company, "country"].iat[0]
         benchmark_df   = df[df.country == country]
@@ -436,12 +442,6 @@ if mode == "Company vs. Peer Group":
         own_terc       = df.loc[df.company == company, "Market_Cap_Cat"].iat[0]
         benchmark_df   = df[df.Market_Cap_Cat == own_terc]
         benchmark_label = f"Market Cap Peers ({benchmark_df.company.nunique()} firms)"
-
-    elif peer_group == "Choose specific peers":
-        # Hier sind mindestens eins + ggf. Deine Firma
-        sel_list       = peer_selection + [company]
-        benchmark_df   = df[df.company.isin(sel_list)]
-        benchmark_label = f"Selected Peers ({benchmark_df.company.nunique()} firms)"
 
     else:  # All CSRD First Wave
         benchmark_df   = df.copy()
