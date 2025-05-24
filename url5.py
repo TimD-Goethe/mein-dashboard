@@ -343,7 +343,7 @@ with right:
         "Number of Pages",
         "Number of Words",
         "Number of Norm Pages",
-        "Words in Sentences with ESRS Standard Keywords",
+        "ESRS Topic Shares",
         "Numbers",
         "Tables",
         "Images",
@@ -362,7 +362,7 @@ with right:
         "Number of Pages": "The total number of pages of the sustainability report.",
         "Number of Words": "The total number of words of the sustainability report.",
         "Number of Norm Pages": "Number of Norm Pages converts each text's total word count into standardized 500-word pages. A value of 2.5 means the document contains the equivalent of 2½ standard pages.",
-        "Words in Sentences with ESRS Standard Keywords": "This method utilizes word2vec (Mikolov et al. 2013), an algorithm that learns the meaning of words in a text using a neural networks. We use the resulting textual embeddings to generate a dictionary of keywords for each ESRS. Based on general seed words (e.g., greenhouse gas emissions for E1 climate change), we pick the 500 most similar words based on the embeddings. The resulting list of keywords allows us to broadly capture ESG-related discussions in reporting even before ESRS-specific terminology has been introduced. The main measure shown in this presentation is the number of words from sentences that contain a keyword from one of the 11 ESRS standards.",
+        "ESRS Topic Shares": "This method utilizes word2vec (Mikolov et al. 2013), an algorithm that learns the meaning of words in a text using a neural networks. We use the resulting textual embeddings to generate a dictionary of keywords for each ESRS. Based on general seed words (e.g., greenhouse gas emissions for E1 climate change), we pick the 500 most similar words based on the embeddings. The resulting list of keywords allows us to broadly capture ESG-related discussions in reporting even before ESRS-specific terminology has been introduced. The main measure shown in this presentation is the number of words from sentences that contain a keyword from one of the 11 ESRS standards.",
         "Numbers": "Count of Numbers per Norm Page. A norm page is a standardized 500-word page.",
         "Tables": "Count of tables per Norm Page. A norm page is a standardized 500-word page.",
         "Images": "Average image area per Norm Page. A norm page is a standardized 500-word page.",
@@ -1816,7 +1816,7 @@ with main:
                 st.plotly_chart(fig_avg, use_container_width=True)
 
 
-        elif view == "Words in Sentences with ESRS Standard Keywords":
+        elif view == "ESRS Topic Shares":
             st.subheader(f"Words per ESRS standard ({benchmark_label})")
         
             # — 1) Topics-Mapping & pct-Spalten —
