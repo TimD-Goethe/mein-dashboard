@@ -505,47 +505,52 @@ with main:
 
         if view == "Number of Pages":
             st.subheader(f"Number of Pages ({benchmark_label})")
-    
-            # vorher sicherstellen, dass mean_pages definiert ist
-            mean_pages = benchmark_df["Sustainability_Page_Count"].mean()
+        
+            # Mittelwert aller Peers und Wert Deiner Firma
+            mean_pages  = benchmark_df["Sustainability_Page_Count"].mean()
             focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
-    
-            if pd.isna(focal_pages):
+        
+            # --- 1) Fallback-Prüfung: gibt es überhaupt echte Peers? ---
+            peer_companies = benchmark_df["company"].unique()
+            if len(peer_companies) <= 1:
                 st.warning("Unfortunately, there are no data available for your company.")
         
-                # --- Fallback für Market Cap Peers: drei Gruppen vergleichen ---
+                # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
                 if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
-                    # a) Market Cap Group Label-Funktion
+                    # a) Label-Funktion
                     def cap_label(terc):
                         return ("Small-Cap" if 1 <= terc <= 3 else
                                 "Mid-Cap"   if 4 <= terc <= 7 else
                                 "Large-Cap" if 8 <= terc <= 10 else
                                 "Unknown")
         
-                    # b) Durchschnitt pro Market Cap Gruppe
+                    # b) Durchschnitt pro Market_Cap_Cat
                     cap_avg = (
-                        benchmark_df
+                        df
                         .groupby("Market_Cap_Cat")["Sustainability_Page_Count"]
                         .mean()
                         .reset_index(name="Pages")
                     )
                     cap_avg["Group"] = cap_avg["Market_Cap_Cat"].apply(cap_label)
         
-                    # c) Bar Chart
+                    # c) horizontaler Bar-Chart
                     fig = px.bar(
                         cap_avg,
                         x="Pages",
                         y="Group",
                         orientation="h",
                         text="Pages",
-                        labels={"Pages":"Pages", "Group":""}
+                        labels={"Pages": "Pages", "Group": ""}
                     )
                     fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
-                    fig.update_layout(yaxis={"categoryorder":"array",
-                                             "categoryarray":["Small-Cap","Mid-Cap","Large-Cap"]})
+                    fig.update_layout(
+                        yaxis={"categoryorder": "array",
+                               "categoryarray": ["Small-Cap", "Mid-Cap", "Large-Cap"]},
+                        margin=dict(l=120)
+                    )
                     st.plotly_chart(fig, use_container_width=True)
         
-                # --- Fallback für alle anderen Peer‐Gruppen: nur Peer‐Average zeigen ---
+                # --- 1b) Für alle anderen Peer-Gruppen: nur Peer Average anzeigen ---
                 else:
                     comp_df = pd.DataFrame({
                         "Group": ["Peer Average"],
@@ -557,80 +562,41 @@ with main:
                         y="Group",
                         orientation="h",
                         text="Pages",
-                        labels={"Pages":"Pages","Group":""}
+                        labels={"Pages": "Pages", "Group": ""}
                     )
                     fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
                     st.plotly_chart(fig, use_container_width=True)
-
-    
+        
+                # kein weiterer Code ausführen
+                return
+        
+            # --- 2) Normal-Fall: Es gibt echte Peers, jetzt der volle bestehende Plot-Code ---
+        
             if mode == "Company Country vs Other Countries" and plot_type == "Histogram":
-                # 1) Focal Country ermitteln
+                # … dein bestehender Histogramm‐Code für Länder …
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
-            
-                # 2) Länder‐Durchschnitt vorbereiten (egal ob vorher schon definiert)
                 country_avg = (
                     df
                     .groupby("country")["Sustainability_Page_Count"]
                     .mean()
                     .reset_index(name="Pages")
                 )
-                
-                focal_country = df.loc[df["company"] == company, "country"].iat[0]
                 overall_avg = country_avg["Pages"].mean()
                 focal_avg   = country_avg.loc[country_avg["country"] == focal_country, "Pages"].iat[0]
-                
-                # 2) Einfaches Histogramm aller Länder‐Durchschnitte in dunkelblau
                 fig = px.histogram(
-                    country_avg,
-                    x="Pages",
-                    nbins=20,  # nach Belieben anpassen
-                    opacity=0.8,
-                    labels={"Pages": "Pages"},
+                    country_avg, x="Pages", nbins=20, opacity=0.8, labels={"Pages": "Pages"}
                 )
-                
-                # 4) Alle Balken in Dunkelblau (#1f77b4)
                 fig.update_traces(marker_color="#1f77b4")
-                
-                # 4) V-Line für All Countries Avg (schwarz gestrichelt)
-                fig.add_vline(
-                    x=overall_avg,
-                    line_dash="dash",
-                    line_color="black",
-                    line_width=2,
-                    annotation_text="<b>All Countries Avg</b>",
-                    annotation_position="top right",
-                    annotation_font_color="black",
-                    annotation_font_size=16,
-                )
-                
-                # 5) V-Line für Austria Avg (rot gestrichelt), ohne extra Balken
-                fig.add_vline(
-                    x=focal_avg,
-                    line_dash="dash",
-                    line_color="red",
-                    line_width=2,
-                    annotation_text=f"<b>{focal_country} Avg</b>",
-                    annotation_position="bottom left",
-                    annotation_font_color="red",
-                    annotation_font_size=16,
-                )
-                
-                # 6) Legende ausblenden und Achsentitel
-                fig.update_layout(
-                    showlegend=False,
-                    xaxis_title="Pages",
-                    yaxis_title="Countries",
-                    bargap=0.1,
-                )
-                
+                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black", line_width=2,
+                             annotation_text="<b>All Countries Avg</b>", annotation_position="top right")
+                fig.add_vline(x=focal_avg,   line_dash="dash", line_color="red",   line_width=2,
+                             annotation_text=f"<b>{focal_country} Avg</b>", annotation_position="bottom left")
+                fig.update_layout(showlegend=False, xaxis_title="Pages", yaxis_title="Countries", bargap=0.1)
                 st.plotly_chart(fig, use_container_width=True)
-    
-    
+        
             elif mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
-                # 1) Focal Country ermitteln
+                # … dein bestehender Bar-Chart‐Code für Länder …
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
-            
-                # 2) Durchschnitt pro Country und Sortierung (absteigend)
                 country_avg = (
                     df
                     .groupby("country")["Sustainability_Page_Count"]
@@ -638,64 +604,30 @@ with main:
                     .reset_index(name="Pages")
                     .sort_values("Pages", ascending=False)
                 )
-            
-                # 3) Labels kürzen (max. 15 Zeichen)
                 country_avg["country_short"] = country_avg["country"].str.slice(0, 15)
-            
-                # 4) Reihenfolge **nach** sort_values (absteigend), **ohne** zusätzliches Umkehren
                 y_order = country_avg["country_short"].tolist()
-            
-                # 5) Highlight für Dein Land
                 country_avg["highlight"] = np.where(
                     country_avg["country"] == focal_country,
                     country_avg["country_short"],
                     "Other Countries"
                 )
-            
-                # 6) Bar-Chart erzeugen mit category_orders
                 fig_ctry = px.bar(
                     country_avg,
-                    x="Pages",
-                    y="country_short",
-                    orientation="h",
+                    x="Pages", y="country_short", orientation="h",
                     color="highlight",
-                    color_discrete_map={
-                        focal_country: "red",
-                        "Other Countries": "#1f77b4"
-                    },
-                    category_orders={              # ← Hier übergibst du die exakte (nicht umgedrehte) Liste
-                        "country_short": y_order
-                    },
-                    labels={"Pages": "Pages", "country_short": ""},
+                    color_discrete_map={focal_country: "red", "Other Countries": "#1f77b4"},
+                    category_orders={"country_short": y_order},
+                    labels={"Pages": "Pages", "country_short": ""}
                 )
-            
-                # 7) Linien & Styling
                 overall_avg = df["Sustainability_Page_Count"].mean()
-                fig_ctry.add_vline(
-                    x=overall_avg,
-                    line_dash="dash",
-                    line_color="black",
-                    line_width=2,
-                    annotation_text="<b>Peer Average</b>",
-                    annotation_position="bottom right",
-                    annotation_font_color="black",
-                    annotation_font_size=16
-                )
-            
-                # 8) Dynamische Höhe & Schriftgröße
+                fig_ctry.add_vline(x=overall_avg, line_dash="dash", line_color="black", line_width=2,
+                                   annotation_text="<b>Peer Average</b>", annotation_position="bottom right")
                 fig_ctry = smart_layout(fig_ctry, len(country_avg))
                 fig_ctry.update_layout(showlegend=False)
-            
-                # 9) Jetzt nochmal sicherstellen, dass Plotly die Reihenfolge aus y_order **als Array** nimmt
-                fig_ctry.update_yaxes(
-                    categoryorder="array",
-                    categoryarray=y_order
-                )
-            
-                # 10) Chart rendern
+                fig_ctry.update_yaxes(categoryorder="array", categoryarray=y_order)
                 st.plotly_chart(fig_ctry, use_container_width=True)
-            
-                # — Optional: Vergleichs-Chart Focal vs. Other Countries Avg —
+        
+                # optionaler Vergleich Focal vs. Other countries avg …
                 comp_df = pd.DataFrame({
                     "Group": [focal_country, "Other countries average"],
                     "Pages": [
@@ -705,21 +637,14 @@ with main:
                 })
                 fig_cmp = px.bar(
                     comp_df,
-                    x="Group",
-                    y="Pages",
-                    text="Pages",
+                    x="Group", y="Pages", text="Pages",
                     color="Group",
                     color_discrete_map={focal_country: "red", "Other countries average": "#1f77b4"},
                     labels={"Pages": "Pages", "Group": ""}
                 )
-                fig_cmp.update_layout(
-                    xaxis={
-                        "categoryorder": "array",
-                        "categoryarray": [focal_country, "Other countries average"]
-                    },
-                    showlegend=False
-                )
                 fig_cmp.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
+                fig_cmp.update_layout(xaxis={"categoryorder":"array","categoryarray":[focal_country,"Other countries average"]},
+                                      showlegend=False)
                 st.plotly_chart(fig_cmp, use_container_width=True)
 
             elif mode == "Company Sector vs Other Sectors" and plot_type == "Histogram":
