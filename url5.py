@@ -14,14 +14,23 @@ st.set_page_config(page_title="CSRD Benchmarking Dashboard", layout="wide")
 st.markdown(
     """
     <style>
-      /* Ganz links in der Sidebar alle Markdown-Paragraphen enger machen */
-      [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
-        margin: 0.1rem 0 !important;
+      /* 1) In der Sidebar alle Markdown-Container enger machen */
+      [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+        margin-block-start: 0.2rem !important;
+        margin-block-end:   0.2rem !important;
+        padding:            0 !important;
       }
 
-      /* Abstand vor und nach jeder Radio-Group in der Sidebar verkleinern */
-      [data-testid="stSidebar"] [data-baseweb="radio"] {
-        margin: 0.2rem 0 !important;
+      /* 2) Und für jede Radio-Gruppe (role="radiogroup") den Abstand verringern */
+      [data-testid="stSidebar"] [role="radiogroup"] {
+        margin-block-start: 0.2rem !important;
+        margin-block-end:   0.2rem !important;
+        padding:            0 !important;
+      }
+
+      /* 3) Überschriften (h3) in der Sidebar etwas knapper fassen */
+      [data-testid="stSidebar"] h3 {
+        margin: 0.3rem 0 !important;
       }
     </style>
     """,
