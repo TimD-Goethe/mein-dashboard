@@ -517,36 +517,27 @@ with main:
         
                 # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
                 if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
-                    # a) Label-Funktion
-                    def cap_label(terc):
-                        return ("Small-Cap" if 1 <= terc <= 3 else
-                                "Mid-Cap"   if 4 <= terc <= 7 else
-                                "Large-Cap" if 8 <= terc <= 10 else
-                                "Unknown")
-        
-                    # b) Durchschnitt pro Market_Cap_Cat
-                    cap_avg = (
-                        df
-                        .groupby("Market_Cap_Cat")["Sustainability_Page_Count"]
-                        .mean()
-                        .reset_index(name="Pages")
-                    )
-                    cap_avg["Group"] = cap_avg["Market_Cap_Cat"].apply(cap_label)
-        
-                    # c) horizontaler Bar-Chart
+                    # Ein DataFrame mit genau zwei Zeilen: Peer Average & Deine Firma
+                    comp_df = pd.DataFrame({
+                        "Group": ["Peer Average", company],
+                        "Pages": [mean_pages, focal_pages]
+                    })
                     fig = px.bar(
-                        cap_avg,
+                        comp_df,
                         x="Pages",
                         y="Group",
                         orientation="h",
                         text="Pages",
                         labels={"Pages": "Pages", "Group": ""}
                     )
+                    # Prozentualen Text als ganze Zahl außen anzeigen
                     fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
+                    # Beschriftungen & Layout
                     fig.update_layout(
-                        yaxis={"categoryorder": "array",
-                               "categoryarray": ["Small-Cap", "Mid-Cap", "Large-Cap"]},
-                        margin=dict(l=120)
+                        xaxis_title="Pages",
+                        yaxis_title="",
+                        margin=dict(l=120),
+                        showlegend=False
                     )
                     st.plotly_chart(fig, use_container_width=True)
         
