@@ -309,8 +309,8 @@ with left:
                 "Sector Peers",
                 "Country Peers",
                 "Market Cap Peers",
-                "All CSRD First Wave",
                 "Choose specific peers"
+                "All CSRD First Wave"
             ],
             key="peer_group"
         )
