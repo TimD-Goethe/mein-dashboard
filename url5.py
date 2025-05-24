@@ -567,8 +567,8 @@ with main:
                     fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
                     st.plotly_chart(fig, use_container_width=True)
         
-                    # kein weiterer Code ausführen
-                    return
+                # kein weiterer Code ausführen
+                return
         
             # --- 2) Normal-Fall: Es gibt echte Peers, jetzt der volle bestehende Plot-Code ---
         
