@@ -306,11 +306,8 @@ with left:
         index=default_idx,
         key="company_selector"
     )
-    
-    # Update URL when company changes
     if company != default_company:
         st.query_params["company"] = company
-        
     selected = company
 
     # 3) Wahl des Benchmark-Modes
@@ -340,24 +337,27 @@ with left:
             key="peer_group"
         )
     
+        # Für „Choose specific peers“ zusätzlich Multiselect
         if peer_group == "Choose specific peers":
             peer_selection = st.multiselect(
                 "Choose specific peer companies:",
                 options=company_list,
                 default=[]
             )
+            # Wenn noch nichts ausgewählt: Hinweis und Stop
+            if not peer_selection:
+                st.info("Please select at least one peer company above.")
+                st.stop()
         else:
             peer_selection = []
-    
+
     elif mode == "Company Sector vs Other Sectors":
         st.markdown("**Company Sector vs Other Sectors**")
-        # hier könntest du z.B. einen simplen Radio mit nur einer Option anzeigen
         _ = st.radio("", ["Company Sector vs Other Sectors"], key="sector_mode")
-    
-    elif mode == "Company Country vs Other Countries":
+
+    else:  # mode == "Company Country vs Other Countries"
         st.markdown("**Company Country vs Other Countries**")
         _ = st.radio("", ["Company Country vs Other Countries"], key="country_mode")
-
 
 # 4b. Rechte Spalte: View & Chart Type
 with right:
@@ -421,62 +421,44 @@ with right:
 # --------------------------------------------------------------------
 # 6. Build `benchmark_df`
 # --------------------------------------------------------------------
-# 1) Bestimme benchmark_df & benchmark_label anhand des Modes und ggf. peer_group
 if mode == "Company vs. Peer Group":
-    # Unter-Mode: Sector / Country / Market Cap / All CSRD / Choose specific
     if peer_group == "Sector Peers":
-        supersec      = df.loc[df["company"] == company, "supersector"].iat[0]
-        benchmark_df  = df[df["supersector"] == supersec]
-        benchmark_label = f"Sector Peers: {supersec}"
+        supersec       = df.loc[df.company == company, "supersector"].iat[0]
+        benchmark_df   = df[df.supersector == supersec]
+        benchmark_label = f"Sector Peers ({benchmark_df.company.nunique()} firms)"
 
     elif peer_group == "Country Peers":
-        country       = df.loc[df["company"] == company, "country"].iat[0]
-        benchmark_df  = df[df["country"] == country]
-        benchmark_label = f"Country Peers: {country}"
+        country        = df.loc[df.company == company, "country"].iat[0]
+        benchmark_df   = df[df.country == country]
+        benchmark_label = f"Country Peers ({benchmark_df.company.nunique()} firms)"
 
     elif peer_group == "Market Cap Peers":
-        terc          = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
-        lbl           = (
-            "Small-Cap" if 1 <= terc <= 3 else
-            "Mid-Cap"   if 4 <= terc <= 7 else
-            "Large-Cap" if 8 <= terc <= 10 else
-            "Unknown"
-        )
-        benchmark_df  = df[df["Market_Cap_Cat"] == terc]
-        benchmark_label = f"Market Cap Peers: {lbl}"
-
-    elif peer_group == "All CSRD First Wave":
-        benchmark_df    = df.copy()
-        benchmark_label = "All CSRD First Wave"
+        own_terc       = df.loc[df.company == company, "Market_Cap_Cat"].iat[0]
+        benchmark_df   = df[df.Market_Cap_Cat == own_terc]
+        benchmark_label = f"Market Cap Peers ({benchmark_df.company.nunique()} firms)"
 
     elif peer_group == "Choose specific peers":
-        sel = set(peer_selection) | {company} if peer_selection else {company}
-        benchmark_df    = df[df["company"].isin(sel)]
-        benchmark_label = f"Selected Peers ({len(benchmark_df)} firms)"
+        # Hier sind mindestens eins + ggf. Deine Firma
+        sel_list       = peer_selection + [company]
+        benchmark_df   = df[df.company.isin(sel_list)]
+        benchmark_label = f"Selected Peers ({benchmark_df.company.nunique()} firms)"
 
-    else:
-        # Fallback, falls peer_group mal None ist
-        benchmark_df    = df.copy()
-        benchmark_label = "All CSRD First Wave"
+    else:  # All CSRD First Wave
+        benchmark_df   = df.copy()
+        benchmark_label = f"All CSRD First Wave ({benchmark_df.company.nunique()} firms)"
 
 elif mode == "Company Country vs Other Countries":
-    focal_country = df.loc[df["company"] == company, "country"].iat[0]
-    country_df    = df[df["country"] == focal_country]
-    others_df     = df[df["country"] != focal_country]
-    benchmark_df  = pd.concat([
-        country_df.assign(_group=focal_country),
-        others_df.assign(_group="Others")
-    ], ignore_index=True)
-    benchmark_label = f"{focal_country} vs Others"
+    focal_country = df.loc[df.company == company, "country"].iat[0]
+    df_self       = df[df.country == focal_country].assign(_group=focal_country)
+    df_other      = df[df.country != focal_country].assign(_group="Other countries")
+    benchmark_df  = pd.concat([df_self, df_other], ignore_index=True)
+    benchmark_label = f"{focal_country} vs Other countries"
 
-elif mode == "Company Sector vs Other Sectors":
-    focal_super = df.loc[df["company"] == company, "supersector"].iat[0]
-    super_df    = df[df["supersector"] == focal_super]
-    others_df   = df[df["supersector"] != focal_super]
-    benchmark_df = pd.concat([
-        super_df.assign(_group=focal_super),
-        others_df.assign(_group="Other sectors")
-    ], ignore_index=True)
+else:  # Company Sector vs Other Sectors
+    focal_super   = df.loc[df.company == company, "supersector"].iat[0]
+    df_self       = df[df.supersector == focal_super].assign(_group=focal_super)
+    df_other      = df[df.supersector != focal_super].assign(_group="Other sectors")
+    benchmark_df  = pd.concat([df_self, df_other], ignore_index=True)
     benchmark_label = f"{focal_super} vs Other sectors"
 
 # 2) Focal‐Werte bleiben gleich
