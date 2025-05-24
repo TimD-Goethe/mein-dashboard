@@ -519,7 +519,7 @@ with main:
         
             # --- 1) Fallback-Prüfung: gibt es überhaupt echte Peers? ---
             peer_companies = benchmark_df["company"].unique()
-            if len(peer_companies) <= 1:
+            if len(peer_companies) = 0:
                 st.warning("Unfortunately, there are no data available for your company.")
         
                 # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
