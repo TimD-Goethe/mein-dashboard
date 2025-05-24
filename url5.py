@@ -1393,6 +1393,8 @@ with main:
             df["norm_pages"]         = df["words"] / 500
             benchmark_df["norm_pages"] = benchmark_df["words"] / 500
             plot_df["norm_pages"]    = plot_df["words"] / 500
+
+            focal_norm_pages = df.loc[df["company"] == company, "norm_pages"].iat[0]
         
             # 1) Peer-Average berechnen
             mean_norm_pages = benchmark_df["norm_pages"].mean()
