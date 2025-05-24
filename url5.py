@@ -517,25 +517,57 @@ with main:
         
                 # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
                 if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
-                    # Ein DataFrame mit genau zwei Zeilen: Peer Average & Deine Firma
-                    comp_df = pd.DataFrame({
-                        "Group": ["Peer Average", company],
-                        "Pages": [mean_pages, focal_pages]
+                    # a) Durchschnitt pro Market_Cap_Cat berechnen
+                    cap_avg = (
+                        df
+                        .groupby("Market_Cap_Cat")["Sustainability_Page_Count"]
+                        .mean()
+                        .reset_index(name="Pages")
+                    )
+                    # b) Cap-Labels anwenden
+                    def cap_label(terc):
+                        return ("Small-Cap" if 1 <= terc <= 3 else
+                                "Mid-Cap"   if 4 <= terc <= 7 else
+                                "Large-Cap" if 8 <= terc <= 10 else
+                                "Unknown")
+                    cap_avg["Group"] = cap_avg["Market_Cap_Cat"].apply(cap_label)
+                
+                    # c) ausgewählte Firma anhängen
+                    sel_row = pd.DataFrame({
+                        "Market_Cap_Cat": [np.nan],
+                        "Pages":          [focal_pages],
+                        "Group":          [company]
                     })
+                    plot_df = pd.concat([cap_avg, sel_row], ignore_index=True)
+                
+                    # d) Highlight-Spalte für die Farbe
+                    plot_df["highlight"] = np.where(
+                        plot_df["Group"] == company,
+                        "Your Company",
+                        "Market Cap Group"
+                    )
+                
+                    # e) Plot
                     fig = px.bar(
-                        comp_df,
+                        plot_df,
                         x="Pages",
                         y="Group",
                         orientation="h",
                         text="Pages",
-                        labels={"Pages": "Pages", "Group": ""}
+                        color="highlight",
+                        category_orders={
+                            "Group":        ["Small-Cap","Mid-Cap","Large-Cap", company],
+                            "highlight":    ["Market Cap Group","Your Company"]
+                        },
+                        color_discrete_map={
+                            "Market Cap Group": "#1f77b4",  # Blau für die Caps
+                            "Your Company":      "red"      # Rot für Dein Unternehmen
+                        },
+                        labels={"Pages":"Pages","Group":""}
                     )
-                    # Prozentualen Text als ganze Zahl außen anzeigen
                     fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
-                    # Beschriftungen & Layout
                     fig.update_layout(
                         xaxis_title="Pages",
-                        yaxis_title="",
                         margin=dict(l=120),
                         showlegend=False
                     )
