@@ -217,9 +217,9 @@ df['supersector'] = df['SASB industry'] \
 
 def smart_layout(fig, num_items, *,
                  min_height=300,    # absolute Mindesthöhe
-                 max_height=1000,   # absolute Maxhöhe
+                 max_height=1200,   # absolute Maxhöhe
                  bar_height=40,     # Pixel pro Item
-                 min_font=8,        # absolute Mindestschrift
+                 min_font=10,        # absolute Mindestschrift
                  max_font=16        # absolute Maxschrift
                 ):
     """
