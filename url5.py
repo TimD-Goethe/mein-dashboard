@@ -516,6 +516,10 @@ with main:
             # Mittelwert aller Peers und Wert Deiner Firma
             mean_pages  = benchmark_df["Sustainability_Page_Count"].mean()
             focal_pages = df.loc[df["company"] == company, "Sustainability_Page_Count"].iat[0]
+
+            if not (mode == "Company vs. Peer Group" and peer_group == "Choose specific peers") \
+               and len(peer_companies) <= 1:
+                st.warning("Unfortunately, there are no data available for your company.")
         
             # --- 1) Fallback-Prüfung: gibt es überhaupt echte Peers? ---
             peer_companies = benchmark_df["company"].unique()
