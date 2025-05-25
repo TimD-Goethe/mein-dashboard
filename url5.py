@@ -1924,64 +1924,76 @@ with main:
                 st.warning("Unfortunately, there are no data available for your company.")
             
                 # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
-                if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
-            
-                    # a) Label-Funktion genau wie bei Pages
+                if mode=="Company vs. Peer Group" and peer_group=="Market Cap Peers" \
+                   and len(benchmark_df["company"].unique()) <= 1:
+                
+                    # 1) Cap-Labels definieren
                     def cap_label(terc):
                         return ("Small-Cap" if 1 <= terc <= 3 else
                                 "Mid-Cap"   if 4 <= terc <= 7 else
                                 "Large-Cap" if 8 <= terc <= 10 else
                                 "Unknown")
-            
-                    # b) Cap-Gruppe in df anlegen
-                    df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
-            
-                    # c) Durchschnitt pro cap_group und Topic berechnen
-                    cap_avg = (
-                        # wir brauchen company, cap_group und pct-Spalte
-                        df
-                        .merge(
-                            # melt oder map deine Topic-Shares schon vorab in df: hier gehen wir davon aus,
-                            # dass df schon eine Spalte 'pct' für die Topic Shares enthält
-                            avg_df[['company','topic_label','pct']],
-                            on='company', how='left'
-                        )
-                        # nur echte Gruppen
+                
+                    # 2) Auf FULL df schmelzen (nicht benchmark_df):
+                    #    erst Topic-% in df kopieren wie gehabt
+                    for t, lbl in topic_map.items():
+                        rc, pc = f"rel_{t}", f"{t}_pct"
+                        if rc in df.columns:
+                            df[pc] = df[rc]
+                    pct_cols = [c for c in df.columns if c.endswith("_pct")]
+                
+                    full_long = (
+                      df.assign(cap_group=df["Market_Cap_Cat"].apply(cap_label))
                         .query("cap_group != 'Unknown'")
-                        .groupby(['cap_group','topic_label'])['pct']
-                        .mean()
-                        .reset_index(name='pct')
+                        .melt(
+                           id_vars=["company","cap_group"],
+                           value_vars=pct_cols,
+                           var_name="topic_internal",
+                           value_name="pct"
+                        )
+                        .assign(
+                          topic=lambda d: d["topic_internal"].str.replace("_pct","",regex=False),
+                          topic_label=lambda d: d["topic"].map(topic_map)
+                        )
+                        .query("pct>0")
                     )
-            
-                    # d) Plot 1: gestapelte Balken für die drei Cap-Gruppen
+                
+                    # 3) Durchschnitt pro cap_group & topic_label
+                    cap_avg = (
+                      full_long
+                      .groupby(["cap_group","topic_label"])["pct"]
+                      .mean()
+                      .reset_index()
+                    )
+                
+                    # 4) Plot 1: gestapelte Balken der drei Gruppen
                     fig1 = px.bar(
-                        cap_avg,
-                        x="pct", y="cap_group",
-                        orientation="h",
-                        color="topic_label",
-                        barmode="stack",
-                        color_discrete_map=my_colors,
-                        category_orders={
-                            "cap_group": ["Small-Cap","Mid-Cap","Large-Cap"],
-                            "topic_label": legend_order
-                        },
-                        labels={"cap_group":"Cap Group","pct":""}
+                      cap_avg, x="pct", y="cap_group",
+                      orientation="h", barmode="stack",
+                      color="topic_label",
+                      color_discrete_map=my_colors,
+                      category_orders={
+                        "cap_group": ["Small-Cap","Mid-Cap","Large-Cap"],
+                        "topic_label": legend_order
+                      },
+                      labels={"cap_group":"Cap Group","pct":""}
                     )
                     fig1.update_layout(xaxis_tickformat=",.0%")
                     st.plotly_chart(fig1, use_container_width=True)
-            
-                    # e) Plot 2: eigene Firma (rot)
-                    sel = avg_df[avg_df["company"] == company]
+                
+                    # 5) Plot 2: Deine Firma (nur topic_label + pct)
+                    sel = full_long[full_long["company"]==company]
                     fig2 = px.bar(
-                        sel,
-                        x="pct", y="topic_label",
-                        orientation="h",
-                        text=sel["pct"].apply(lambda v: f"{v*100:.0f}%"),
-                        labels={"topic_label":"ESRS Topic","pct":""},
-                        color_discrete_sequence=["red"]
+                      sel, x="pct", y="topic_label",
+                      orientation="h",
+                      text=sel["pct"].apply(lambda v:f"{v*100:.0f}%"),
+                      labels={"topic_label":"ESRS Topic","pct":""},
+                      color_discrete_sequence=["red"]
                     )
                     fig2.update_layout(xaxis_tickformat=",.0%")
                     st.plotly_chart(fig2, use_container_width=True)
+                
+                    st.stop()
             
                 # --- 1b) Für alle anderen Peer-Gruppen: Peer-Average anzeigen ---
                 else:
