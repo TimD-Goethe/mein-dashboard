@@ -1859,7 +1859,6 @@ with main:
                 'water':          'E3: Water',
                 'workersvalchain':'S2: Value chain workers'
             }
-            # Für jede rel_<topic> eine neue Spalte <topic>_pct anlegen
             for t, lbl in topic_map.items():
                 rc, pc = f'rel_{t}', f'{t}_pct'
                 if rc in benchmark_df.columns:
@@ -1876,7 +1875,7 @@ with main:
                     value_name='pct'
                 )
             )
-            plot_long['topic'] = plot_long['topic_internal'].str.replace('_pct','', regex=False)
+            plot_long['topic']       = plot_long['topic_internal'].str.replace('_pct','', regex=False)
             plot_long['topic_label'] = plot_long['topic'].map(topic_map)
         
             # — 3) Aggregation auf Firmen-Level —
@@ -1886,10 +1885,75 @@ with main:
                 .mean()
                 .reset_index()
             )
-
+        
             # — 3b) Nur Firmen behalten, die irgendwo pct > 0 haben —
             companies_with_data = avg_df.loc[avg_df['pct'] > 0, 'company'].unique()
             avg_df = avg_df[avg_df['company'].isin(companies_with_data)].copy()
+        
+            # --- 3c) Fallback für Market Cap Peers: drei Gruppen + eigene Verteilung ---
+            if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers" \
+               and benchmark_df["company"].nunique() <= 1:
+        
+                # a) Cap-Label-Funktion
+                def cap_label(terc):
+                    return ("Small-Cap" if 1 <= terc <= 3 else
+                            "Mid-Cap"   if 4 <= terc <= 7 else
+                            "Large-Cap" if 8 <= terc <= 10 else
+                            "Unknown")
+        
+                # b) Gruppe in df anlegen
+                df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
+        
+                # c) Long-Daten mit cap_group zusammenführen (Unknown raus)
+                cap_long = (
+                    plot_long
+                    .merge(df[['company','cap_group']], on='company', how='left')
+                    .query("cap_group != 'Unknown'")
+                )
+        
+                # d) Durchschnitt pct pro cap_group & Topic berechnen
+                cap_avg = (
+                    cap_long
+                    .groupby(['cap_group','topic_label'])['pct']
+                    .mean()
+                    .reset_index()
+                )
+        
+                # e) Plot 1: gestapelte Balken für Small/Mid/Large-Cap
+                fig1 = px.bar(
+                    cap_avg,
+                    x='pct', y='cap_group',
+                    color='topic_label',
+                    orientation='h',
+                    barmode='stack',
+                    color_discrete_map=my_colors,
+                    category_orders={
+                        'cap_group': ['Small-Cap','Mid-Cap','Large-Cap'],
+                        'topic_label': legend_order
+                    },
+                    labels={'cap_group':'Cap Group','pct':''}
+                )
+                fig1.update_layout(
+                    xaxis_tickformat=",.0%",
+                    legend_title="ESRS Topic"
+                )
+                st.plotly_chart(fig1, use_container_width=True)
+        
+                # f) Plot 2: eigene Firmen-Verteilung (in Rot)
+                sel = avg_df[avg_df['company'] == company]
+                fig2 = px.bar(
+                    sel,
+                    x='pct', y='topic_label',
+                    orientation='h',
+                    text=sel['pct'].apply(lambda v: f"{v*100:.0f}%"),
+                    labels={'topic_label':'ESRS Topic','pct':''},
+                    color_discrete_sequence=['red']
+                )
+                fig2.update_layout(xaxis_tickformat=",.0%")
+                st.plotly_chart(fig2, use_container_width=True)
+        
+                # g) Rest überspringen
+                st.stop()
         
             # — 4) Legenden-Reihenfolge & Farben —
             legend_order = [
@@ -1905,98 +1969,6 @@ with main:
                 'S3: Affected communities':'#e65100','S4: Consumers':'#bf360c',
                 'ESRS 2: Governance':'#5A9BD5','G1: Business conduct':'#1F4E79'
             }
-        
-            # — 5) Darstellung je nach Benchmark-Typ —
-            if mode == "Company Country vs Other Countries":
-                # a) country ins Long-DF einfügen
-                plot_long = plot_long.merge(
-                    benchmark_df[['company','country']],
-                    on='company',
-                    how='left'
-                )
-            
-                # b) Durchschnitt pro Land & Topic
-                country_topic = (
-                    plot_long
-                    .groupby(['country','topic_label'])['pct']
-                    .mean()
-                    .reset_index()
-                )
-                # Gesamt-Durchschnitt
-                total = (
-                    country_topic
-                    .groupby('topic_label')['pct']
-                    .mean()
-                    .reset_index()
-                    .assign(country='All countries')
-                )
-                # Focal Country
-                focal = df.loc[df['company']==company, 'country'].iat[0]
-                focal_df = country_topic[country_topic['country']==focal].copy()
-            
-                # Chart A: Focal vs. All countries
-                combo = pd.concat([focal_df, total], ignore_index=True)
-                combo['country_short'] = combo['country'].str.slice(0,15)
-                catA = [focal[:15], 'All countries']
-                combo['country_short'] = pd.Categorical(combo['country_short'],
-                                                       categories=catA, ordered=True)
-            
-                figA = px.bar(
-                    combo,
-                    x='pct', y='country_short', color='topic_label',
-                    orientation='h',
-                    text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'country_short':'','pct':''},
-                    color_discrete_map=my_colors,
-                    category_orders={'country_short':catA,'topic_label':legend_order}
-                )
-                figA.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
-                figA.update_layout(
-                    barmode='stack',
-                    xaxis_tickformat=',.0%',
-                    legend=dict(title='ESRS Topic', itemsizing='constant')
-                )
-                st.plotly_chart(figA, use_container_width=True)
-            
-            
-                # Chart B: Alle Länder (focal zuerst)
-                orderB = [focal[:15]] + sorted(
-                    set(country_topic['country'].str.slice(0,15)) - {focal[:15]}
-                )
-                country_topic['country_short'] = pd.Categorical(
-                    country_topic['country'].str.slice(0,15),
-                    categories=orderB, ordered=True
-                )
-            
-                figB = px.bar(
-                    country_topic,
-                    x='pct', y='country_short', color='topic_label',
-                    orientation='h',
-                    text=country_topic['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
-                    labels={'country_short':'','pct':''},
-                    color_discrete_map=my_colors,
-                    category_orders={'country_short':orderB,'topic_label':legend_order}
-                )
-            
-                # 3) Namen IN die Bars platzieren und style
-                figB.update_traces(
-                    textposition='inside',      # oder 'auto' / 'outside'
-                    insidetextanchor='start',   # linksbündig in jedem Segment
-                    textfont=dict(size=12, color='white')
-                )
-            
-                # 4) Höhe & Margin vergrößern
-                figB.update_layout(
-                    barmode='stack',
-                    xaxis_tickformat=',.0%',
-                    legend=dict(title='ESRS Topic', itemsizing='constant'),
-                    height=1000,
-                    margin=dict(l=150, r=20, t=20, b=20),
-                    showlegend=False
-                )
-            
-                # Hier Chart B korrekt rendern
-                st.plotly_chart(figB, use_container_width=True)
         
             elif mode == "Company Sector vs Other Sectors":
                 sector_topic = (
@@ -2068,7 +2040,7 @@ with main:
                 figB.update_layout(
                     barmode='stack',
                     xaxis_tickformat=',.0%',
-                    height=600,
+                    height=1000,
                     margin=dict(l=150, r=20, t=20, b=20),
                     showlegend=False
                 )
