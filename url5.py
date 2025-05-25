@@ -4788,7 +4788,7 @@ with main:
                         df
                         .groupby("cap_group")["fog"]
                         .mean()
-                        .reset_index(name="Pages")
+                        .reset_index(name="fog")
                         .rename(columns={"cap_group": "Group"})
                     )
                 
