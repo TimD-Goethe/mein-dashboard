@@ -3829,6 +3829,75 @@ with main:
         
     
         elif view == "Sentiment":
+
+            # 0) Market Cap-Fallback: wenn Company vs. Peer Group + Market Cap Peers
+            peer_comps = benchmark_df["company"].unique()
+            if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers" \
+               and len(peer_comps) <= 1:
+        
+                st.warning("Unfortunately, there are no data available for your company.")
+        
+                # a) Cap-Labels definieren
+                def cap_label(terc):
+                    return ("Small-Cap" if 1 <= terc <= 3 else
+                            "Mid-Cap"   if 4 <= terc <= 7 else
+                            "Large-Cap" if 8 <= terc <= 10 else
+                            "Unknown")
+        
+                # b) Gruppe in df anlegen
+                df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
+        
+                # c) Durchschnitt Positive / Negative pro cap_group
+                cap_avg = (
+                    df
+                    .groupby("cap_group")[["words_pos_500","words_neg_500"]]
+                    .mean()
+                    .reset_index()
+                    .query("cap_group != 'Unknown'")
+                )
+        
+                # d) Deine Firma extrahieren
+                focal = df[df["company"] == company]
+                focal_pos = focal["words_pos_500"].mean()
+                focal_neg = focal["words_neg_500"].mean()
+                f = pd.DataFrame({
+                    "cap_group": [company],
+                    "words_pos_500":[focal_pos],
+                    "words_neg_500":[focal_neg]
+                })
+        
+                cap_plot = pd.concat([cap_avg, f], ignore_index=True)
+        
+                # e) Plot Positive
+                fig_pos = px.bar(
+                    cap_plot,
+                    x="words_pos_500", y="cap_group",
+                    orientation="h",
+                    color_discrete_sequence=["#E10600"]*len(cap_plot),
+                    text=cap_plot["words_pos_500"].apply(lambda v: f"{v:.0f}" if v>=5 else ""),
+                    labels={"words_pos_500":"Positive Words","cap_group":""}
+                )
+                fig_pos.update_layout(title_text="Positive Words per Norm Page by Cap Group",
+                                      showlegend=False)
+                st.plotly_chart(fig_pos, use_container_width=True)
+        
+                # f) Plot Negative
+                fig_neg = px.bar(
+                    cap_plot,
+                    x="words_neg_500", y="cap_group",
+                    orientation="h",
+                    color_discrete_sequence=["#1f77b4"]*len(cap_plot),
+                    text=cap_plot["words_neg_500"].apply(lambda v: f"{v:.0f}" if v>=5 else ""),
+                    labels={"words_neg_500":"Negative Words","cap_group":""}
+                )
+                fig_neg.update_layout(title_text="Negative Words per Norm Page by Cap Group",
+                                      showlegend=False)
+                st.plotly_chart(fig_neg, use_container_width=True)
+        
+                # g) fertig, kein weiterer Code
+                st.stop()
+
+
             
             if mode == "Company Country vs Other Countries" and plot_type == "Bar Chart":
                 focal_country = df.loc[df["company"] == company, "country"].iat[0]
