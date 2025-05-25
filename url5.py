@@ -1920,85 +1920,55 @@ with main:
             avg_df = avg_df[avg_df['company'].isin(companies_with_data)].copy()
         
             # --- 3c) Fallback für Market Cap Peers: drei Gruppen + eigene Verteilung ---
-            if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers" \
-               and benchmark_df["company"].nunique() <= 1:
-        
-                # a) Cap-Label-Funktion
-                def cap_label(terc):
-                    return ("Small-Cap" if 1 <= terc <= 3 else
-                            "Mid-Cap"   if 4 <= terc <= 7 else
-                            "Large-Cap" if 8 <= terc <= 10 else
-                            "Unknown")
-        
-                # b) Gruppe in df anlegen
-                df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
-        
-                # c) Long-Daten mit cap_group zusammenführen (Unknown raus)
-                cap_long = (
-                    plot_long
-                    .merge(df[['company','cap_group']], on='company', how='left')
+            if mode=="Company vs. Peer Group" and peer_group=="Market Cap Peers" \
+               and df.loc[df["company"]==company,"Market_Cap_Cat"].isna().iat[0]:
+                # legend_order + my_colors sollten schon oben stehen
+            
+                # – a) Full DataFrame → cap_avg –
+                df_full = (
+                    df
+                    .assign(cap_group=df["Market_Cap_Cat"].apply(cap_label))
                     .query("cap_group != 'Unknown'")
                 )
-        
-                # d) Durchschnitt pct pro cap_group & Topic berechnen
+                df_full_long = (
+                    df_full[["company","cap_group"] + pct_cols]
+                    .melt(id_vars=["company","cap_group"], value_vars=pct_cols,
+                          var_name="topic_internal", value_name="pct")
+                    .assign(
+                        topic=lambda d: d["topic_internal"].str.replace("_pct","",regex=False),
+                        topic_label=lambda d: d["topic"].map(topic_map),
+                    )
+                )
                 cap_avg = (
-                    cap_long
-                    .groupby(['cap_group','topic_label'])['pct']
+                    df_full_long
+                    .groupby(["cap_group","topic_label"])["pct"]
                     .mean()
                     .reset_index()
                 )
-        
-                # e) Plot 1: gestapelte Balken für Small/Mid/Large-Cap
+            
+                # – Plot 1: Gruppen-Durchschnitte –
                 fig1 = px.bar(
-                    cap_avg,
-                    x='pct', y='cap_group',
-                    color='topic_label',
-                    orientation='h',
-                    barmode='stack',
-                    color_discrete_map=my_colors,
-                    category_orders={
-                        'cap_group': ['Small-Cap','Mid-Cap','Large-Cap'],
-                        'topic_label': legend_order
-                    },
-                    labels={'cap_group':'Cap Group','pct':''}
+                    cap_avg, x="pct", y="cap_group", orientation="h", barmode="stack",
+                    color="topic_label", color_discrete_map=my_colors,
+                    category_orders={"cap_group":["Small-Cap","Mid-Cap","Large-Cap"],
+                                     "topic_label":legend_order},
+                    labels={"cap_group":"Cap Group","pct":""}
                 )
-                fig1.update_layout(
-                    xaxis_tickformat=",.0%",
-                    legend_title="ESRS Topic"
-                )
+                fig1.update_layout(xaxis_tickformat=",.0%")
                 st.plotly_chart(fig1, use_container_width=True)
-        
-                # f) Plot 2: eigene Firmen-Verteilung (in Rot)
-                sel = avg_df[avg_df['company'] == company]
+            
+                # – Plot 2: Deine Firma –
+                sel = df_full_long[df_full_long["company"]==company]
                 fig2 = px.bar(
-                    sel,
-                    x='pct', y='topic_label',
-                    orientation='h',
-                    text=sel['pct'].apply(lambda v: f"{v*100:.0f}%"),
-                    labels={'topic_label':'ESRS Topic','pct':''},
-                    color_discrete_sequence=['red']
+                    sel, x="pct", y="topic_label", orientation="h",
+                    text=sel["pct"].apply(lambda v: f"{v*100:.0f}%"),
+                    labels={"topic_label":"ESRS Topic","pct":""},
+                    color_discrete_sequence=["red"]
                 )
                 fig2.update_layout(xaxis_tickformat=",.0%")
                 st.plotly_chart(fig2, use_container_width=True)
-        
-                # g) Rest überspringen
+            
                 st.stop()
-        
-            # — 4) Legenden-Reihenfolge & Farben —
-            legend_order = [
-                'E1: Climate change','E2: Pollution','E3: Water','E4: Biodiversity',
-                'E5: Circular economy','S1: Own workforce','S2: Value chain workers',
-                'S3: Affected communities','S4: Consumers','ESRS 2: Governance',
-                'G1: Business conduct'
-            ]
-            my_colors = {
-                'E1: Climate change':'#145214','E2: Pollution':'#2e7d32','E3: Water':'#388e3c',
-                'E4: Biodiversity':'#81c784','E5: Circular economy':'#c8e6c9',
-                'S1: Own workforce':'#f57c00','S2: Value chain workers':'#ffb74d',
-                'S3: Affected communities':'#e65100','S4: Consumers':'#bf360c',
-                'ESRS 2: Governance':'#5A9BD5','G1: Business conduct':'#1F4E79'
-            }
-
 
             # — 5) Darstellung je nach Benchmark-Typ —
             if mode == "Company Country vs Other Countries":
