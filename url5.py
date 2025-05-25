@@ -2253,9 +2253,11 @@ with main:
             mean_nums   = benchmark_df["nums_500"].mean()
             focal_nums  = df.loc[df["company"] == company, "nums_500"].iat[0]
 
+            own_cap = cap_label(df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0])
+
             # --- 1) Fallback-Prüfung: gibt es überhaupt echte Peers? ---
             peer_companies = benchmark_df["company"].unique()
-            if len(peer_companies) <= 1 and peer_group != "Choose specific peers":
+            if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers" and own_cap == "Unknown":
                 st.warning("Unfortunately, there are no data available for your company.")
         
                 # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
