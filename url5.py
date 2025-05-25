@@ -2033,8 +2033,8 @@ with main:
                 fig.update_layout(xaxis_tickformat=",.0%", showlegend=True)
                 st.plotly_chart(fig, use_container_width=True)
         
-            # kein weiterer Code ausführen
-            st.stop()
+                # kein weiterer Code ausführen
+                st.stop()
 
             
             # — 5) Darstellung je nach Benchmark-Typ —
