@@ -3830,68 +3830,77 @@ with main:
     
         elif view == "Sentiment":
 
-            if mode=="Company vs. Peer Group" and peer_group=="Market Cap Peers":
-                mc_df = benchmark_df[benchmark_df["Market_Cap_Cat"].notna()]  # oder Dein Cap-Filter
-                peer_comps = mc_df["company"].unique()
-                if len(peer_comps) <= 1:
-                    st.warning("Unfortunately, there are no data available for your company.")
-        
-                    # a) Cap-Labels
-                    def cap_label(terc):
-                        return ("Small-Cap" if 1 <= terc <= 3 else
-                                "Mid-Cap"   if 4 <= terc <= 7 else
-                                "Large-Cap" if 8 <= terc <= 10 else
-                                "Unknown")
+            focal_cap = df.loc[df["company"] == company, "Market_Cap_Cat"].iat[0]
+
+            # Fallback, falls Du im Company-vs.-Peer-Group-Modus auf Market Cap Peers stehst
+            # und Deine Firma keinen Market_Cap_Cat-Wert hat
+            if (
+                mode == "Company vs. Peer Group"
+                and peer_group == "Market Cap Peers"
+                and pd.isna(focal_cap)
+            ):
+                st.warning("Unfortunately, there are no data available for your company.")
             
-                    # b) Gruppe in df anlegen
-                    df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
+                # a) Cap-Labels definieren
+                def cap_label(terc):
+                    return ("Small-Cap" if 1 <= terc <= 3 else
+                            "Mid-Cap"   if 4 <= terc <= 7 else
+                            "Large-Cap" if 8 <= terc <= 10 else
+                            "Unknown")
             
-                    # c) Durchschnitt pro cap_group
-                    cap_avg = (
-                        df
-                        .groupby("cap_group")[["words_pos_500","words_neg_500"]]
-                        .mean()
-                        .reset_index()
-                        .query("cap_group != 'Unknown'")
-                    )
+                # b) Gruppe in df anlegen
+                df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
             
-                    # d) Focal-Firma extrahieren
-                    focal = df[df["company"] == company]
-                    f = pd.DataFrame({
-                        "cap_group":    [company],
-                        "words_pos_500":[focal["words_pos_500"].mean()],
-                        "words_neg_500":[focal["words_neg_500"].mean()]
-                    })
+                # c) Durchschnitt pro cap_group berechnen (ohne Unknown)
+                cap_avg = (
+                    df
+                    .groupby("cap_group")[["words_pos_500","words_neg_500"]]
+                    .mean()
+                    .reset_index()
+                    .query("cap_group != 'Unknown'")
+                )
             
-                    cap_plot = pd.concat([cap_avg, f], ignore_index=True)
+                # d) Werte Deiner Firma
+                focal = df[df["company"] == company]
+                f = pd.DataFrame({
+                    "cap_group":    [company],
+                    "words_pos_500":[focal["words_pos_500"].mean()],
+                    "words_neg_500":[focal["words_neg_500"].mean()]
+                })
             
-                    # e) Positive-Plot
-                    fig_pos = px.bar(
-                        cap_plot,
-                        x="words_pos_500", y="cap_group",
-                        orientation="h",
-                        color_discrete_sequence=["#E10600"]*len(cap_plot),
-                        text=cap_plot["words_pos_500"].apply(lambda v: f"{v:.0f}" if v>=5 else ""),
-                        labels={"words_pos_500":"Positive Words","cap_group":""}
-                    )
-                    fig_pos.update_layout(title_text="Positive Words per Norm Page by Cap Group",
-                                          showlegend=False)
-                    st.plotly_chart(fig_pos, use_container_width=True)
+                cap_plot = pd.concat([cap_avg, f], ignore_index=True)
             
-                    # f) Negative-Plot
-                    fig_neg = px.bar(
-                        cap_plot,
-                        x="words_neg_500", y="cap_group",
-                        orientation="h",
-                        color_discrete_sequence=["#1f77b4"]*len(cap_plot),
-                        text=cap_plot["words_neg_500"].apply(lambda v: f"{v:.0f}" if v>=5 else ""),
-                        labels={"words_neg_500":"Negative Words","cap_group":""}
-                    )
-                    fig_neg.update_layout(title_text="Negative Words per Norm Page by Cap Group",
-                                          showlegend=False)
-                    st.plotly_chart(fig_neg, use_container_width=True)
+                # e) Positiv-Plot
+                fig_pos = px.bar(
+                    cap_plot,
+                    x="words_pos_500", y="cap_group",
+                    orientation="h",
+                    color_discrete_sequence=["#E10600"]*len(cap_plot),
+                    text=cap_plot["words_pos_500"].apply(lambda v: f"{v:.0f}" if v>=5 else ""),
+                    labels={"words_pos_500":"Positive Words","cap_group":""}
+                )
+                fig_pos.update_layout(
+                    title_text="Positive Words per Norm Page by Cap Group",
+                    showlegend=False
+                )
+                st.plotly_chart(fig_pos, use_container_width=True)
             
-                    st.stop()
+                # f) Negativ-Plot
+                fig_neg = px.bar(
+                    cap_plot,
+                    x="words_neg_500", y="cap_group",
+                    orientation="h",
+                    color_discrete_sequence=["#1f77b4"]*len(cap_plot),
+                    text=cap_plot["words_neg_500"].apply(lambda v: f"{v:.0f}" if v>=5 else ""),
+                    labels={"words_neg_500":"Negative Words","cap_group":""}
+                )
+                fig_neg.update_layout(
+                    title_text="Negative Words per Norm Page by Cap Group",
+                    showlegend=False
+                )
+                st.plotly_chart(fig_neg, use_container_width=True)
+            
+                st.stop()
 
 
             
