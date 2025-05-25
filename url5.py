@@ -3832,8 +3832,7 @@ with main:
 
             # 0) Market Cap-Fallback: wenn Company vs. Peer Group + Market Cap Peers
             peer_comps = benchmark_df["company"].unique()
-            if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers" \
-               and len(peer_comps) <= 1:
+            if peer_group == "Market Cap Peers" and len(peer_comps) <= 1:
         
                 st.warning("Unfortunately, there are no data available for your company.")
         
