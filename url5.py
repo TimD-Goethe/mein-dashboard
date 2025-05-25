@@ -2259,6 +2259,11 @@ with main:
             if len(peer_companies) <= 1 and peer_group != "Choose specific peers":
                 st.warning("Unfortunately, there are no data available for your company.")
         
+                # --- 1) Fallback-Prüfung: gibt es überhaupt echte Peers? ---
+            peer_companies = benchmark_df["company"].unique()
+            if len(peer_companies) <= 1 and peer_group != "Choose specific peers":
+                st.warning("Unfortunately, there are no data available for your company.")
+        
                 # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
                 if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
                     # a) Label-Funktion
@@ -2270,18 +2275,13 @@ with main:
                 
                     # b) Cap-Gruppe in df anlegen
                     df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
-
-                    benchmark_df = df[
-                        (df["cap_group"] != "Unknown") &
-                        (df["company"] != company)
-                    ]
                 
                     # c) Durchschnitt pro cap_group berechnen
                     cap_avg = (
                         df
                         .groupby("cap_group")["nums_500"]
                         .mean()
-                        .reset_index(name="Numbers")
+                        .reset_index(name="nums_500")
                         .rename(columns={"cap_group": "Group"})
                     )
                 
@@ -2291,7 +2291,7 @@ with main:
                     # e) ausgewählte Firma anhängen
                     sel_row = pd.DataFrame({
                         "Group": [company],
-                        "Numbers": [focal_nums]
+                        "nums_500": [focal_nums]
                     })
                     plot_df = pd.concat([cap_avg, sel_row], ignore_index=True)
                 
@@ -2305,7 +2305,7 @@ with main:
                     # g) Plot
                     fig = px.bar(
                         plot_df,
-                        x="Numbers", y="Group", orientation="h", text="Numbers",
+                        x="Pages", y="Group", orientation="h", text="nums_500",
                         color="highlight",
                         category_orders={
                             "Group":     ["Small-Cap", "Mid-Cap", "Large-Cap", company],
@@ -2315,25 +2315,25 @@ with main:
                             "Market Cap Group": "#1f77b4",
                             "Your Company":      "red"
                         },
-                        labels={"Numbers":"Numbers","Group":""}
+                        labels={"nums_500":"nums_500","Group":""}
                     )
                     fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
-                    fig.update_layout(xaxis_title="Numbers", margin=dict(l=120), showlegend=False)
+                    fig.update_layout(xaxis_title="nums_500", margin=dict(l=120), showlegend=False)
                     st.plotly_chart(fig, use_container_width=True)
         
                 # --- 1b) Für alle anderen Peer-Gruppen: nur Peer Average anzeigen ---
                 else:
                     comp_df = pd.DataFrame({
                         "Group": ["Peer Average"],
-                        "Numbers": [mean_nums]
+                        "nums_500": [mean_nums]
                     })
                     fig = px.bar(
                         comp_df,
-                        x="Numbers",
+                        x="nums_500",
                         y="Group",
                         orientation="h",
-                        text="Numbers",
-                        labels={"Numbers": "Numbers", "Group": ""}
+                        text="nums_500",
+                        labels={"nums_500": "nums_500", "Group": ""}
                     )
                     fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
                     st.plotly_chart(fig, use_container_width=True)
