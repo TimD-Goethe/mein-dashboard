@@ -2301,7 +2301,7 @@ with main:
                     # g) Plot
                     fig = px.bar(
                         plot_df,
-                        x="nums_500", y="Group", orientation="h", text="Numbers per Norm Page",
+                        x="nums_500", y="Group", orientation="h", text="nums_500",
                         color="highlight",
                         category_orders={
                             "Group":     ["Small-Cap", "Mid-Cap", "Large-Cap", company],
@@ -2311,7 +2311,7 @@ with main:
                             "Market Cap Group": "#1f77b4",
                             "Your Company":      "red"
                         },
-                        labels={"nums_500":"Numbers per Norm Page","Group":""}
+                        labels={"nums_500":"nums_500","Group":""}
                     )
                     fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
                     fig.update_layout(xaxis_title="Numbers per Norm Page", margin=dict(l=120), showlegend=False)
