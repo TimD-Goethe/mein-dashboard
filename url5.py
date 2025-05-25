@@ -2254,12 +2254,8 @@ with main:
             focal_nums  = df.loc[df["company"] == company, "nums_500"].iat[0]
 
            
+                 
             # --- 1) Fallback-Prüfung: gibt es überhaupt echte Peers? ---
-            peer_companies = benchmark_df["company"].unique()
-            if len(peer_companies) <= 1 and peer_group != "Choose specific peers":
-                st.warning("Unfortunately, there are no data available for your company.")
-        
-                # --- 1) Fallback-Prüfung: gibt es überhaupt echte Peers? ---
             peer_companies = benchmark_df["company"].unique()
             if len(peer_companies) <= 1 and peer_group != "Choose specific peers":
                 st.warning("Unfortunately, there are no data available for your company.")
