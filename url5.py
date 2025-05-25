@@ -1919,9 +1919,6 @@ with main:
             companies_with_data = avg_df.loc[avg_df['pct'] > 0, 'company'].unique()
             avg_df = avg_df[avg_df['company'].isin(companies_with_data)].copy()
         
-            peer_companies = benchmark_df["company"].unique()
-            if len(peer_companies) <= 1 and peer_group != "Choose specific peers":
-                st.warning("Unfortunately, there are no data available for your company.")
             
             if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
                 peer_companies = benchmark_df["company"].unique()
