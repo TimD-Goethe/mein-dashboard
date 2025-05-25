@@ -2264,7 +2264,7 @@ with main:
                     fig_peers.update_layout(
                         barmode='stack',
                         xaxis_tickformat=',.0%',
-                        height=600,
+                        height=1000,
                         margin=dict(l=150, r=20, t=20, b=20),
                         showlegend=False
                     )
@@ -2346,7 +2346,7 @@ with main:
                         barmode='stack',
                         xaxis_tickformat=',.0%',
                         legend=dict(title='ESRS Topic', itemsizing='constant'),
-                        height=600,
+                        height=1000,
                         margin=dict(l=150, r=20, t=20, b=20),
                         showlegend=False
                     )
