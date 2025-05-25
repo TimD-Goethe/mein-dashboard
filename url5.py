@@ -2270,6 +2270,11 @@ with main:
                 
                     # b) Cap-Gruppe in df anlegen
                     df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
+
+                    benchmark_df = df[
+                        (df["cap_group"] != "Unknown") &
+                        (df["company"] != company)
+                    ]
                 
                     # c) Durchschnitt pro cap_group berechnen
                     cap_avg = (
