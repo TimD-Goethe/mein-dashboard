@@ -1970,7 +1970,7 @@ with main:
                 'ESRS 2: Governance':'#5A9BD5','G1: Business conduct':'#1F4E79'
             }
         
-            elif mode == "Company Sector vs Other Sectors":
+            if mode == "Company Sector vs Other Sectors":
                 sector_topic = (
                     plot_long
                     .merge(df[['company','supersector']], on='company')
