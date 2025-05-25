@@ -1923,8 +1923,10 @@ with main:
             if len(peer_companies) <= 1 and peer_group != "Choose specific peers":
                 st.warning("Unfortunately, there are no data available for your company.")
             
-                if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
-            
+            if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
+                peer_companies = benchmark_df["company"].unique()
+                if len(peer_companies) <= 1:
+                    st.warning("Unfortunately, there are no data available for your company.")
                     # —— a) Cap-Labels definieren
                     def cap_label(terc):
                         return ("Small-Cap" if 1 <= terc <= 3 else
