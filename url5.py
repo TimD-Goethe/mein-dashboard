@@ -3830,15 +3830,16 @@ with main:
     
         elif view == "Sentiment":
 
-            # 0) Market Cap-Fallback: wenn Company vs. Peer Group + Market Cap Peers
-            peer_companies = benchmark_df["company"].unique()
-            if len(peer_companies) <= 1 and peer_group != "Choose specific peers":
+            # — 0) Market-Cap-Fallback nur dann, wenn DZ Bank überhaupt nicht in benchmark_df steckt —
+            peer_comps = benchmark_df["company"].unique()
+            if (
+                mode == "Company vs. Peer Group"
+                and peer_group == "Market Cap Peers"
+                and company not in peer_comps
+            ):
                 st.warning("Unfortunately, there are no data available for your company.")
         
-                # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
-                if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
-        
-                # a) Cap-Labels definieren
+                # a) Cap-Labels
                 def cap_label(terc):
                     return ("Small-Cap" if 1 <= terc <= 3 else
                             "Mid-Cap"   if 4 <= terc <= 7 else
@@ -3848,7 +3849,7 @@ with main:
                 # b) Gruppe in df anlegen
                 df["cap_group"] = df["Market_Cap_Cat"].apply(cap_label)
         
-                # c) Durchschnitt Positive / Negative pro cap_group
+                # c) Durchschnitt pro cap_group
                 cap_avg = (
                     df
                     .groupby("cap_group")[["words_pos_500","words_neg_500"]]
@@ -3857,19 +3858,17 @@ with main:
                     .query("cap_group != 'Unknown'")
                 )
         
-                # d) Deine Firma extrahieren
+                # d) Focal-Firma extrahieren
                 focal = df[df["company"] == company]
-                focal_pos = focal["words_pos_500"].mean()
-                focal_neg = focal["words_neg_500"].mean()
                 f = pd.DataFrame({
-                    "cap_group": [company],
-                    "words_pos_500":[focal_pos],
-                    "words_neg_500":[focal_neg]
+                    "cap_group":    [company],
+                    "words_pos_500":[focal["words_pos_500"].mean()],
+                    "words_neg_500":[focal["words_neg_500"].mean()]
                 })
         
                 cap_plot = pd.concat([cap_avg, f], ignore_index=True)
         
-                # e) Plot Positive
+                # e) Positive-Plot
                 fig_pos = px.bar(
                     cap_plot,
                     x="words_pos_500", y="cap_group",
@@ -3882,7 +3881,7 @@ with main:
                                       showlegend=False)
                 st.plotly_chart(fig_pos, use_container_width=True)
         
-                # f) Plot Negative
+                # f) Negative-Plot
                 fig_neg = px.bar(
                     cap_plot,
                     x="words_neg_500", y="cap_group",
@@ -3895,7 +3894,6 @@ with main:
                                       showlegend=False)
                 st.plotly_chart(fig_neg, use_container_width=True)
         
-                # g) fertig, kein weiterer Code
                 st.stop()
 
 
