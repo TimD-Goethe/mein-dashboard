@@ -1859,6 +1859,35 @@ with main:
                 'water':          'E3: Water',
                 'workersvalchain':'S2: Value chain workers'
             }
+
+            legend_order = [
+                'E1: Climate change',
+                'E2: Pollution',
+                'E3: Water',
+                'E4: Biodiversity',
+                'E5: Circular economy',
+                'S1: Own workforce',
+                'S2: Value chain workers',
+                'S3: Affected communities',
+                'S4: Consumers',
+                'ESRS 2: Governance',
+                'G1: Business conduct'
+            ]
+            
+            # Farben für jedes Topic
+            my_colors = {
+                'E1: Climate change':        '#145214',
+                'E2: Pollution':             '#2e7d32',
+                'E3: Water':                 '#388e3c',
+                'E4: Biodiversity':          '#81c784',
+                'E5: Circular economy':      '#c8e6c9',
+                'S1: Own workforce':         '#f57c00',
+                'S2: Value chain workers':   '#ffb74d',
+                'S3: Affected communities':  '#e65100',
+                'S4: Consumers':             '#bf360c',
+                'ESRS 2: Governance':        '#5A9BD5',
+                'G1: Business conduct':      '#1F4E79'
+            }
             for t, lbl in topic_map.items():
                 rc, pc = f'rel_{t}', f'{t}_pct'
                 if rc in benchmark_df.columns:
