@@ -2008,37 +2008,11 @@ with main:
                     # kein weiterer Code ausführen
                     st.stop()
         
-            # --- 1b) Für alle anderen Peer-Gruppen: Peer-Average anzeigen ---
-            else:
-                peer_avg = (
-                    avg_df[avg_df['company'] != company]
-                    .groupby('topic_label')['pct']
-                    .mean()
-                    .reset_index(name='pct')
-                )
-                peer_avg['company'] = 'Peer Average'
-                fig = px.bar(
-                    peer_avg,
-                    x='pct', y='company',
-                    orientation='h',
-                    color='topic_label',
-                    barmode='stack',
-                    color_discrete_map=my_colors,
-                    category_orders={
-                        'company': ['Peer Average'],
-                        'topic_label': legend_order
-                    },
-                    labels={'company':'','pct':''}
-                )
-                fig.update_layout(xaxis_tickformat=",.0%", showlegend=True)
-                st.plotly_chart(fig, use_container_width=True)
-        
-                # kein weiterer Code ausführen
-                st.stop()
+            
 
             
             # — 5) Darstellung je nach Benchmark-Typ —
-            if mode == "Company Country vs Other Countries":
+            elif mode == "Company Country vs Other Countries":
                 # a) country ins Long-DF einfügen
                 plot_long = plot_long.merge(
                     benchmark_df[['company','country']],
