@@ -3831,10 +3831,12 @@ with main:
         elif view == "Sentiment":
 
             # 0) Market Cap-Fallback: wenn Company vs. Peer Group + Market Cap Peers
-            peer_comps = benchmark_df["company"].unique()
-            if peer_group == "Market Cap Peers" and len(peer_comps) <= 1:
-        
+            peer_companies = benchmark_df["company"].unique()
+            if len(peer_companies) <= 1 and peer_group != "Choose specific peers":
                 st.warning("Unfortunately, there are no data available for your company.")
+        
+                # --- 1a) Falls Market Cap Peers: Vergleich der drei Gruppen ---
+                if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
         
                 # a) Cap-Labels definieren
                 def cap_label(terc):
