@@ -2005,8 +2005,8 @@ with main:
                     )
                     st.plotly_chart(fig, use_container_width=True)
             
-                # kein weiterer Code ausführen
-                st.stop()
+                    # kein weiterer Code ausführen
+                    st.stop()
         
             # --- 1b) Für alle anderen Peer-Gruppen: Peer-Average anzeigen ---
             else:
