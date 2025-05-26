@@ -2382,7 +2382,8 @@ with main:
                         marker_line_color='black',
                         marker_line_width=0.5,
                         opacity=1,
-                        textangle = 0
+                        textangle = 0,
+                        width = 0.8
                     )
                     fig_benchmark.update_layout(
                         barmode='stack',
@@ -2420,7 +2421,8 @@ with main:
                         textposition='inside',
                         insidetextanchor='start',
                         textfont=dict(size=12, color='white'),
-                        textangle = 0
+                        textangle = 0,
+                        width = 0.8
                     )
                     fig_firmen.update_layout(
                         barmode='stack',
