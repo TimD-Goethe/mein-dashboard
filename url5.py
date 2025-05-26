@@ -5470,7 +5470,7 @@ with main:
         elif view == "Publication Timeline":
             st.subheader(f"Reports Published Over Time ({benchmark_label})")
         
-            # 1) Für Peer‐Gruppen‐Modus: _group definieren
+            # 1) _group definieren wie gehabt
             if mode == "Company vs. Peer Group":
                 plot_df = benchmark_df.assign(
                     _group=np.where(
@@ -5480,11 +5480,10 @@ with main:
                     )
                 )
             else:
-                # für Country vs Other und Sector vs Other hast Du _group ja schon gesetzt
-                plot_df = benchmark_df.copy()
+                plot_df = benchmark_df.copy()  # für die anderen Modi
         
-            # 2) Nur Datum (kein Time) und nach Group & Date zählen
-            plot_df["pub_date"] = plot_df["publication date"].dt.date
+            # 2) Datum extrahieren und zählen
+            plot_df["pub_date"] = plot_df["publication_date"].dt.date
             counts = (
                 plot_df
                 .groupby(["pub_date", "_group"])["company"]
@@ -5492,7 +5491,7 @@ with main:
                 .reset_index(name="count")
             )
         
-            # 3) Pivot → Wide + kumulativ aufsummieren
+            # 3) Pivot + kumulieren
             cum_df = (
                 counts
                 .pivot(index="pub_date", columns="_group", values="count")
@@ -5501,22 +5500,34 @@ with main:
                 .reset_index()
             )
         
-            # 4) Area‐Chart mit Plotly Express
+            # 4) Area‐Chart erzeugen
             fig = px.area(
                 cum_df,
                 x="pub_date",
-                y=[col for col in cum_df.columns if col != "pub_date"],
+                y=[c for c in cum_df.columns if c != "pub_date"],
                 labels={
                     "pub_date": "Publication Date",
                     "value": "Cumulative Reports",
                     "variable": "Group"
-                },
-                category_orders={"variable": sorted(cum_df.columns.drop("pub_date"))}
+                }
             )
-            fig.update_layout(
-                xaxis=dict(tickformat="%b %Y"),
-                legend_title_text=""
+            fig.update_layout(xaxis=dict(tickformat="%b %Y"), legend_title_text="")
+        
+            # 5) Jetzt die horizontale Linie hinzufügen:
+            #    a) Publikationsdatum der Firma holen
+            pub_date = df.loc[df["company"] == company, "publication_date"].dt.date.iat[0]
+            #    b) kumulierten Wert an genau diesem Datum ermitteln
+            company_cum = cum_df.set_index("pub_date")[company].loc[pub_date]
+            #    c) horizontale gestrichelte rote Linie einzeichnen
+            fig.add_hline(
+                y=company_cum,
+                line_dash="dash",
+                line_color="red",
+                line_width=2,
+                annotation_text=f"{company} publiziert am {pub_date:%d.%m.%Y}",
+                annotation_position="right"
             )
+        
             st.plotly_chart(fig, use_container_width=True)
         
         else:
