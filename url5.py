@@ -96,11 +96,18 @@ st.markdown(
 #--------------------------------------------------------------------------------------
 df = pd.read_csv("450_final_version.csv")
 
-# 1) Maske: erste Zeichen sind Kleinbuchstaben
-mask = df["company"].str[0].str.islower()
+# 1. Nachdem du df eingelesen hast:
+def fix_company_name(name: str) -> str:
+    # Prüfen, ob das erste Zeichen ein Kleinbuchstabe ist
+    if name and name[0].islower():
+        # nur das erste Zeichen groß, Rest bleibt unverändert
+        return name[0].upper() + name[1:]
+    else:
+        # ansonsten unverändert zurückgeben
+        return name
 
-# 2) Wende nur auf diese Title-Case an
-df.loc[mask, "company"] = df.loc[mask, "company"].str.title()
+# 2. Auf alle company-Namen anwenden
+df["company"] = df["company"].apply(fix_company_name)
 
 # direkt nach dem Einlesen
 df['SASB industry'] = (
