@@ -332,6 +332,7 @@ with left:
             "",
             [
                 "Sector Peers",
+                "Industry Peers",
                 "Country Peers",
                 "Market Cap Peers",
                 "Choose specific peers",
@@ -428,6 +429,11 @@ if mode == "Company vs. Peer Group":
         supersec      = df.loc[df["company"] == company, "supersector"].iat[0]
         benchmark_df  = df[df["supersector"] == supersec]
         benchmark_label = f"Sector Peers: {supersec}"
+
+    elif peer_group == "Industry Peers":
+        supersec      = df.loc[df["company"] == company, "SASB industry"].iat[0]
+        benchmark_df  = df[df["SASB industry"] == indsutry]
+        benchmark_label = f"Industry Peers: {SASB industry}"
 
     elif peer_group == "Country Peers":
         country       = df.loc[df["company"] == company, "country"].iat[0]
