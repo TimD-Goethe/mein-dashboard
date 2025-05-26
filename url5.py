@@ -2328,7 +2328,8 @@ with main:
                         textposition='inside',
                         insidetextanchor='start',
                         textfont=dict(size=12, color='white'),
-                        textangle = 0
+                        textangle = 0,
+                        width = 0.8
                     )
                     fig_peers.update_layout(
                         barmode='stack',
