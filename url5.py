@@ -1010,7 +1010,11 @@ with main:
                         },
                         labels={"Words":"Words","Group":""}
                     )
-                    fig.update_traces(texttemplate="%{text:.0f}", textposition="outside")
+                    fig.update_traces(
+                        textposition="inside",
+                        insidetextanchor="middle",
+                        textangle=0         # 0° drehen
+                    )
                     fig.update_layout(xaxis_title="Words", margin=dict(l=120), showlegend=False)
                     st.plotly_chart(fig, use_container_width=True)
         
