@@ -267,7 +267,7 @@ def smart_layout(fig, num_items, *,
 #--------------------------------------------------------------------------------------
 # 3. URL-Param & Default
 #--------------------------------------------------------------------------------------
-company_list    = df["company"].dropna().unique().tolist()
+company_list = sorted(df["company"].dropna().unique(), key=str.lower)
 mapping_ci      = {n.strip().casefold(): n for n in company_list}
 
 # Get and decode the company from URL
