@@ -5528,13 +5528,13 @@ with main:
             company_cum = cum_df.set_index("pub_date")[line_group].loc[pub_date]
         
             #    d) Linie einzeichnen
-            fig.add_hline(
-                y=company_cum,
+             fig.add_vline(
+                x=pub_date,
                 line_dash="dash",
                 line_color="red",
                 line_width=2,
-                annotation_text=f"{company} publiziert am {pub_date:%d.%m.%Y}",
-                annotation_position="right"
+                annotation_text=f"{company}",
+                annotation_position="top right"
             )
         
             st.plotly_chart(fig, use_container_width=True)
