@@ -4020,7 +4020,7 @@ with main:
                     x="Group",
                     y=["Positive", "Negative"],
                     barmode="group",
-                    color_discrete_sequence=["#E10600", "#1f77b4"],
+                    color_discrete_sequence=["#1f77b4", "#E10600"],
                     labels={"value": "", "variable": "Sentiment", "Group": ""}
                 )
                 # focal country links anzeigen
@@ -4278,7 +4278,7 @@ with main:
                     x="Group",
                     y=["Positive", "Negative"],
                     barmode="group",
-                    color_discrete_sequence=["#E10600", "#1f77b4"],
+                    color_discrete_sequence=["#1f77b4", "#E10600"],
                     labels={"value": "", "variable": "Sentiment", "Group": ""}
                 )
                 fig_cmp.update_layout(
@@ -4451,7 +4451,7 @@ with main:
                     y=["Positive", "Negative"],
                     barmode="group",
                     # wir lassen color_discrete_sequence hier stehen, wird aber gleich überschrieben
-                    color_discrete_sequence=["#FF7F7F", "#E10600"],
+                    color_discrete_sequence=["#1f77b4", "#E10600"],
                     category_orders={"company": [company, "Peer Average"]},
                     labels={"value": "", "company": ""}
                 )
