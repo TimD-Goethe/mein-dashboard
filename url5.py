@@ -431,7 +431,7 @@ if mode == "Company vs. Peer Group":
         benchmark_label = f"Sector Peers: {supersec}"
 
     elif peer_group == "Industry Peers":
-        supersec      = df.loc[df["company"] == company, "SASB industry"].iat[0]
+        industry      = df.loc[df["company"] == company, "SASB industry"].iat[0]
         benchmark_df  = df[df["SASB industry"] == indsutry]
         benchmark_label = f"Industry Peers: {industry}"
 
