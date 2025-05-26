@@ -5483,7 +5483,7 @@ with main:
                 plot_df = benchmark_df.copy()  # für Sector- und Country-Modi ist _group schon gesetzt
         
             # 2) Publication Date extrahieren und pro Datum & Gruppe zählen
-            plot_df["pub_date"] = plot_df["publication_date"].dt.date
+            plot_df["pub_date"] = plot_df["publication date"].dt.date
             counts = (
                 plot_df
                 .groupby(["pub_date", "_group"])["company"]
@@ -5523,7 +5523,7 @@ with main:
                 line_group = focal_country
         
             #    b) Publikationsdatum der Firma
-            pub_date = df.loc[df["company"] == company, "publication_date"].dt.date.iat[0]
+            pub_date = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
             #    c) kumulierten Wert an diesem Datum aus cum_df holen
             company_cum = cum_df.set_index("pub_date")[line_group].loc[pub_date]
         
