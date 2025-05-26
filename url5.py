@@ -11,6 +11,14 @@ from urllib.parse import unquote, quote
 #-------------------------------------------------------------------------
 st.set_page_config(page_title="CSRD Benchmarking Dashboard", layout="wide")
 
+st.markdown("""
+    <style>
+        div[class*="status-page-banner"] {
+            display: none !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 st.markdown(
     """
     <style>
