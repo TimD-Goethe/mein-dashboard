@@ -5470,7 +5470,7 @@ with main:
         elif view == "Publication Timeline":
             st.subheader(f"Reports Published Over Time ({benchmark_label})")
         
-            # 1) _group definieren wie gehabt
+            # 1) _group definieren
             if mode == "Company vs. Peer Group":
                 plot_df = benchmark_df.assign(
                     _group=np.where(
@@ -5480,10 +5480,10 @@ with main:
                     )
                 )
             else:
-                plot_df = benchmark_df.copy()  # für die anderen Modi
+                plot_df = benchmark_df.copy()  # für Sector- und Country-Modi ist _group schon gesetzt
         
-            # 2) Datum extrahieren und zählen
-            plot_df["pub_date"] = plot_df["publication date"].dt.date
+            # 2) Publication Date extrahieren und pro Datum & Gruppe zählen
+            plot_df["pub_date"] = plot_df["publication_date"].dt.date
             counts = (
                 plot_df
                 .groupby(["pub_date", "_group"])["company"]
@@ -5491,7 +5491,7 @@ with main:
                 .reset_index(name="count")
             )
         
-            # 3) Pivot + kumulieren
+            # 3) Pivot + kumulativ aufsummieren
             cum_df = (
                 counts
                 .pivot(index="pub_date", columns="_group", values="count")
@@ -5500,7 +5500,7 @@ with main:
                 .reset_index()
             )
         
-            # 4) Area‐Chart erzeugen
+            # 4) Area-Chart zeichnen
             fig = px.area(
                 cum_df,
                 x="pub_date",
@@ -5513,12 +5513,21 @@ with main:
             )
             fig.update_layout(xaxis=dict(tickformat="%b %Y"), legend_title_text="")
         
-            # 5) Jetzt die horizontale Linie hinzufügen:
-            #    a) Publikationsdatum der Firma holen
-            pub_date = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
-            #    b) kumulierten Wert an genau diesem Datum ermitteln
-            company_cum = cum_df.set_index("pub_date")[company].loc[pub_date]
-            #    c) horizontale gestrichelte rote Linie einzeichnen
+            # 5) Horizontale rote Linie zum Publikationszeitpunkt der ausgewählten Firma
+            #    a) Spaltenname ermitteln, in dem die Firma steckt
+            if mode == "Company vs. Peer Group":
+                line_group = company
+            elif mode == "Company Sector vs Other Sectors":
+                line_group = focal_super
+            else:  # Company Country vs Other Countries
+                line_group = focal_country
+        
+            #    b) Publikationsdatum der Firma
+            pub_date = df.loc[df["company"] == company, "publication_date"].dt.date.iat[0]
+            #    c) kumulierten Wert an diesem Datum aus cum_df holen
+            company_cum = cum_df.set_index("pub_date")[line_group].loc[pub_date]
+        
+            #    d) Linie einzeichnen
             fig.add_hline(
                 y=company_cum,
                 line_dash="dash",
