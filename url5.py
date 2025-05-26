@@ -5513,34 +5513,31 @@ with main:
             )
             fig.update_layout(xaxis=dict(tickformat="%b %Y"), legend_title_text="")
         
-            # 5) Horizontale rote Linie zum Publikationszeitpunkt der ausgewählten Firma
-            #    a) Spaltenname ermitteln, in dem die Firma steckt
-            if mode == "Company vs. Peer Group":
-                line_group = company
-            elif mode == "Company Sector vs Other Sectors":
-                line_group = focal_super
-            else:  # Company Country vs Other Countries
-                line_group = focal_country
-        
-            #    b) Publikationsdatum der Firma
-            pub_date = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
-            #    c) kumulierten Wert an diesem Datum aus cum_df holen
+            # Veröffentlichungsdatum und kumulierten Wert holen
+            pub_date    = df.loc[df["company"] == company, "publication_date"].dt.date.iat[0]
+            line_group  = company if mode=="Company vs. Peer Group" else (focal_super if mode=="Company Sector vs Other Sectors" else focal_country)
             company_cum = cum_df.set_index("pub_date")[line_group].loc[pub_date]
         
-            fig.add_vline(
+            # 1) Linie als Shape
+            fig.add_shape(
+                type="line",
+                x0=pub_date, x1=pub_date,
+                y0=0,        y1=1,
+                xref="x",
+                yref="paper",
+                line=dict(color="red", width=2, dash="dash")
+            )
+        
+            # 2) Annotation separat
+            fig.add_annotation(
                 x=pub_date,
-                line_dash="dash",
-                line_color="red",
-                line_width=2,
-                annotation=dict(
-                    text=company,
-                    x=pub_date,        # auf der x-Achse
-                    xref="x",
-                    yref="paper",      # y in Papier-Koordinaten
-                    y=1.02,            # ganz oben über der Zeichnung
-                    showarrow=False,
-                    font=dict(color="red")
-                )
+                y=1.02,
+                xref="x",
+                yref="paper",
+                text=f"{company} publiziert am {pub_date:%d.%m.%Y}",
+                showarrow=False,
+                xanchor="left",
+                font=dict(color="red")
             )
         
             st.plotly_chart(fig, use_container_width=True)
