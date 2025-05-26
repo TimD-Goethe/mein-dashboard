@@ -96,7 +96,11 @@ st.markdown(
 #--------------------------------------------------------------------------------------
 df = pd.read_csv("450_final_version.csv")
 
-df["company"] = df["company"].str.title()
+# 1) Maske: erste Zeichen sind Kleinbuchstaben
+mask = df["company"].str[0].str.islower()
+
+# 2) Wende nur auf diese Title-Case an
+df.loc[mask, "company"] = df.loc[mask, "company"].str.title()
 
 # direkt nach dem Einlesen
 df['SASB industry'] = (
