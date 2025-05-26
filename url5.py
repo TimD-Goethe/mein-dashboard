@@ -5534,7 +5534,7 @@ with main:
                 y=1.02,
                 xref="x",
                 yref="paper",
-                text=f"{company} publiziert am {pub_date:%d.%m.%Y}",
+                text=company,
                 showarrow=False,
                 xanchor="left",
                 font=dict(color="red")
