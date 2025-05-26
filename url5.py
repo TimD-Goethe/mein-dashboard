@@ -432,7 +432,7 @@ if mode == "Company vs. Peer Group":
 
     elif peer_group == "Industry Peers":
         industry      = df.loc[df["company"] == company, "SASB industry"].iat[0]
-        benchmark_df  = df[df["SASB industry"] == indsutry]
+        benchmark_df  = df[df["SASB industry"] == industry]
         benchmark_label = f"Industry Peers: {industry}"
 
     elif peer_group == "Country Peers":
