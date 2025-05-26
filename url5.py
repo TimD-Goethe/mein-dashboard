@@ -5515,7 +5515,7 @@ with main:
         
             # 5) Jetzt die horizontale Linie hinzufügen:
             #    a) Publikationsdatum der Firma holen
-            pub_date = df.loc[df["company"] == company, "publication_date"].dt.date.iat[0]
+            pub_date = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
             #    b) kumulierten Wert an genau diesem Datum ermitteln
             company_cum = cum_df.set_index("pub_date")[company].loc[pub_date]
             #    c) horizontale gestrichelte rote Linie einzeichnen
