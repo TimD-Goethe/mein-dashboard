@@ -5527,14 +5527,20 @@ with main:
             #    c) kumulierten Wert an diesem Datum aus cum_df holen
             company_cum = cum_df.set_index("pub_date")[line_group].loc[pub_date]
         
-            #    d) Linie einzeichnen
             fig.add_vline(
                 x=pub_date,
                 line_dash="dash",
                 line_color="red",
                 line_width=2,
-                annotation_text=f"{company}",
-                annotation_position="top right"
+                annotation=dict(
+                    text=company,
+                    x=pub_date,        # auf der x-Achse
+                    xref="x",
+                    yref="paper",      # y in Papier-Koordinaten
+                    y=1.02,            # ganz oben über der Zeichnung
+                    showarrow=False,
+                    font=dict(color="red")
+                )
             )
         
             st.plotly_chart(fig, use_container_width=True)
