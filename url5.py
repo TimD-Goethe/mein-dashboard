@@ -5514,7 +5514,7 @@ with main:
             fig.update_layout(xaxis=dict(tickformat="%b %Y"), legend_title_text="")
         
             # Veröffentlichungsdatum und kumulierten Wert holen
-            pub_date    = df.loc[df["company"] == company, "publication_date"].dt.date.iat[0]
+            pub_date    = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
             line_group  = company if mode=="Company vs. Peer Group" else (focal_super if mode=="Company Sector vs Other Sectors" else focal_country)
             company_cum = cum_df.set_index("pub_date")[line_group].loc[pub_date]
         
