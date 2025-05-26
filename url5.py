@@ -2008,7 +2008,11 @@ with main:
                     orientation="h",
                     color="topic_label",
                     barmode="stack",
-                    text=plot_df["pct"].apply(lambda v: f"{v*100:.0f}%" if v >= 0.05 else ""),
+                    text=plot_df["pct"].apply(
+                        lambda v: f"{v*100:.0f}%"
+                                  if round(v*100) >= 5
+                                  else ""
+                    ),
                     color_discrete_map=my_colors,
                     category_orders={
                         "Group":      ["Small-Cap", "Mid-Cap", "Large-Cap", company],
@@ -2074,7 +2078,11 @@ with main:
                     combo,
                     x='pct', y='country_short', color='topic_label',
                     orientation='h',
-                    text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                    text=combo["pct"].apply(
+                        lambda v: f"{v*100:.0f}%"
+                                  if round(v*100) >= 5
+                                  else ""
+                    ),
                     labels={'country_short':'','pct':''},
                     color_discrete_map=my_colors,
                     category_orders={'country_short':catA,'topic_label':legend_order}
@@ -2101,7 +2109,11 @@ with main:
                     country_topic,
                     x='pct', y='country_short', color='topic_label',
                     orientation='h',
-                    text=country_topic['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                    text=country_topic["pct"].apply(
+                        lambda v: f"{v*100:.0f}%"
+                                  if round(v*100) >= 5
+                                  else ""
+                    ),
                     labels={'country_short':'','pct':''},
                     color_discrete_map=my_colors,
                     category_orders={'country_short':orderB,'topic_label':legend_order}
@@ -2157,7 +2169,11 @@ with main:
                     combo,
                     x='pct', y='sector_wrapped', color='topic_label',
                     orientation='h',
-                    text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                    text=combo["pct"].apply(
+                        lambda v: f"{v*100:.0f}%"
+                                  if round(v*100) >= 5
+                                  else ""
+                    ),
                     labels={'sector_wrapped':'','pct':''},
                     color_discrete_map=my_colors,
                     category_orders={'sector_wrapped':catA,'topic_label':legend_order}
@@ -2183,7 +2199,11 @@ with main:
                     sector_topic,
                     x='pct', y='sector_wrapped', color='topic_label',
                     orientation='h',
-                    text=sector_topic['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                    text=sector_topic["pct"].apply(
+                        lambda v: f"{v*100:.0f}%"
+                                  if round(v*100) >= 5
+                                  else ""
+                    ),
                     labels={'sector_wrapped':'','pct':''},
                     color_discrete_map=my_colors,
                     category_orders={'sector_wrapped':orderB,'topic_label':legend_order}
@@ -2244,7 +2264,11 @@ with main:
                         peer_avg,
                         x='pct', y='company_short', color='topic_label',
                         orientation='h',
-                        text=peer_avg['pct'].apply(lambda v: f"{v*100:.0f}%"),
+                        text=peer_avg["pct"].apply(
+                            lambda v: f"{v*100:.0f}%"
+                                      if round(v*100) >= 5
+                                      else ""
+                        ),
                         labels={'company_short':'','pct':''},
                         color_discrete_map=my_colors,
                         category_orders={
@@ -2273,8 +2297,11 @@ with main:
                         df_peers,
                         x='pct', y='company_short', color='topic_label',
                         orientation='h',
-                        text=df_peers['pct'].apply(lambda v: f"{v*100:.0f}%"
-                                                   if v>=0.05 else ""),
+                        text=df_peers["pct"].apply(
+                            lambda v: f"{v*100:.0f}%"
+                                      if round(v*100) >= 5
+                                      else ""
+                        )
                         labels={'company_short':'','pct':''},
                         color_discrete_map=my_colors,
                         category_orders={
@@ -2323,7 +2350,11 @@ with main:
                         combo,
                         x='pct', y='company_short', color='topic_label',
                         orientation='h',
-                        text=combo['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                        text=combo["pct"].apply(
+                            lambda v: f"{v*100:.0f}%"
+                                      if round(v*100) >= 5
+                                      else ""
+                        ),
                         labels={'company_short':'','pct':''},
                         color_discrete_map=my_colors,
                         category_orders={
@@ -2357,7 +2388,11 @@ with main:
                         avg_df,
                         x='pct', y='company_short', color='topic_label',
                         orientation='h',
-                        text=avg_df['pct'].apply(lambda v: f"{v*100:.0f}%" if v>=0.05 else ""),
+                        text=avg_df["pct"].apply(
+                            lambda v: f"{v*100:.0f}%"
+                                      if round(v*100) >= 5
+                                      else ""
+                        ),
                         labels={'company_short':'','pct':''},
                         color_discrete_map=my_colors,
                         category_orders={
