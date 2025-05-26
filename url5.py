@@ -228,7 +228,7 @@ def smart_layout(fig, num_items, *,
                  min_height=300,    # absolute Mindesthöhe
                  max_height=1400,   # absolute Maxhöhe
                  bar_height=40,     # Pixel pro Item
-                 min_font=12,        # absolute Mindestschrift
+                 min_font=11,        # absolute Mindestschrift
                  max_font=16        # absolute Maxschrift
                 ):
     """
