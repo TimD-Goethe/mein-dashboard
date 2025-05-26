@@ -1938,94 +1938,92 @@ with main:
             companies_with_data = avg_df.loc[avg_df['pct'] > 0, 'company'].unique()
             avg_df = avg_df[avg_df['company'].isin(companies_with_data)].copy()
         
-            
-            if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers":
-                peer_companies = benchmark_df["company"].unique()
-                if len(peer_companies) <= 1:
-                    st.warning("Unfortunately, there are no data available for your company.")
-                    # —— a) Cap-Labels definieren
-                    def cap_label(terc):
-                        return ("Small-Cap" if 1 <= terc <= 3 else
-                                "Mid-Cap"   if 4 <= terc <= 7 else
-                                "Large-Cap" if 8 <= terc <= 10 else
-                                "Unknown")
-            
-                    # —— b) Alle rel_* → pct in df kopieren
-                    for t in topic_map:
-                        rc, pc = f"rel_{t}", f"{t}_pct"
-                        if rc in df.columns:
-                            df[pc] = df[rc]
-                    pct_cols = [c for c in df.columns if c.endswith("_pct")]
-            
-                    # —— c) Langformat aus dem vollen df (nicht benchmark_df)
-                    full_long = (
-                        df
-                        .assign(cap_group=df["Market_Cap_Cat"].apply(cap_label))
-                        .melt(
-                            id_vars=["company","cap_group"],
-                            value_vars=pct_cols,
-                            var_name="topic_internal",
-                            value_name="pct"
-                        )
-                        .assign(
-                            topic=lambda d: d["topic_internal"].str.replace("_pct","",regex=False),
-                            topic_label=lambda d: d["topic"].map(topic_map)
-                        )
-                        .query("pct>0")
+            peer_companies = benchmark_df["company"].unique()
+            if mode == "Company vs. Peer Group" and peer_group == "Market Cap Peers" and len(peer_companies) <= 1:
+                st.warning("Unfortunately, there are no data available for your company.")
+                # —— a) Cap-Labels definieren
+                def cap_label(terc):
+                    return ("Small-Cap" if 1 <= terc <= 3 else
+                            "Mid-Cap"   if 4 <= terc <= 7 else
+                            "Large-Cap" if 8 <= terc <= 10 else
+                            "Unknown")
+        
+                # —— b) Alle rel_* → pct in df kopieren
+                for t in topic_map:
+                    rc, pc = f"rel_{t}", f"{t}_pct"
+                    if rc in df.columns:
+                        df[pc] = df[rc]
+                pct_cols = [c for c in df.columns if c.endswith("_pct")]
+        
+                # —— c) Langformat aus dem vollen df (nicht benchmark_df)
+                full_long = (
+                    df
+                    .assign(cap_group=df["Market_Cap_Cat"].apply(cap_label))
+                    .melt(
+                        id_vars=["company","cap_group"],
+                        value_vars=pct_cols,
+                        var_name="topic_internal",
+                        value_name="pct"
                     )
-            
-                    # —— d) Durchschnitt pro cap_group & topic_label (ohne Unknown)
-                    cap_avg = (
-                        full_long[full_long.cap_group != "Unknown"]
-                        .groupby(["cap_group","topic_label"])["pct"]
-                        .mean()
-                        .reset_index()
+                    .assign(
+                        topic=lambda d: d["topic_internal"].str.replace("_pct","",regex=False),
+                        topic_label=lambda d: d["topic"].map(topic_map)
                     )
-            
-                    # —— e) Werte der ausgewählten Firma extrahieren
-                    sel_df = (
-                        full_long[full_long.company == company]
-                        .groupby("topic_label")["pct"]
-                        .mean()
-                        .reset_index()
-                        .assign(cap_group=company)
-                    )
-            
-                    # —— f) cap_avg + sel_df zusammenbringen
-                    plot_df = pd.concat(
-                        [
-                            cap_avg.rename(columns={"cap_group":"Group"}),
-                            sel_df.rename(columns={"cap_group":"Group"})
-                        ],
-                        ignore_index=True
-                    )
-            
-                    # —— g) Eine gestapelte Bar für Small/Mid/Large und Deine Firma
-                    fig = px.bar(
-                        plot_df,
-                        x="pct", y="Group",
-                        orientation="h",
-                        color="topic_label",
-                        barmode="stack",
-                        text=plot_df["pct"].apply(lambda v: f"{v*100:.0f}%" if v >= 0.05 else ""),
-                        color_discrete_map=my_colors,
-                        category_orders={
-                            "Group":      ["Small-Cap", "Mid-Cap", "Large-Cap", company],
-                            "topic_label": legend_order
-                        },
-                        labels={"pct":"","Group":""}
-                    )
-                    # Werte-Labels nur bei ≥5 %, innen ausrichten
-                    fig.update_traces(textposition="inside", insidetextanchor="middle")
-                    fig.update_layout(
-                        xaxis_tickformat=",.0%",
-                        showlegend=True,
-                        legend_title_text="ESRS Topic"
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
-            
-                    # kein weiterer Code ausführen
-                    st.stop()
+                    .query("pct>0")
+                )
+        
+                # —— d) Durchschnitt pro cap_group & topic_label (ohne Unknown)
+                cap_avg = (
+                    full_long[full_long.cap_group != "Unknown"]
+                    .groupby(["cap_group","topic_label"])["pct"]
+                    .mean()
+                    .reset_index()
+                )
+        
+                # —— e) Werte der ausgewählten Firma extrahieren
+                sel_df = (
+                    full_long[full_long.company == company]
+                    .groupby("topic_label")["pct"]
+                    .mean()
+                    .reset_index()
+                    .assign(cap_group=company)
+                )
+        
+                # —— f) cap_avg + sel_df zusammenbringen
+                plot_df = pd.concat(
+                    [
+                        cap_avg.rename(columns={"cap_group":"Group"}),
+                        sel_df.rename(columns={"cap_group":"Group"})
+                    ],
+                    ignore_index=True
+                )
+        
+                # —— g) Eine gestapelte Bar für Small/Mid/Large und Deine Firma
+                fig = px.bar(
+                    plot_df,
+                    x="pct", y="Group",
+                    orientation="h",
+                    color="topic_label",
+                    barmode="stack",
+                    text=plot_df["pct"].apply(lambda v: f"{v*100:.0f}%" if v >= 0.05 else ""),
+                    color_discrete_map=my_colors,
+                    category_orders={
+                        "Group":      ["Small-Cap", "Mid-Cap", "Large-Cap", company],
+                        "topic_label": legend_order
+                    },
+                    labels={"pct":"","Group":""}
+                )
+                # Werte-Labels nur bei ≥5 %, innen ausrichten
+                fig.update_traces(textposition="inside", insidetextanchor="middle")
+                fig.update_layout(
+                    xaxis_tickformat=",.0%",
+                    showlegend=True,
+                    legend_title_text="ESRS Topic"
+                )
+                st.plotly_chart(fig, use_container_width=True)
+        
+                # kein weiterer Code ausführen
+                st.stop()
         
             
 
