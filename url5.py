@@ -5528,7 +5528,7 @@ with main:
             company_cum = cum_df.set_index("pub_date")[line_group].loc[pub_date]
         
             #    d) Linie einzeichnen
-             fig.add_vline(
+            fig.add_vline(
                 x=pub_date,
                 line_dash="dash",
                 line_color="red",
