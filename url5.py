@@ -5523,7 +5523,7 @@ with main:
                     )
                 )
             else:
-                # für Sector- und Country-Modi ist _group schon richtig gesetzt
+                # für Sector- und Country-Modi ist _group schon gesetzt
                 plot_df = benchmark_df.copy()
         
             # 2) Publication Date extrahieren und pro Datum & Gruppe zählen
@@ -5544,21 +5544,24 @@ with main:
                 .reset_index()
             )
         
-            # 4) Chart aufbauen – je nach Mode unterschiedlich
+            # 4) Area-Chart zeichnen – je nach Mode unterschiedlich
             if mode == "Company vs. Peer Group":
-                # a) Nur ein einziger Trace für die Firma
+                # nur die Peers-Fläche in Plotlys Standard-Blau, ohne Legende
                 fig = px.area(
                     cum_df,
                     x="pub_date",
-                    y=company,
-                    labels={"pub_date": "Publication Date", company: "Cumulative Reports"}
+                    y=["Peers"],
+                    labels={"pub_date": "Publication Date", "Peers": "Cumulative Reports"}
                 )
-                # b) Einheitlich dunkelblaue Fläche, keine Legendeneinträge
-                fig.update_traces(fillcolor="#1f77b4", line_color="#1f77b4", opacity=1)
+                fig.update_traces(
+                    fillcolor="#1f77b4",
+                    line_color="#1f77b4",
+                    opacity=1
+                )
                 fig.update_layout(showlegend=False)
         
             else:
-                # a) Alle Gruppen als Area
+                # alle Gruppen als Area
                 groups = [c for c in cum_df.columns if c != "pub_date"]
                 fig = px.area(
                     cum_df,
@@ -5572,21 +5575,23 @@ with main:
                 )
                 fig.update_layout(xaxis=dict(tickformat="%b %Y"), legend_title_text="")
         
-                # b) Welche Gruppe hervorheben?
+                # Highlight-Gruppe ermitteln
                 highlight = (
-                    company if mode == "Company vs. Peer Group" else
-                    focal_super if mode == "Company Sector vs Other Sectors" else
+                    company
+                    if mode == "Company vs. Peer Group" else
+                    focal_super
+                    if mode == "Company Sector vs Other Sectors" else
                     focal_country
                 )
         
-                # c) Hellblaue Fläche für alle außer highlight
+                # hellblaue Fläche für alle außer highlight
                 fig.update_traces(
                     selector=lambda tr: tr.name != highlight,
                     fillcolor="lightblue",
                     line=dict(width=0),
                     opacity=0.5
                 )
-                # d) Dunkle Linie für highlight oben drauf
+                # dunkle Linie für highlight
                 fig.add_trace(
                     go.Scatter(
                         x=cum_df["pub_date"],
@@ -5597,7 +5602,7 @@ with main:
                     )
                 )
         
-            # 5) Vertikale rote Linie zum Publikationsdatum der Firma
+            # 5) Vertikale rote Linie zum Publikationszeitpunkt
             pub_date = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
             fig.add_shape(
                 type="line",
@@ -5616,7 +5621,7 @@ with main:
                 font=dict(color="red")
             )
         
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True) 
         
         else:
             st.subheader("Peer Company List")
