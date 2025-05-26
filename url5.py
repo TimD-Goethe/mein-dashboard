@@ -435,7 +435,7 @@ with right:
             key="plot_type"
         )
 
-    if view == "ESRS Topic Shares":
+    elif view == "ESRS Topic Shares":
         # bei ESRS only Bar Chart erlauben
         plot_type = st.radio(
             "",
