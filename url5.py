@@ -116,6 +116,8 @@ df['SASB industry'] = (
       .str.strip()
 )
 
+# Echte Timestamps
+df["publication_date"] = pd.to_datetime(df["publication_date"])
 
 # Zusammenfassen der SASB_industry Variable in die SASB Sectors
 
@@ -389,6 +391,7 @@ with right:
         "Standardized Language",
         "Language Complexity",
         "Sentiment",
+        "Publication Timeline",
         "Peer Company List",
     ]
     view = st.radio(
@@ -5461,7 +5464,60 @@ with main:
                 fig_avg.update_traces(texttemplate="%{text:.0f}", textposition="outside", width=0.5)
             
                 st.plotly_chart(fig_avg, use_container_width=True)
+
+
         
+        elif view == "Publication Timeline":
+            st.subheader(f"Reports Published Over Time ({benchmark_label})")
+        
+            # 1) Für Peer‐Gruppen‐Modus: _group definieren
+            if mode == "Company vs. Peer Group":
+                plot_df = benchmark_df.assign(
+                    _group=np.where(
+                        benchmark_df["company"] == company,
+                        company,
+                        "Peers"
+                    )
+                )
+            else:
+                # für Country vs Other und Sector vs Other hast Du _group ja schon gesetzt
+                plot_df = benchmark_df.copy()
+        
+            # 2) Nur Datum (kein Time) und nach Group & Date zählen
+            plot_df["pub_date"] = plot_df["publication_date"].dt.date
+            counts = (
+                plot_df
+                .groupby(["pub_date", "_group"])["company"]
+                .nunique()
+                .reset_index(name="count")
+            )
+        
+            # 3) Pivot → Wide + kumulativ aufsummieren
+            cum_df = (
+                counts
+                .pivot(index="pub_date", columns="_group", values="count")
+                .fillna(0)
+                .cumsum()
+                .reset_index()
+            )
+        
+            # 4) Area‐Chart mit Plotly Express
+            fig = px.area(
+                cum_df,
+                x="pub_date",
+                y=[col for col in cum_df.columns if col != "pub_date"],
+                labels={
+                    "pub_date": "Publication Date",
+                    "value": "Cumulative Reports",
+                    "variable": "Group"
+                },
+                category_orders={"variable": sorted(cum_df.columns.drop("pub_date"))}
+            )
+            fig.update_layout(
+                xaxis=dict(tickformat="%b %Y"),
+                legend_title_text=""
+            )
+            st.plotly_chart(fig, use_container_width=True)
         
         else:
             st.subheader("Peer Company List")
