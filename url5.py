@@ -5528,12 +5528,10 @@ with main:
                 line=dict(color="red", width=2, dash="dash")
             )
         
-            # 2) Annotation separat
+            # 2) Nur Firmenname als Annotation
             fig.add_annotation(
-                x=pub_date,
-                y=1.02,
-                xref="x",
-                yref="paper",
+                x=pub_date, y=1.02,
+                xref="x",   yref="paper",
                 text=company,
                 showarrow=False,
                 xanchor="left",
