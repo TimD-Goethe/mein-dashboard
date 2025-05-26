@@ -1895,17 +1895,17 @@ with main:
             
             # Farben für jedes Topic
             my_colors = {
-                'E1: Climate change':        '#145214',
-                'E2: Pollution':             '#2e7d32',
-                'E3: Water':                 '#388e3c',
-                'E4: Biodiversity':          '#81c784',
-                'E5: Circular economy':      '#c8e6c9',
-                'S1: Own workforce':         '#f57c00',
-                'S2: Value chain workers':   '#ffb74d',
-                'S3: Affected communities':  '#e65100',
-                'S4: Consumers':             '#bf360c',
-                'ESRS 2: Governance':        '#5A9BD5',
-                'G1: Business conduct':      '#1F4E79'
+                'E1: Climate change':        '#005322',
+                'E2: Pollution':             '#00672B',
+                'E3: Water':                 '#008F3C',
+                'E4: Biodiversity':          '#00A746',
+                'E5: Circular economy':      '#80D3A3',
+                'S1: Own workforce':         '#D12828',
+                'S2: Value chain workers':   '#FF1F1F',
+                'S3: Affected communities':  '#FF5C5C',
+                'S4: Consumers':             '#F28585',
+                'ESRS 2: Governance':        '#F0A151',
+                'G1: Business conduct':      '#F0CB51'
             }
             for t, lbl in topic_map.items():
                 rc, pc = f'rel_{t}', f'{t}_pct'
