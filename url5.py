@@ -5483,7 +5483,7 @@ with main:
                 plot_df = benchmark_df.copy()  # für die anderen Modi
         
             # 2) Datum extrahieren und zählen
-            plot_df["pub_date"] = plot_df["publication_date"].dt.date
+            plot_df["pub_date"] = plot_df["publication date"].dt.date
             counts = (
                 plot_df
                 .groupby(["pub_date", "_group"])["company"]
