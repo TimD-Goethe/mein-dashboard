@@ -96,6 +96,8 @@ st.markdown(
 #--------------------------------------------------------------------------------------
 df = pd.read_csv("450_final_version.csv")
 
+df["company"] = df["company"].str.title()
+
 # direkt nach dem Einlesen
 df['SASB industry'] = (
     df['SASB industry']
