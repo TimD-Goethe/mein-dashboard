@@ -2301,7 +2301,7 @@ with main:
                             lambda v: f"{v*100:.0f}%"
                                       if round(v*100) >= 5
                                       else ""
-                        )
+                        ),
                         labels={'company_short':'','pct':''},
                         color_discrete_map=my_colors,
                         category_orders={
