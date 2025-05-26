@@ -428,6 +428,13 @@ with right:
 
     st.header("Chart Type")
 
+    if view == "Publication Timeline":
+        plot_type = st.radio(
+            "", 
+            ["Bar Chart"],
+            key="plot_type"
+        )
+
     if view == "ESRS Topic Shares":
         # bei ESRS only Bar Chart erlauben
         plot_type = st.radio(
