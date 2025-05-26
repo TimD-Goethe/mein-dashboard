@@ -2076,7 +2076,7 @@ with main:
                     color_discrete_map=my_colors,
                     category_orders={'country_short':catA,'topic_label':legend_order}
                 )
-                figA.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
+                figA.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1, textangle = 0)
                 figA.update_layout(
                     barmode='stack',
                     xaxis_tickformat=',.0%',
@@ -2108,7 +2108,8 @@ with main:
                 figB.update_traces(
                     textposition='inside',      # oder 'auto' / 'outside'
                     insidetextanchor='start',   # linksbündig in jedem Segment
-                    textfont=dict(size=12, color='white')
+                    textfont=dict(size=12, color='white'),
+                    textangle = 0
                 )
             
                 # 4) Höhe & Margin vergrößern
@@ -2158,7 +2159,7 @@ with main:
                     color_discrete_map=my_colors,
                     category_orders={'sector_wrapped':catA,'topic_label':legend_order}
                 )
-                figA.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1)
+                figA.update_traces(marker_line_color='black', marker_line_width=0.5, opacity=1, textangle = 0)
                 figA.update_layout(
                     barmode='stack',
                     xaxis_tickformat=',.0%',
@@ -2188,7 +2189,8 @@ with main:
                 figB.update_traces(
                     textposition='inside',
                     insidetextanchor='start',
-                    textfont=dict(size=12, color='white')
+                    textfont=dict(size=12, color='white'),
+                    textangle = 0
                 )
             
                 # Höhe, Margin & Legende
@@ -2280,7 +2282,8 @@ with main:
                     fig_peers.update_traces(
                         textposition='inside',
                         insidetextanchor='start',
-                        textfont=dict(size=12, color='white')
+                        textfont=dict(size=12, color='white'),
+                        textangle = 0
                     )
                     fig_peers.update_layout(
                         barmode='stack',
@@ -2328,7 +2331,8 @@ with main:
                     fig_benchmark.update_traces(
                         marker_line_color='black',
                         marker_line_width=0.5,
-                        opacity=1
+                        opacity=1,
+                        textangle = 0
                     )
                     fig_benchmark.update_layout(
                         barmode='stack',
@@ -2361,7 +2365,8 @@ with main:
                     fig_firmen.update_traces(
                         textposition='inside',
                         insidetextanchor='start',
-                        textfont=dict(size=12, color='white')
+                        textfont=dict(size=12, color='white'),
+                        textangle = 0
                     )
                     fig_firmen.update_layout(
                         barmode='stack',
