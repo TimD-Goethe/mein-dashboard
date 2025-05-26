@@ -5544,19 +5544,28 @@ with main:
                 .reset_index()
             )
         
-            # 4) Chart je nach Mode aufbauen
+            # 4) Highlight-Group bestimmen
+            if mode == "Company vs. Peer Group":
+                highlight_group = company
+            elif mode == "Company Sector vs Other Sectors":
+                highlight_group = focal_super
+            else:  # Company Country vs Other Countries
+                highlight_group = focal_country
+        
+            # 5) Chart aufbauen
             if mode == "Company vs. Peer Group":
                 # nur die Linie für die ausgewählte Firma
                 fig = px.line(
                     cum_df,
                     x="pub_date",
-                    y=company,
-                    labels={"pub_date": "Publication Date", company: "Cumulative Reports"}
+                    y=highlight_group,
+                    labels={"pub_date": "Publication Date", highlight_group: "Cumulative Reports"}
                 )
                 fig.update_traces(
                     line=dict(color="darkblue", width=3),
-                    name=company
+                    name=highlight_group
                 )
+        
             else:
                 # area‐chart für alle Gruppen
                 groups = [c for c in cum_df.columns if c != "pub_date"]
@@ -5572,26 +5581,26 @@ with main:
                 )
                 fig.update_layout(xaxis=dict(tickformat="%b %Y"), legend_title_text="")
         
-                # hellblaue Fläche für die Peers/Sectors/Others
+                # hellblaue Fläche für alle außer die Highlight-Group
                 fig.update_traces(
-                    selector=lambda tr: tr.name != company,
+                    selector=lambda tr: tr.name != highlight_group,
                     fillcolor="lightblue",
                     line=dict(width=0),
                     opacity=0.5
                 )
-                # dunkle Linie für die ausgewählte Firma
+                # dunkle Linie für die Highlight-Group oben drauf
                 fig.add_trace(
                     go.Scatter(
                         x=cum_df["pub_date"],
-                        y=cum_df[company],
+                        y=cum_df[highlight_group],
                         mode="lines",
                         line=dict(color="darkblue", width=3),
-                        name=company
+                        name=highlight_group
                     )
                 )
         
-            # 5) Vertikale Linie zum Publikationszeitpunkt
-            pub_date   = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
+            # 6) Vertikale Linie zum Publikationszeitpunkt
+            pub_date = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
             fig.add_shape(
                 type="line",
                 x0=pub_date, x1=pub_date,
