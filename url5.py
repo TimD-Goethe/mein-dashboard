@@ -5560,7 +5560,18 @@ with main:
             pub_date    = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
             line_group  = company if mode=="Company vs. Peer Group" else (focal_super if mode=="Company Sector vs Other Sectors" else focal_country)
             company_cum = cum_df.set_index("pub_date")[line_group].loc[pub_date]
-        
+
+            # 4a) Wenn wir im Company-vs-Peer-Group-Mode sind, alle Traces
+            #     in einheitliches Hellblau färben (kein Dunkelblau-Highlight mehr)
+            if mode == "Company vs. Peer Group":
+                fig.update_traces(
+                    selector=lambda tr: True,
+                    fillcolor="lightblue",
+                    line=dict(color="lightblue"),
+                    opacity=0.5
+                )
+
+            
             # 1) Linie als Shape
             fig.add_shape(
                 type="line",
