@@ -117,7 +117,7 @@ df['SASB industry'] = (
 )
 
 # Echte Timestamps
-df["publication_date"] = pd.to_datetime(df["publication_date"])
+df["publication date"] = pd.to_datetime(df["publication date"])
 
 # Zusammenfassen der SASB_industry Variable in die SASB Sectors
 
@@ -5484,7 +5484,7 @@ with main:
                 plot_df = benchmark_df.copy()
         
             # 2) Nur Datum (kein Time) und nach Group & Date zählen
-            plot_df["pub_date"] = plot_df["publication_date"].dt.date
+            plot_df["pub_date"] = plot_df["publication date"].dt.date
             counts = (
                 plot_df
                 .groupby(["pub_date", "_group"])["company"]
