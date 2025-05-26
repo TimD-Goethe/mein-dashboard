@@ -5523,7 +5523,8 @@ with main:
                     )
                 )
             else:
-                plot_df = benchmark_df.copy()  # für Sector- und Country-Modi ist _group schon gesetzt
+                # für Sector- und Country-Modi ist _group schon richtig gesetzt
+                plot_df = benchmark_df.copy()
         
             # 2) Publication Date extrahieren und pro Datum & Gruppe zählen
             plot_df["pub_date"] = plot_df["publication date"].dt.date
@@ -5543,53 +5544,72 @@ with main:
                 .reset_index()
             )
         
-            # 4) Area-Chart zeichnen
-            fig = px.area(
-                cum_df,
-                x="pub_date",
-                y=[c for c in cum_df.columns if c != "pub_date"],
-                labels={
-                    "pub_date": "Publication Date",
-                    "value": "Cumulative Reports",
-                    "variable": "Group"
-                }
-            )
-            fig.update_layout(xaxis=dict(tickformat="%b %Y"), legend_title_text="")
-        
-            # Veröffentlichungsdatum und kumulierten Wert holen
-            pub_date    = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
-            line_group  = company if mode=="Company vs. Peer Group" else (focal_super if mode=="Company Sector vs Other Sectors" else focal_country)
-            company_cum = cum_df.set_index("pub_date")[line_group].loc[pub_date]
-
-            # 4a) Wenn wir im Company-vs-Peer-Group-Mode sind, alle Traces
-            #     in einheitliches Hellblau färben (kein Dunkelblau-Highlight mehr)
+            # 4) Chart aufbauen – je nach Mode unterschiedlich
             if mode == "Company vs. Peer Group":
-                # nur den einen Trace für die Company anzeigen
+                # a) Nur ein einziger Trace für die Firma
                 fig = px.area(
                     cum_df,
                     x="pub_date",
                     y=company,
                     labels={"pub_date": "Publication Date", company: "Cumulative Reports"}
                 )
-                # Dunkelblaue Fläche, volle Opazität, Legende ausblenden
+                # b) Einheitlich dunkelblaue Fläche, keine Legendeneinträge
                 fig.update_traces(fillcolor="#1f77b4", line_color="#1f77b4", opacity=1)
                 fig.update_layout(showlegend=False)
-
-            
-            # 1) Linie als Shape
+        
+            else:
+                # a) Alle Gruppen als Area
+                groups = [c for c in cum_df.columns if c != "pub_date"]
+                fig = px.area(
+                    cum_df,
+                    x="pub_date",
+                    y=groups,
+                    labels={
+                        "pub_date": "Publication Date",
+                        "value": "Cumulative Reports",
+                        "variable": "Group"
+                    }
+                )
+                fig.update_layout(xaxis=dict(tickformat="%b %Y"), legend_title_text="")
+        
+                # b) Welche Gruppe hervorheben?
+                highlight = (
+                    company if mode == "Company vs. Peer Group" else
+                    focal_super if mode == "Company Sector vs Other Sectors" else
+                    focal_country
+                )
+        
+                # c) Hellblaue Fläche für alle außer highlight
+                fig.update_traces(
+                    selector=lambda tr: tr.name != highlight,
+                    fillcolor="lightblue",
+                    line=dict(width=0),
+                    opacity=0.5
+                )
+                # d) Dunkle Linie für highlight oben drauf
+                fig.add_trace(
+                    go.Scatter(
+                        x=cum_df["pub_date"],
+                        y=cum_df[highlight],
+                        mode="lines",
+                        line=dict(color="darkblue", width=3),
+                        name=highlight
+                    )
+                )
+        
+            # 5) Vertikale rote Linie zum Publikationsdatum der Firma
+            pub_date = df.loc[df["company"] == company, "publication date"].dt.date.iat[0]
             fig.add_shape(
                 type="line",
                 x0=pub_date, x1=pub_date,
                 y0=0,        y1=1,
-                xref="x",
-                yref="paper",
+                xref="x",    yref="paper",
                 line=dict(color="red", width=2, dash="dash")
             )
-        
-            # 2) Nur Firmenname als Annotation
+            # 6) Firmenname oberhalb der Linie
             fig.add_annotation(
                 x=pub_date, y=1.02,
-                xref="x",   yref="paper",
+                xref="x",    yref="paper",
                 text=company,
                 showarrow=False,
                 xanchor="left",
