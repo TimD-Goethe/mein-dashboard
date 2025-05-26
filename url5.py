@@ -5564,12 +5564,16 @@ with main:
             # 4a) Wenn wir im Company-vs-Peer-Group-Mode sind, alle Traces
             #     in einheitliches Hellblau färben (kein Dunkelblau-Highlight mehr)
             if mode == "Company vs. Peer Group":
-                fig.update_traces(
-                    selector=lambda tr: True,
-                    fillcolor="lightblue",
-                    line=dict(color="lightblue"),
-                    opacity=0.5
+                # nur den einen Trace für die Company anzeigen
+                fig = px.area(
+                    cum_df,
+                    x="pub_date",
+                    y=company,
+                    labels={"pub_date": "Publication Date", company: "Cumulative Reports"}
                 )
+                # Dunkelblaue Fläche, volle Opazität, Legende ausblenden
+                fig.update_traces(fillcolor="#1f77b4", line_color="#1f77b4", opacity=1)
+                fig.update_layout(showlegend=False)
 
             
             # 1) Linie als Shape
