@@ -102,7 +102,7 @@ st.markdown(
 #-------------------------------------------------------------------------------------
 # 2. Daten laden
 #--------------------------------------------------------------------------------------
-df = pd.read_csv("merged_550_from_450_and_update.csv")
+df = pd.read_csv("450_final_version.csv")
 
 # 1. Nachdem du df eingelesen hast:
 def fix_company_name(name: str) -> str:
