@@ -5526,12 +5526,20 @@ with main:
             # 1) _group definieren
             if mode == "Company vs. Peer Group":
                 plot_df = benchmark_df.assign(
-                    _group=np.where(
+                    _group = np.where(
                         benchmark_df["company"] == company,
                         company,
                         "Peers"
                     )
                 )
+        
+                # <<< Prüfen: existieren wirklich irgendwelche Peers (außer der Firma selbst)?
+                #     Wenn nicht, zeigen wir eine Warnung und springen hier raus.
+                num_peers = benchmark_df.loc[benchmark_df["company"] != company, "company"].nunique()
+                if num_peers == 0:
+                    st.warning("There are no data available for your country.")  # oder benutze st.error / st.info
+                    return  # Abbrechen – kein Chart mehr zeichnen
+        
             else:
                 # für Sector- und Country-Modi ist _group schon gesetzt
                 plot_df = benchmark_df.copy()
@@ -5631,7 +5639,7 @@ with main:
                 font=dict(color="red")
             )
         
-            st.plotly_chart(fig, use_container_width=True) 
+            st.plotly_chart(fig, use_container_width=True)
         
         else:
             st.subheader("Peer Company List")
