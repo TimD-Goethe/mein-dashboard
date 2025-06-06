@@ -5537,7 +5537,7 @@ with main:
                 #     Wenn nicht, zeigen wir eine Warnung und springen hier raus.
                 num_peers = benchmark_df.loc[benchmark_df["company"] != company, "company"].nunique()
                 if num_peers == 0:
-                    st.warning("There are no data available for your country.")  # oder benutze st.error / st.info
+                    st.warning("There are no data available for your company.")  # oder benutze st.error / st.info
                     st.stop()
         
             else:
