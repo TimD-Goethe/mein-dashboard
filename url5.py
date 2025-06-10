@@ -6,6 +6,11 @@ import plotly.graph_objects as go
 import textwrap
 from urllib.parse import unquote, quote
 
+# ——— Secrets laden ———
+SUPABASE_URL = st.secrets["PUBLIC_SUPABASE_URL"]
+SUPABASE_ANON_KEY = st.secrets["PUBLIC_SUPABASE_ANON_KEY"]
+
+
 #-------------------------------------------------------------------------
 # 1. Page config
 #-------------------------------------------------------------------------
