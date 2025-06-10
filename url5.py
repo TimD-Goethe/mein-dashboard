@@ -5,6 +5,41 @@ import plotly.express as px
 import plotly.graph_objects as go
 import textwrap
 from urllib.parse import unquote, quote
+from supabase import create_client, Client
+import os
+from datetime import datetime
+
+# Supabase configuration
+@st.cache_resource
+def init_supabase():
+    """Initialize Supabase client with caching"""
+    url = st.secrets.get("PUBLIC_SUPABASE_URL", os.getenv("PUBLIC_SUPABASE_URL"))
+    key = st.secrets.get("PUBLIC_SUPABASE_ANON_KEY", os.getenv("PUBLIC_SUPABASE_ANON_KEY"))
+    
+    if not url or not key:
+        st.warning("Supabase credentials not found. Logging will be disabled.")
+        return None
+    
+    return create_client(url, key)
+
+def log_company_selection(supabase_client: Client, company_name: str):
+    """Log company selection to Supabase"""
+    if not supabase_client:
+        return
+    
+    try:
+        data = {
+            "value": company_name,
+            "key": "company_selected"
+        }
+        
+        result = supabase_client.table('log_dashboard').insert(data).execute()
+        # st.success(f"Logged selection: {company_name}")  # Optional: remove this line if you don't want to show success message
+    except Exception as e:
+        st.error(f"Failed to log selection: {str(e)}")
+
+# Initialize Supabase client
+supabase = init_supabase()
 
 # ——— Secrets laden ———
 SUPABASE_URL = st.secrets["PUBLIC_SUPABASE_URL"]
@@ -338,7 +373,9 @@ with left:
     # Update URL when company changes
     if company != default_company:
         st.query_params["company"] = company
-        
+        # Log the company selection to Supabase
+        log_company_selection(supabase, company)
+    
     selected = company
 
     # 3) Wahl des Benchmark-Modes
@@ -676,7 +713,7 @@ with main:
                     country_avg, x="Pages", nbins=20, opacity=0.8, labels={"Pages": "Pages"}
                 )
                 fig.update_traces(marker_color="#1f77b4")
-                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black", line_width=2,
+                fig.add_vline(x=overall_avg, line_dash="dash", line_color="black",
                              annotation_text="<b>All Countries Avg</b>", annotation_position="top right")
                 fig.add_vline(x=focal_avg,   line_dash="dash", line_color="red",   line_width=2,
                              annotation_text=f"<b>{focal_country} Avg</b>", annotation_position="bottom left")
@@ -1408,7 +1445,11 @@ with main:
                     orientation="h",
                     color="highlight_label",
                     color_discrete_map={company: "red", "Peers": "#1f77b4"},
-                    labels={"words": "Words", "company_short": "Company", "highlight_label": ""},
+                    labels={
+                        "Sustainability_Page_Count": "Pages",
+                        "company_short": "Company",
+                        "highlight_label": ""
+                    },
                     category_orders={"company_short": y_order_short},
                 )
             
@@ -1431,18 +1472,19 @@ with main:
                 st.plotly_chart(fig2, use_container_width=True)
             
                 # — Vertikaler Vergleich Peer Average vs. Focal Company —
+                avg_pages = mean_pages
                 comp_df = pd.DataFrame({
                     "Group": ["Peer Average", company],
-                    "Words": [mean_words, focal_words]
+                    "Pages": [avg_pages, focal_pages]
                 })
                 fig_avg = px.bar(
                     comp_df,
                     x="Group",
-                    y="Words",
-                    text="Words",
+                    y="Pages",
+                    text="Pages",
                     color="Group",
                     color_discrete_map={company: "red", "Peer Average": "#1f77b4"},
-                    labels={"Words": "Words", "Group": ""}
+                    labels={"Pages": "Pages", "Group": ""}
                 )
                 # rote Firma links anzeigen
                 fig_avg.update_layout(
@@ -4272,7 +4314,7 @@ with main:
                 def wrap_label(s, width=20):
                     return "<br>".join(textwrap.wrap(s, width=width))
             
-                # 3) „Wrapped“ Sektor‐Bezeichnung anlegen
+                # 3) „Wrapped" Sektor‐Bezeichnung anlegen
                 wrapped_focal = wrap_label(focal_super)
                 sector_avg["sector_wrapped"] = sector_avg["supersector"].apply(wrap_label)
             
@@ -5394,7 +5436,7 @@ with main:
                 focal_avg = sector_avg.loc[sector_avg["supersector"] == focal_super, "FogAvg"].iat[0]
                 others_avg = sector_avg.loc[sector_avg["supersector"] != focal_super, "FogAvg"].mean()
                 comp_df = pd.DataFrame({
-                    "Group": [focal_super, "Other sectors avg"],
+                    "Group": [focal_super, "Other sectors average"],
                     "FogAvg": [focal_avg, others_avg]
                 })
                 fig_cmp = px.bar(
@@ -5403,11 +5445,11 @@ with main:
                     y="FogAvg",
                     text="FogAvg",
                     color="Group",
-                    color_discrete_map={focal_super: "red", "Other sectors avg": "#1f77b4"},
+                    color_discrete_map={focal_super: "red", "Other sectors average": "#1f77b4"},
                     labels={"FogAvg": "FOG Average", "Group": ""}
                 )
                 fig_cmp.update_layout(
-                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors avg"]},
+                    xaxis={"categoryorder": "array", "categoryarray": [focal_super, "Other sectors average"]},
                     showlegend=False
                 )
                 fig_cmp.update_traces(texttemplate="%{text:.2f}", textposition="outside", width=0.5)
