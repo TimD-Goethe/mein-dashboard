@@ -28,15 +28,94 @@ def log_company_selection(supabase_client: Client, company_name: str):
         return
     
     try:
+        user_param = st.query_params.get("user", None)
+
         data = {
             "value": company_name,
-            "key": "company_selected"
+            "key": "company_selected",
+            "user_id": user_param
         }
         
         result = supabase_client.table('log_dashboard').insert(data).execute()
         # st.success(f"Logged selection: {company_name}")  # Optional: remove this line if you don't want to show success message
     except Exception as e:
         st.error(f"Failed to log selection: {str(e)}")
+
+def log_view_selection(supabase_client: Client, view_name: str, company_name: str):
+    """Log view selection to Supabase"""
+    if not supabase_client:
+        return
+    
+    try:
+        user_param = st.query_params.get("user", None)
+
+        data = {
+            "value": company_name,
+            "key": "view_selected",
+            "user_id": user_param,
+            "event": view_name
+        }
+        
+        result = supabase_client.table('log_dashboard').insert(data).execute()
+    except Exception as e:
+        st.error(f"Failed to log view selection: {str(e)}")
+
+def log_peer_group_selection(supabase_client: Client, peer_group_name: str, company_name: str):
+    """Log peer group selection to Supabase"""
+    if not supabase_client:
+        return
+    
+    try:
+        user_param = st.query_params.get("user", None)
+
+        data = {
+            "value": company_name,
+            "key": "peer_group_selected",
+            "user_id": user_param,
+            "event": peer_group_name
+        }
+        
+        result = supabase_client.table('log_dashboard').insert(data).execute()
+    except Exception as e:
+        st.error(f"Failed to log peer group selection: {str(e)}")
+
+def log_chart_type_selection(supabase_client: Client, chart_type_name: str, company_name: str):
+    """Log chart type selection to Supabase"""
+    if not supabase_client:
+        return
+    
+    try:
+        user_param = st.query_params.get("user", None)
+
+        data = {
+            "value": company_name,
+            "key": "chart_type_selected",
+            "user_id": user_param,
+            "event": chart_type_name
+        }
+        
+        result = supabase_client.table('log_dashboard').insert(data).execute()
+    except Exception as e:
+        st.error(f"Failed to log chart type selection: {str(e)}")
+
+def log_benchmark_mode_selection(supabase_client: Client, mode_name: str, company_name: str):
+    """Log benchmarking mode selection to Supabase"""
+    if not supabase_client:
+        return
+    
+    try:
+        user_param = st.query_params.get("user", None)
+
+        data = {
+            "value": company_name,
+            "key": "benchmark_mode_selected",
+            "user_id": user_param,
+            "event": mode_name
+        }
+        
+        result = supabase_client.table('log_dashboard').insert(data).execute()
+    except Exception as e:
+        st.error(f"Failed to log benchmark mode selection: {str(e)}")
 
 # Initialize Supabase client
 supabase = init_supabase()
@@ -390,6 +469,14 @@ with left:
         key="benchmark_mode"
     )
     
+    # Track benchmark mode selection changes
+    if "last_selected_benchmark_mode" not in st.session_state:
+        st.session_state.last_selected_benchmark_mode = None
+    
+    if mode != st.session_state.last_selected_benchmark_mode:
+        log_benchmark_mode_selection(supabase, mode, company)
+        st.session_state.last_selected_benchmark_mode = mode
+    
     # 4) Je nach Mode eine zweite Auswahl einblenden
     if mode == "Company vs. Peer Group":
         st.markdown("**Select your peer group:**")
@@ -405,7 +492,15 @@ with left:
             ],
             key="peer_group"
         )
-    
+        
+        # Track peer group selection changes
+        if "last_selected_peer_group" not in st.session_state:
+            st.session_state.last_selected_peer_group = None
+        
+        if peer_group != st.session_state.last_selected_peer_group:
+            log_peer_group_selection(supabase, peer_group, company)
+            st.session_state.last_selected_peer_group = peer_group
+        
         if peer_group == "Choose specific peers":
             peer_selection = st.multiselect(
                 "Choose specific peer companies:",
@@ -449,6 +544,14 @@ with right:
         view_options,
         key="view_selector"
     )
+    
+    # Track view selection changes
+    if "last_selected_view" not in st.session_state:
+        st.session_state.last_selected_view = None
+    
+    if view != st.session_state.last_selected_view:
+        log_view_selection(supabase, view, company)
+        st.session_state.last_selected_view = view
 
     help_texts = {
         "Number of Pages": "The total number of pages of the sustainability report.",
@@ -491,6 +594,14 @@ with right:
             ["Bar Chart", "Histogram"],
             key="plot_type"
         )
+    
+    # Track chart type selection changes
+    if "last_selected_chart_type" not in st.session_state:
+        st.session_state.last_selected_chart_type = None
+    
+    if plot_type != st.session_state.last_selected_chart_type:
+        log_chart_type_selection(supabase, plot_type, company)
+        st.session_state.last_selected_chart_type = plot_type
 
 # --------------------------------------------------------------------
 # 6. Build `benchmark_df`
@@ -1435,7 +1546,7 @@ with main:
             
                 # 2) Kurz-Namen für Y-Achse (max. 15 Zeichen)
                 peers_df["company_short"] = peers_df["company"].str.slice(0, 15)
-                y_order_short             = peers_df["company_short"].tolist()[::-1]
+                y_order_short = peers_df["company_short"].tolist()[::-1]
             
                 # 3) Horizontales Balkendiagramm erzeugen
                 fig2 = px.bar(
@@ -5421,6 +5532,7 @@ with main:
                     x=avg_all,
                     line_dash="dash",
                     line_color="black",
+                    line_width=2,
                     annotation_text="<b>All Sectors Avg</b>",
                     annotation_position="bottom right",
                     annotation_font_color="black",
@@ -5487,7 +5599,7 @@ with main:
                     line_color="red",
                     opacity=0.8,
                     annotation_text=f"<b>{company}</b>",
-                    annotation_position="bottom left",
+                    annotation_position="bottom right",
                     annotation_font_color="red",
                     annotation_font_size=16
                 )
